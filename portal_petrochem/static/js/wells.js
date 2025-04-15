@@ -3218,3 +3218,16 @@ document.getElementById('eia_ports_petroleum').addEventListener('change', functi
         map.removeLayer(points_eia_ports_petroleum);
     }
 });
+
+app.listen(3000, () => {
+    const os = require('os');
+    const interfaces = os.networkInterfaces();
+  
+    Object.values(interfaces).forEach(ifaceGroup => {
+      ifaceGroup.forEach(iface => {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          console.log('Server running at IP:', iface.address);
+        }
+      });
+    });
+  });
