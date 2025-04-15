@@ -1,0 +1,127 @@
+
+/* Left side panel*/
+.left {
+width: 300px;
+padding: 20px;
+height: 100%;
+display: grid;
+grid-template-rows: 16% 16% 16% 16% 16% 20%;
+border-right: 1px solid darkgray; /* Add border on the right side */ 
+background-color: #c9c9c9;
+}
+
+.filterContainer {
+    display: grid;
+    grid-template-rows: 25% 50% 25%;
+}
+#ctyFilterContainer {
+    display: grid;
+    grid-template-rows: 75% 25%;
+}
+#statusContainer {
+    display: grid;
+    grid-template-rows: 75% 25%;
+}
+#typeContainer {
+    display: grid;
+    grid-template-rows: 75% 25%;
+}
+.selectionContainer {
+    background-color: rgb(216, 216, 216);
+    color:rgb(104, 104, 104);
+    /* display:flex; */
+    max-height: 400px;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom:2px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-rows: max-content;
+}
+.button-container {
+    display: none;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    justify-content: left;
+    color: black;
+    position: relative;
+    background-color: white;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px; 
+    overflow: auto;
+    max-height: 400px;
+    min-height: 220px;
+
+}
+.filterbutton {
+    width: 100%;
+    text-rendering: auto;
+    color: black;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none; 
+    text-indent: 30px;
+    text-shadow: none; 
+    display: grid;
+    text-align: left;
+    align-items: flex-start; 
+    cursor: default;
+    box-sizing: border-box; 
+    background-color: white;
+    margin: 0em;
+    padding-block: 2px; 
+    padding-inline: 2px; 
+    border-width: 2px; 
+    border-style: none;
+    border-color: buttonborder; 
+    border-image: initial; 
+    /* width: 200px;  */
+}
+.filterbutton:hover {
+    background-color: rgb(179, 179, 179);
+}
+.highlightbutton {
+    width: 100%;
+    text-rendering: auto;
+    color: black;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none; 
+    text-indent: 30px;
+    text-shadow: none; 
+    display: grid;
+    text-align: left;
+    align-items: flex-start; 
+    cursor: default;
+    box-sizing: border-box; 
+    background-color: #b2ddf4;
+    margin: 0em;
+    padding-block: 2px; 
+    padding-inline: 2px; 
+    border-width: 2px; 
+    border-style: none;
+    border-color: buttonborder; 
+    border-image: initial; 
+    /* width: 200px;  */
+}
+.highlightbutton:hover {
+    background-color: rgb(255, 0, 0);
+}
+.dropdownbutton {
+    background-color: #0287d4;
+    border-radius: 5px;
+}
+.selbutton {
+    background-color: #ffffff;
+    border-radius: 3px;
+    padding: 5px;
+    margin: 2px;
+    color: #025687;
+}
+.selbutton:hover {
+    background-color: red;
+    color: white;
+}

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-v3ygvb7pqx+m36w3@=p#mevj37_9^7vq+evp4p=@1xdbz1jh8)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -75,13 +75,26 @@ WSGI_APPLICATION = 'portal_petrochem.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'fractracker',
+        'USER': 'test_og',
+        'PASSWORD': 'ecy&0#{gl?~b&2Zx',
+        'HOST': '34.162.137.6',  # Public IP of your Google Cloud PostgreSQL instance
+        'PORT': '5432',  # Default PostgreSQL port
+        'OPTIONS': {
+            'options': '-c search_path=public,wells'
+        }
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -124,6 +137,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'petrochem/static'),
 ]
 
+
+MEDIA_URL = 'media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 

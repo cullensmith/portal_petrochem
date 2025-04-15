@@ -1,0 +1,189 @@
+
+/* Left side panel*/
+.left {
+    width: 300px;
+    padding: 20px;
+    height: 100%;
+    display: grid;
+    grid-template-rows: 16% 16% 16% 16% 16% 20%;
+    /* border-right: 1px solid darkgray; Add border on the right side  */
+    background-color: #c9c9c9;
+    }
+
+/* Style the content inside the sidebar */
+#sidebar-content {
+    margin-top: -20px;
+    padding: 20px;
+}
+
+.filter {
+    margin-bottom: 10px;
+}
+
+.filter h4 {
+    cursor: pointer;
+    margin-bottom: 5px;
+    color: #fff;
+    position: relative;
+
+}
+
+.filter h4::after {
+    content: var(--after-content, "");
+    float: right;
+    position: absolute;
+    right: 0;
+}
+
+.filter.show h4::after {
+    content: var(--after-content, "-");
+}
+
+.filter.hide h4::after {
+    content: var(--after-content, "+");
+}
+
+.filter-content {
+    display: none;
+}
+
+.filter-content.show {
+    display: block;
+    font-size: 12px;
+    background-color: #3b3c38;
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+
+/* Style smaller checkboxes */
+.filter input[type="checkbox"] {
+    transform: scale(0.75);
+    margin-right: 5px;
+}
+
+/* Button style */
+.filter-content button {
+    margin-top:5px;
+    width: 49%;
+    font-size: 12px;
+}
+
+
+/* ========================*/
+/* ========================*/
+/*
+
+.filterContainer {
+    display: grid;
+    grid-template-rows: 25% 50% 25%;
+}
+#ctyFilterContainer {
+    display: grid;
+    grid-template-rows: 75% 25%;
+}
+#statusContainer {
+    display: grid;
+    grid-template-rows: 75% 25%;
+}
+#typeContainer {
+    display: grid;
+    grid-template-rows: 75% 25%;
+}
+.selectionContainer {
+    background-color: rgb(216, 216, 216);
+    color:rgb(104, 104, 104);
+    max-height: 400px;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom:2px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-rows: max-content;
+}
+.button-container {
+    display: none;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    justify-content: left;
+    color: black;
+    position: relative;
+    background-color: white;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px; 
+    overflow: auto;
+    max-height: 400px;
+    min-height: 220px;
+
+}
+.filterbutton {
+    width: 100%;
+    text-rendering: auto;
+    color: black;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none; 
+    text-indent: 30px;
+    text-shadow: none; 
+    display: grid;
+    text-align: left;
+    align-items: flex-start; 
+    cursor: default;
+    box-sizing: border-box; 
+    background-color: white;
+    margin: 0em;
+    padding-block: 2px; 
+    padding-inline: 2px; 
+    border-width: 2px; 
+    border-style: none;
+    border-color: buttonborder; 
+    border-image: initial; 
+}
+.filterbutton:hover {
+    background-color: rgb(179, 179, 179);
+}
+.highlightbutton {
+    width: 100%;
+    text-rendering: auto;
+    color: black;
+    letter-spacing: normal;
+    word-spacing: normal;
+    line-height: normal;
+    text-transform: none; 
+    text-indent: 30px;
+    text-shadow: none; 
+    display: grid;
+    text-align: left;
+    align-items: flex-start; 
+    cursor: default;
+    box-sizing: border-box; 
+    background-color: #b2ddf4;
+    margin: 0em;
+    padding-block: 2px; 
+    padding-inline: 2px; 
+    border-width: 2px; 
+    border-style: none;
+    border-color: buttonborder; 
+    border-image: initial; 
+}
+.highlightbutton:hover {
+    background-color: rgb(255, 0, 0);
+}
+.dropdownbutton {
+    background-color: #0287d4;
+    border-radius: 5px;
+}
+.selbutton {
+    background-color: #ffffff;
+    border-radius: 3px;
+    padding: 5px;
+    margin: 2px;
+    color: #025687;
+}
+.selbutton:hover {
+    background-color: red;
+    color: white;
+}
+*/

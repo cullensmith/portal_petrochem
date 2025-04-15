@@ -4,15 +4,899 @@
     <meta charset=utf-8 />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FracTracker Petrochem Portal</title>
+    <!-- Include Project Specific CSS -->
+
+    {% comment %} <link rel = "stylesheet" href = "/static/css/filtering.css"/> {% endcomment %}
+    
+    <link rel = "stylesheet" href = "/static/css/map.css"/>
+    <link rel = "stylesheet" href = "/static/css/table.css"/>
+
+    <!-- Include Leaflet CSS and JavaScript -->
+    {% comment %} <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /> {% endcomment %}
+    <link rel = "stylesheet" href = "/static/css/leaflet.css"/>
+
+    <link rel="stylesheet" href="https://cdn.rawgit.com/mapbox/supercluster/v4.0.1/demo/cluster.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/supercluster@4.0.1/dist/supercluster.js"></script>
+    {% comment %} <script src="https://code.jquery.com/jquery-1.12.4.js"></script> {% endcomment %}
+    <!-- for the underscore variable/js function-->
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/0.10.0/lodash.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+
+    {% comment %} <link rel = "stylesheet" href = "/static/css/leaflet-draw.css"/> {% endcomment %}
+    {% comment %} <script src="/static/js/leaflet-draw.js"/></script> {% endcomment %}
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- geojson vt  -->
+    <script src="https://unpkg.com/geojson-vt@3.2.0/geojson-vt.js"></script>
+    <script src="https://unpkg.com/leaflet-geojson-vt@1.1.0/src/leaflet-geojson-vt.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0"></script>
+
+
     <style>
-        .central {
+        /*
+        colors:
+         dark blue - 00253B
+         fractracker blue - 025687
+         light blue - 0287D4
+         green - A3CF5F 
+         light gray - FDFFFC 
+
+        */
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            font-family: Arial;
+        }
+
+        /* Header styling */
+        header {
+            height: 100px;
+            width: 100%;
+            background-color: white; /*#0287D4;*/
+            color: #025687;
+            display: grid;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        /* Main content styling */
+        .main-content {
+            display: flex;
+            height: calc(100vh - 100px); /* Subtract header height */
+        }
+        /* Right side */
+        .right {
+          /* flex-grow: 1; */
+          /* height: 100%; */
+          width: 100%;
+          overflow-x: auto;
 
         }
+        #container {
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+        }
+        #dividerContainer {
+            cursor: ns-resize;
+            background-color: #00253B;;
+            height: 40px;
+            width: 100%;
+            user-select: none;
+            border-top-right-radius:12px;
+            border-top-left-radius:12px;
+          }
+        #loading-popupid {
+            display: none
+        }
+
+
+                
+        /* Left side panel*/
+        .left { /* Style the sidebar */
+                width: 275px;
+                min-width: 190px;
+                {% comment %} height: 81vh; {% endcomment %}
+                float: left; /* Float sidebar to the left */
+                font-family: Arial;
+                color: #00253B;
+                background-color: #027bcf;
+                overflow-y: auto;
+                overflow-x: hidden;
+                padding: 10px;
+                border: solid;
+                border-width: 6px;
+                border-color: #027bcf;
+                border-radius:20px;
+                margin:6px;
+        }
+
+
+
+
+        /* Style the content inside the sidebar */
+        #sidebar-content {
+            {% comment %} margin-top: -20px; {% endcomment %}
+            {% comment %} padding: 10px; {% endcomment %}
+        }
+
+        .filter {
+            {% comment %} margin-bottom: 10px; {% endcomment %}
+            {% comment %} padding: 8px; {% endcomment %}
+            font-family: acumin-pro-extra-condensed,sans-serif;
+            margin-left: -10px;
+            margin-right: -10px;
+            background-color:#027bcf;
+        }
+        .filter h4:hover {
+            background-color: #0e6bc7;
+        }
+        .filter h4 {
+            cursor: pointer;
+            {% comment %} margin-bottom: 5px; {% endcomment %}
+            color: #00253B;
+            position: relative;
+            padding: 12px;
+
+        }
+
+        .filter h4::after {
+            content: var(--after-content, "");
+            float: right;
+            position: absolute;
+            right: 12px;
+        }
+
+        .filter.show h4::after {
+            content: var(--after-content, "\25AC");
+        }
+
+        .filter.hide h4::after {
+            content: var(--after-content, "\25BC");
+        }
+
+        .filter.show {
+            {% comment %} border: solid {% endcomment %}
+        }
+
+        .filter.hide {
+            border: none
+        }
+        .filter-content {
+            display: none;
+            padding: 10px;
+            color: #00253B;
+            text-align: center;
+        }
+        .fh4.show {
+            background-color: #027bcf;
+        }
+        .fh4.hide {
+            background-color: #027bcf;
+        }
+        .filter-content.show {
+            display: block;
+            font-size: 12px;
+            background-color: #2f9cdb;
+            overflow-y: auto;
+            max-height: 800px;
+
+        }
+
+
+        /* Style smaller checkboxes */
+        .filter input[type="checkbox"] {
+            transform: scale(0.75);
+            margin-right: 5px;
+        }
+
+        /* Button style */
+        .filter-content button {
+            margin-top:5px;
+            {% comment %} width: 49%; {% endcomment %}
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .selectionContainer {
+            background-color: rgb(216, 216, 216);
+            color:rgb(104, 104, 104);
+            max-height: 33vh;
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom:2px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-rows: max-content;
+        }
+        .button-container {
+            display: none;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            justify-content: left;
+            color: #00253B;
+            position: relative;
+            background-color: white;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px; 
+            overflow: auto;
+            max-height: 24vh;
+            min-height: auto;
+        
+        }
+        .filterbutton {
+            width: 100%;
+            text-rendering: auto;
+            color: black;
+            letter-spacing: normal;
+            word-spacing: normal;
+            line-height: normal;
+            text-transform: none; 
+            {% comment %} text-indent: 10px; {% endcomment %}
+            text-shadow: none; 
+            display: grid;
+            text-align: center;
+            align-items: flex-start; 
+            cursor: default;
+            box-sizing: border-box; 
+            background-color: white;
+            margin: 0em;
+            padding-block: 2px; 
+            padding-inline: 2px; 
+            border-width: 2px; 
+            border-style: none;
+            border-color: buttonborder; 
+            border-image: initial; 
+        }
+        .filterbutton:hover {
+            background-color: rgb(179, 179, 179);
+            cursor: pointer;
+        }
+        .highlightbutton {
+            width: 100%;
+            text-rendering: auto;
+            color: black;
+            letter-spacing: normal;
+            word-spacing: normal;
+            line-height: normal;
+            text-transform: none; 
+            {% comment %} text-indent: 30px; {% endcomment %}
+            text-shadow: none; 
+            display: grid;
+            text-align: center;
+            align-items: flex-start; 
+            cursor: default;
+            box-sizing: border-box; 
+            background-color: #b2ddf4;
+            margin: 0em;
+            padding-block: 2px; 
+            padding-inline: 2px; 
+            border-width: 2px; 
+            border-style: none;
+            border-color: buttonborder; 
+            border-image: initial; 
+        }
+        .highlightbutton:hover {
+            background-color: rgb(255, 0, 0);
+            color: white;
+        }
+        .dropdownbutton {
+            background-color: #00253B;
+            color: white;
+            {% comment %} border-radius: 5px; {% endcomment %}
+            width: 100%;
+            border-color: #00253B;
+            padding: 2px;
+        }
+        .dropdownbutton.notyet:hover {
+            cursor: not-allowed;
+        }
+        .dropdownapplybutton {
+            background-color: #00253B;
+            color: white;
+            {% comment %} border-radius: 5px; {% endcomment %}
+            width: 100%;
+            {% comment %} border-color: #00253B; {% endcomment %}
+            {% comment %} padding: 2px; {% endcomment %}
+            border: none;
+        }
+        .dropdownapplybutton:hover {
+            cursor: pointer;
+        }
+        .selbutton {
+            background-color: #ffffff;
+            border-radius: 3px;
+            padding: 5px;
+            margin: 2px;
+            color: #025687;
+        }
+        .selbutton:hover {
+            {% comment %} background-color: red; {% endcomment %}
+            {% comment %} color: white; {% endcomment %}
+            cursor: pointer;
+        }
+        .divbtns {
+            background-color:white;
+            color:#00253B;
+            border:none;
+            padding: 4px;
+            border-radius: 6px;
+        }
+        .divbtns:hover {
+            cursor: pointer;
+        }
+
+        .pagebtn {
+            background-color:white;
+            color:#00253B;
+            border:none;
+            padding: 4px;
+            margin-left:2px;
+            margin-right: 2px;
+            border-radius: 6px;
+        }
+        .pagebtn:hover {
+            cursor: pointer;
+            background-color: #d4dadc;
+        }
+
+        .alert {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+        }
+        .alert.hide {
+            display: none,
+        }
+        .alert.show {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+        }
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .closebtn:hover {
+            color: black;
+        }
+
+        .arrow {
+            border: solid black;
+            border-width: 0 3px 3px 0;
+            display: inline-block;
+            padding: 3px;
+        }
+        .up {
+            transform: rotate(-135deg);
+            -webkit-transform: rotate(-135deg);
+        }
+        
+        .down {
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+        }
+        #dlbutton {
+            display: none;
+            width: 100%;
+        } 
+        .dropdownbutton::after {
+            content: '   \142F'; /* Down arrow Unicode */
+            font-size: 7px; /* Space between text and the arrow */
+        }
+        .refine {
+            display:block
+        }
+        .refine.hidden {
+            display:none
+        }
+
+        .image-container {
+            width: 300px;
+            height: 200px;
+            border: 2px solid #000;
+            text-align: center;
+            margin: 20px;
+        }
+        .tabbtn {
+        color:white;
+        background-color:#2f9cdb;
+        margin-top:-14px;
+        border:none;
+        font-weight: bold;
+        }
+        .tabbtn:hover {
+        background-color:#006199;
+        cursor: pointer;
+        }
+        .tabbtn.sel {
+        background-color: #027bcf;
+        cursor:arrow;
+        }
+        .tabbtn.sel:hover {
+        cursor: default;
+        }
+        .tabpanel.show {
+        display:block;
+        }
+        .tabpanel.hide {
+        display:none
+        }
+        .catgrid {
+            margin-top:6vh;
+            min-height:40vh;
+            display:grid;
+            grid-template-columns:50% 50%;
+            grid-template-rows:50% 50%
+        }
+        .catgrid.show {
+        display:block;
+        }
+        .catgrid.hide {
+        display:none
+        }
+        /* HTML: <div class="loader"></div> */
+        .loader {
+        width: 50px;
+        aspect-ratio: 1;
+        display: grid;
+        border-radius: 50%;
+        background:
+            linear-gradient(0deg ,rgb(0 0 0/50%) 30%,#0000 0 70%,rgb(0 0 0/100%) 0) 50%/8% 100%,
+            linear-gradient(90deg,rgb(0 0 0/25%) 30%,#0000 0 70%,rgb(0 0 0/75% ) 0) 50%/100% 8%;
+        background-repeat: no-repeat;
+        animation: l23 1s infinite steps(12);
+        }
+        .loader::before,
+        .loader::after {
+        content: "";
+        grid-area: 1/1;
+        border-radius: 50%;
+        background: inherit;
+        opacity: 0.915;
+        transform: rotate(30deg);
+        }
+        .loader::after {
+        opacity: 0.83;
+        transform: rotate(60deg);
+        }
+        @keyframes l23 {
+        100% {transform: rotate(1turn)}
+        }
+        .loadingobjects {
+            display:grid;
+            justify-content:center
+        }
+        .ovdrop{
+            background-color:white;
+            color:black
+        }
+        .ovdrop:hover {
+            color:red
+        }
+
+        .dim {
+            color:lightgray
+        }
+        .dim:hover {
+            cursor: not-allowed;
+        }
+        /* Apply progress cursor when loading */
+        .loadinglayer {
+          cursor: not-allowed;
+        }
+
+        .bigbox {
+            height:98%;
+            width:98%;
+            padding: 5px;
+            border: 2px solid #00253b;
+            
+        }
+
+        {% comment %} .triangle {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid green;
+          }
+        .triangle-marker {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid blue;
+        }
+        
+        /* Hover effect — scale up to 2x (40px base size) */
+        .custom-marker-icon:hover .triangle-marker {
+            transform: scale(3);
+        } {% endcomment %}
+        .triangle-marker {
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-bottom: 8px solid red;
+            transition: transform 0.2s ease;
+          }
+        .square {
+            width: 8px;
+            height: 8px;
+            background: blue;
+          }
+        .diamond-marker {
+            width: 8px;
+            height: 8px;
+            background: purple;
+            transform: rotate(45deg);
+            transition: transform 0.2s ease;
+        }
+        .pentagon-marker {
+            width: 8px;
+            height: 8px;
+            background: crimson;
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+            transition: transform 0.2s ease;
+          }
+          .hexagon-marker {
+            width: 8px;
+            height: 8px;
+            background: teal;
+            clip-path: polygon(
+              25% 0%, 75% 0%,
+              100% 50%, 75% 100%,
+              25% 100%, 0% 50%
+            );
+            transition: transform 0.2s ease;
+          }
+        {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
     </style>
 </head>
 <body>
-    <div class="central" style="justify-items:center">
-        <h2>The portal is currently under maintenance.</h2>
-        <h4>Please check out our other resources at:<a href="https://www.fractracker.org"></h4>
-        <img class="header-image" style="height: 60px;" src="/static/images/fta.png">
+
+    <header>
+        <div>
+            <h1 style="text-decoration: underline;text-decoration-color:#A3CF5F">Petrochemical Data Inventory</h1>
+        </div>
+        <div style="justify-self:center">
+            <h4 style="color:#0287D4;font-weight:normal">Refreshed April 1, 2025<h4>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <div class="left">
+            <div id="tabbtns" style="display:grid;grid-template-columns: 50% 50%;height: 5vh">
+                <button class="tabbtn sel" id="filterbtn" style="border-top-left-radius:20px;margin-left:-12px">Impacted<br>Demographics</button>
+                <button class="tabbtn" id="resultsbtn" style="border-top-right-radius:20px;margin-right:-12px">FILTER</button>
+            </div>
+            <div class="catgrid tabpanel" id="filterpanel" >
+                <div id="pipelines">
+                    <button class="bigbox">
+                        Side panel is temporarily disabled
+                    </button>
+                </div>
+                <div id="compressors">
+                    <button class="bigbox">
+                        Filter as well
+                    </button>
+                </div>
+                <div id="transport">
+                    <button class="bigbox">
+                        {% comment %} Transport {% endcomment %}
+                    </button>
+                </div>
+                <div id="plants">
+                    <button class="bigbox">
+                        {% comment %} Plants {% endcomment %}
+                    </button>
+                </div>
+            </div>
+            <div class="tabpanel " id="filterpanel"  style="display:none">
+                <!-- filtering tools here -->
+                {% comment %} <div class="filter"> 
+                    <h4 class="fh4 show" style="" id="statesh4" onclick="toggleFilter('states')">STATE</h4>
+                    <div class="filter-content states-content show" id="filterState">
+                        <label for="stateinputbox" style="display:block;padding-bottom: 5px;">Choose up to 3:</label>
+                        <div class="selectionContainer" style="display:flex;justify-content:center" id="statePicks">**REQUIRED**</div>
+                        <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States<br></button>
+                        <div class="button-container" id="state-container"></div>
+                    </div>
+                </div> {% endcomment %}
+                {% comment %} <div class="filter toggle-counties hide" style="display:none">
+                    <h4 class="fh4" id="countiesh4" onclick="toggleFilter('counties')">COUNTY</h4>
+                    <div class="filter-content counties-content hide" id="ctyFilterContainer">
+                        <div class="selectionContainer" id="countyPicks" style="max-height:14vh">You can limit your results to those within a specific county by clicking the corresponding button below.</div>
+                        <button class="dropdownbutton notyet" id="countybutton" onclick="openlist('county')">Counties by State<br></button>
+                        <div class="button-container" id="county-container"></div>
+                    </div>
+                </div> {% endcomment %}
+                <div class="filter toggle-wellstatus hide" style="display:none">
+                    <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
+                    <div class="filter-content wellstatus-content" id="statusContainer">
+                        <div class="selectionContainer" id="statusPicks" style="max-height:14vh">Status varies from state to state, take a look at the reference below.</div>
+                        <button class="dropdownbutton notyet" id="statusbutton" onclick="openlist('wellstatus')">Well Status<br></button>
+                        <div class="button-container" id="status-container"></div>
+                    </div>
+                </div>
+                <div class="filter toggle-welltype hide" style="display:none">
+                    <h4 class="fh4" id="welltypeh4" onclick="toggleFilter('welltype')">WELL TYPE</h4>
+                    <div class="filter-content welltype-content" id="typeContainer">
+                        <div class="selectionContainer" id="typePicks" style="max-height:14vh">Type varies from state to state, take a look at the reference below.</div>
+                        <button class="dropdownbutton notyet" id="typebutton" onclick="openlist('welltype')">Types Available<br></button>
+                        <div class="button-container" id="type-container"></div>
+                    </div>
+                </div>
+                {% comment %} <div class="filter-content">
+                    <label for="well_name">Well Name:</label>
+                    <input type="text" id="well_name" name="well_name" placeholder="Enter Well Name...">
+                </div> {% endcomment %}
+
+                <div class="filter toggle-ftacat hide" style="display:none">
+                    <h4 class="fh4" id="ftacath4" onclick="toggleFilter('ftacat')">FRACTRACKER CATEGORY</h4>
+                    <div class="filter-content ftacat-content" id="ftacatContainer">
+                        <div class="selectionContainer" id="ftacatPicks" style="max-height:14vh">Our attempt to normalize the varying classifications across the country. </div>
+                        <button class="dropdownbutton notyet" id="ftacatbutton" onclick="openlist('welltype')">General Classification<br></button>
+                        <div class="button-container" id="ftacat-container"></div>
+                    </div>
+                </div>
+                {% comment %} <div >
+                    <button style="padding:20px;margin-top:10px;" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
+                </div> {% endcomment %}
+            </div>
+            <div class="tabpanel hide" id="loadingpanel">
+                <div class="loadingobjects">
+                    <div id="loadingtext" style="font-weight:bold;margin-top:60px;margin-bottom:20px">
+                        Retrieving your records
+                    </div>
+                    <div id="spinnerid" class="loader" style="margin:auto"></div>
+                </div>
+            </div>
+            <div class="tabpanel hide" id="resultspanel">
+                <div id="postapply"  style="margin-top:30px">
+                    <div class="refine" id="refineblock">
+                        <div class="filter">  {% comment %} toggle-states show"> {% endcomment %} 
+                            <h4 class="fh4 show" style="" id="statesh4" onclick="toggleFilter('states')">STATE</h4>
+                            <div class="filter-content states-content show" id="filterState">
+                                {% comment %} <label for="stateinputbox" style="display:block;padding-bottom: 5px;"></label> {% endcomment %}
+                                <div class="selectionContainer" style="display:none;justify-content:center" id="statePicks"></div>
+                                <button class="dropdownbutton" id="statebutton" onclick="openlist('state')">Available States<br></button>
+                                <div class="button-container" id="state-container"></div>
+                            </div>
+                        </div>
+                        <div class="filter toggle-counties hide" style="display:none">
+                            <h4 class="fh4" id="countiesh4" onclick="toggleFilter('counties')">COUNTY</h4>
+                            <div class="filter-content counties-content hide" id="ctyFilterContainer">
+                                <div class="selectionContainer" id="countyPicks" style="max-height:14vh">You can limit your results to those within a specific county by clicking the corresponding button below.</div>
+                                <button class="dropdownbutton notyet" id="countybutton" onclick="openlist('county')">Counties by State<br></button>
+                                <div class="button-container" id="county-container"></div>
+                            </div>
+                        </div>
+                        <div class="dlbtn">
+                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(filteredData)">Download Dataset (CSV)</button>
+                        </div>
+                        <div id="search" style="margin-top:25px">
+                            {% comment %} <label>Refine your search</label> {% endcomment %}
+                            <select id="sort-field2" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
+                                <option value="" style="color:#8a8a8a" selected>Refine your search</option> <!-- Placeholder option -->
+                                <option value="api_num" class="ovdrop">API Number</option>
+                                <option value="county" class="ovdrop">County</option>
+                                <option value="well_name" class="ovdrop">Well Name</option>
+                                <option value="operator" class="ovdrop">Operator</option>
+                                <option value="spud_date" class="ovdrop">Spud Date</option>
+                                <option value="plug_date" class="ovdrop">Plug Date</option>
+                                <option value="well_type" class="ovdrop">Well Type</option>
+                                <option value="well_status" class="ovdrop">Well Status</option>
+                                <option value="well_configuratin" class="ovdrop">Well Configuration</option>
+                                <option value="ft_category" class="ovdrop">FracTracker Category</option>
+                            </select>
+                            <div style="display:grid;grid-template-columns:84% 16%;width:100%">
+                                <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
+                                {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
+                                <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
+                            </div>    
+                        </div>
+                        <div id="drawradius" style="display:grid;grid-auto-flow: column;margin-top:10px">
+                            <div id="drawtext" style="margin-top:4px;"><h4>DRAW A RADIUS</h4></div>
+                            <div id="controls" style="width:fit-content;justify-self:right">
+                                <div id="draw-controls"></div> <!-- Draw control outside the map -->
+                            </div>
+                        </div>
+                        <div id="drawbox" style="display:grid;grid-auto-flow: column;margin-top:10px">
+                            <div id="drawtext-b" style="margin-top:4px;"><h4>DRAW A BOX</h4></div>
+                            <div id="controls-b" style="width:fit-content;justify-self:right">
+                                <div id="draw-controls-b"></div> <!-- Draw control outside the map -->
+                            </div>
+                        </div>
+                        <div id="drawfree" style="display:grid;grid-auto-flow: column;margin-top:10px">
+                            <div id="drawtext-f" style="margin-top:4px;"><h4>DRAW FREEHAND</h4></div>
+                            <div id="controls-f" style="width:fit-content;justify-self:right">
+                                <div id="draw-controls-f"></div> <!-- Draw control outside the map -->
+                            </div>
+                        </div>
+                        <div>
+                            <button class="dropdownapplybutton" style="margin-top:16px;padding:7px" onclick="updateTable(filteredData.features)">Clear Selection</button>
+                        </div>
+                        <div >
+                            <button style="padding:20px;margin-top:10px;" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right" id="container">
+            <!-- Top content of the right side -->
+            <div id="map">
+                <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/fta.png">
+
+                <div class="legend" id="legend" style="overflow:auto;max-height:calc(100% - 120px)">
+                    <div class="legend-header" style="display:grid;grid-auto-flow: column;" id="legend-toggle">
+                        <div style="justify-self:right">
+                            <span>Legend</span>
+                        </div>
+                        <div  style="justify-self:right">
+                            <span id="legend_arrow">x</span>
+                        </div>
+                    </div>
+                    <div class="legend-content" style="display:block">
+                        <p style="margin-bottom:5px"><strong>Border Crossing, Hubs, Ports, Terminals</strong></p>
+                        <div class="legenditem " id="legenditemid_31"><label class="category1 dim" id="legenditemid_41"><input type="checkbox" id="eia_bordercrossing_electric" class="dim"  unchecked> Electric (Border Crossing)</label></div>
+                        <div class="legenditem " id="legenditemid_32"><label class="category1 dim" id="legenditemid_42"><input type="checkbox" id="eia_bordercrossing_liquids" class="dim"  unchecked> Liquid (Border Crossing)</label></div>
+                        <div class="legenditem " id="legenditemid_33"><label class="category1 dim" id="legenditemid_43"><input type="checkbox" id="eia_bordercrossing_naturalgas" class="dim"  unchecked> Natural Gas (Border Crossing)</label></div>
+                        <div class="legenditem " id="legenditemid_35"><label class="category1 dim" id="legenditemid_45"><input type="checkbox" id="eia_markethub_hgl" class="dim"  unchecked> HGL (Market Hub)</label></div>
+                        <div class="legenditem " id="legenditemid_36"><label class="category1 dim" id="legenditemid_46"><input type="checkbox" id="eia_markethub_naturalgas" class="dim"  unchecked> Natural Gas (Market Hub)</label></div>
+                        <div class="legenditem " id="legenditemid_55"><label class="category1 dim" id="legenditemid_65"><input type="checkbox" id="eia_ports_petroleum" class="dim"  unchecked> Petroleum (Port)</label></div>
+                        <div class="legenditem " id="legenditemid_56"><label class="category1 dim" id="legenditemid_66"><input type="checkbox" id="eia_reserve_petroleum" class="dim"  unchecked> Petroleum (Reserve)</label></div>
+                        <div class="legenditem " id="legenditemid_57"><label class="category1 dim" id="legenditemid_67"><input type="checkbox" id="eia_storage_naturalgas" class="dim"  unchecked> Natural Gas (Storage)</label></div>
+                        <div class="legenditem " id="legenditemid_58"><label class="category1 dim" id="legenditemid_68"><input type="checkbox" id="eia_terminal_crudeoil" class="dim"  unchecked> Crude Oil (Terminal)</label></div>
+                        <div class="legenditem " id="legenditemid_59"><label class="category1 dim" id="legenditemid_69"><input type="checkbox" id="eia_terminal_lng" class="dim"  unchecked> LNG (Terminal)</label></div>
+                        <div class="legenditem " id="legenditemid_70"><label class="category1 dim" id="legenditemid_80"><input type="checkbox" id="eia_terminal_petroleum" class="dim"  unchecked> Petroleum (Terminal)</label></div>
+                        <p style="margin-bottom:5px"><strong>Compressor Stations</strong></p>
+                        <div class="legenditem " id="legenditemid_34"><label class="category1 dim" id="legenditemid_44"><input type="checkbox" id="eia_compressorstations" class="dim"  unchecked> Compressor Station</label></div>
+                        <p style="margin-bottom:5px"><strong>Plants</strong></p>
+                        <div class="legenditem " id="legenditemid_37"><label class="category1 dim" id="legenditemid_47"><input type="checkbox" id="eia_electric_generator" class="dim"  unchecked> Electric Generator</label></div>
+                        <div class="legenditem " id="legenditemid_38"><label class="category1 dim" id="legenditemid_48"><input type="checkbox" id="eia_plants_biodiesel" class="dim"  unchecked> Biodiesel</label></div>
+                        <div class="legenditem " id="legenditemid_39"><label class="category1 dim" id="legenditemid_49"><input type="checkbox" id="eia_plants_ethanol" class="dim"  unchecked> Ethanol</label></div>
+                        <div class="legenditem " id="legenditemid_50"><label class="category1 dim" id="legenditemid_60"><input type="checkbox" id="eia_plants_ethylene_cracker" class="dim"  unchecked> Ethylene Cracker</label></div>
+                        <div class="legenditem " id="legenditemid_51"><label class="category1 dim" id="legenditemid_61"><input type="checkbox" id="eia_plants_batterystorage" class="dim"  unchecked> Battery Storage</label></div>
+                        <div class="legenditem " id="legenditemid_52"><label class="category1 dim" id="legenditemid_62"><input type="checkbox" id="eia_plants_coal" class="dim"  unchecked> Coal</label></div>
+                        <div class="legenditem " id="legenditemid_53"><label class="category1 dim" id="legenditemid_63"><input type="checkbox" id="eia_plants_geothermal" class="dim"  unchecked> Geothermal</label></div>
+                        <div class="legenditem " id="legenditemid_54"><label class="category1 dim" id="legenditemid_64"><input type="checkbox" id="eia_plants_hydroelectric" class="dim"  unchecked> Hydroelectric</label></div>
+                        <div class="legenditem " id="legenditemid_54"><label class="category1 dim" id="legenditemid_64"><input type="checkbox" id="eia_plants_hydropumped" class="dim"  unchecked> Hydro Pumped Storage</label></div>
+                        <div class="legenditem " id="legenditemid_54"><label class="category1 dim" id="legenditemid_64"><input type="checkbox" id="eia_plants_power_naturalgas" class="dim"  unchecked> Natural Gas (Power)</label></div>
+                        <div class="legenditem " id="legenditemid_54"><label class="category1 dim" id="legenditemid_64"><input type="checkbox" id="eia_plants_nuclear" class="dim"  unchecked> Nuclear</label></div>
+                        <div class="legenditem " id="legenditemid_54"><label class="category1 dim" id="legenditemid_64"><input type="checkbox" id="eia_plants_petroleum" class="dim"  unchecked> Petroleum</label></div>
+                        <div class="legenditem " id="legenditemid_54"><label class="category1 dim" id="legenditemid_64"><input type="checkbox" id="eia_plants_processing_naturalgas" class="dim"  unchecked> Natural Gas (Processing)</label></div>
+                        <div class="legenditem " id="legenditemid_54"><label class="category1 dim" id="legenditemid_64"><input type="checkbox" id="eia_plants_refinery_petroleum" class="dim"  unchecked> Petroleum (Refinery)</label></div>
+
+                        {% comment %} <div class="legenditem " id="legenditemid11"><label class="category1 dim" id="legenditemid21"><input type="checkbox" id="category1" class="dim" unchecked><img src="../static/images/cat1.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'>Injection / Storage / Service</label></div>
+                        <div class="legenditem " id="legenditemid12"><label class="category1 dim" id="legenditemid22"><input type="checkbox" id="category2" class="dim" unchecked><img src="../static/images/cat2.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Not Drilled</label></div>
+                        <div class="legenditem " id="legenditemid13"><label class="category1 dim" id="legenditemid23"><input type="checkbox" id="category3" class="dim" unchecked><img src="../static/images/cat3.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Orphaned / Abandoned / Unverified Plug</label></div>
+                        <div class="legenditem " id="legenditemid14"><label class="category1 dim" id="legenditemid24"><input type="checkbox" id="category4" class="dim" unchecked><img src="../static/images/cat4.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Other / Unknown</label></div>
+                        <div class="legenditem " id="legenditemid15"><label class="category1 dim" id="legenditemid25"><input type="checkbox" id="category5" class="dim" unchecked><img src="../static/images/cat5.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Plugged</label></div>
+                        <div class="legenditem " id="legenditemid16"><label class="category1 dim" id="legenditemid26"><input type="checkbox" id="category6" class="dim"  unchecked><img src="../static/images/cat6.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Production Well</label></div> {% endcomment %}
+                        <p style="margin-bottom:5px"><strong>Pipelines</strong></p>
+                        <div class="legenditem " id="legenditemid_11"><label class="category1 dim" id="legenditemid_21"><input type="checkbox" id="pipeline_fractracker" class="dim"  unchecked> FracTracker Digitized</label></div>
+                        <div class="legenditem " id="legenditemid_12"><label class="category1 dim" id="legenditemid_22"><input type="checkbox" id="pipeline_crudeoil" class="dim"  unchecked> Crude Oil</label></div>
+                        <div class="legenditem " id="legenditemid_13"><label class="category1 dim" id="legenditemid_23"><input type="checkbox" id="pipeline_hgl" class="dim"  unchecked> HGL</label></div>
+                        <div class="legenditem " id="legenditemid_14"><label class="category1 dim" id="legenditemid_24"><input type="checkbox" id="pipeline_naturalgas" class="dim"  unchecked> Natural Gas</label></div>
+                        <div class="legenditem " id="legenditemid_15"><label class="category1 dim" id="legenditemid_25"><input type="checkbox" id="pipeline_petroleum" class="dim"  unchecked> Petroleum</label></div>
+                        {% comment %} <div class="legenditem " id="legenditemid17"><label class="category1 dim" id="legenditemid27"><input type="checkbox" id="countylayer" class="dim"  unchecked> County Borders</label></div>
+                        <div class="legenditem " id="legenditemid18"><label class="category1 dim" id="legenditemid28"><input type="checkbox" id="countycount" class="dim"  unchecked> County Counts</label></div>
+                        <div class="legenditem " id="legenditemid19"><label class="category1 dim" id="legenditemid29"><input type="checkbox" id="countychoropleth" class="dim"  unchecked> County Choropleth</label></div> {% endcomment %}
+                    </div>
+                </div>
+            </div>
+            <div class="divider" id="dividerContainer" style="z-index: 1000;margin-top:-12px">
+                <div>
+                    <div style="padding:9px;display:grid;grid-auto-flow:column">
+                        <div>
+                            <div>
+                                <input style="border:none;width:148px;text-align:center;height:25px;background-color:white;border-radius:7px" type="number" id="page-input" placeholder="Jump to page #" min="1">
+                                <button class="divbtns" onclick="goToPage()">Go</button>
+                            </div>
+                            {% comment %} <div class="pagenav-container" style="justify-self:center">
+                                <span id="pagination" style="justify-self: center"></span>
+                            </div> {% endcomment %}
+                        </div>
+                        <div style="color:white;margin-top:2px;justify-self:center">
+                            <span id="records"></span>
+                        </div>
+                        <div style="justify-self:right">
+                            <!-- Dropdown with a placeholder-like option for "Sort by" -->
+                            <select id="sort-field" style="text-align:center;border:none;height:25px;background-color:white;border-radius:7px">
+                            </select>
+                            {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
+                            <button id="sortbtn" class="divbtns" onclick="sortTable()">Sort</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom" id="bottomContainer">
+            <!-- Bottom content of the right side -->
+                <div>
+                    <div id="pagination" style="display:flex;justify-content:center">
+                    </div>
+                </div>
+                <div class="tablecontainer">
+                    <!-- Grid container for the table -->
+                    <table id="maintable">
+                        <thead id="maintableheader" class="sticky-header-container">
+                        </thead>
+                        <tbody id="maintablebody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Include Project Specific JavaScript -->
+    <script src = "/static/js/wells.js"></script>
+    <script>
+        // Function to toggle filter visibility
+        function toggleFilter(filterName) {
+            let list = ['counties','wellstatus','welltype','ftacat']
+
+
+            list.forEach(element => {
+                var filterContent = document.querySelector('.' + element + '-content');
+                var filterBox = document.querySelector('.toggle-' + element);
+                var filterIcon = document.querySelector('.filter.toggle-' + element + ' h4');
+                var filterH4 = document.getElementById(element + 'h4')
+                console.log('element')
+                console.log(element)
+                console.log(element !== "states")
+                if (element === filterName ) {
+                    if (filterContent.classList.contains('show')) {
+                        filterContent.classList.remove('show');
+                        filterContent.classList.add('hide');
+                        filterBox.style.border = 'none';
+                        filterH4.classList.remove('show');
+                        filterH4.classList.add('hide');
+                        filterIcon.style.setProperty('--after-content', '"\\25BC"');
+                    } else {
+                    filterContent.classList.add('show');
+                    filterContent.classList.remove('hide');
+                    filterH4.classList.add('show');
+                    filterH4.classList.remove('hide');
+                    filterIcon.style.setProperty('--after-content', '"\\25AC"');
+                    }
+                } else {
+                    filterContent.classList.remove('show');
+                    filterContent.classList.add('hide');
+                    filterH4.classList.remove('show');
+                    filterH4.classList.add('hide');
+                    filterIcon.style.setProperty('--after-content', '"\\25BC"');
+                }
+            })
+
+
+        }
+    </script>
 </body>
+</html>
