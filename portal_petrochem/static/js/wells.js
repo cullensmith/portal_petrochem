@@ -1564,7 +1564,8 @@ function generate_buffs() {
             }).addTo(map);
     })};
 
-generate_buffs();
+generate_buffs(); 
+// small change
 
 
 // Function to find the closest feature
