@@ -86,8 +86,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'fractracker',
-        'USER': 'test_og',
-        'PASSWORD': 'ecy&0#{gl?~b&2Zx',
+        'USER': 'portal_petrochem',
+        'PASSWORD': 'M]7J&U%RL=fuAgBs',
         'HOST': '34.162.137.6',  # Public IP of your Google Cloud PostgreSQL instance
         'PORT': '5432',  # Default PostgreSQL port
         'OPTIONS': {

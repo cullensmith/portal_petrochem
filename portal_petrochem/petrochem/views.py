@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from petrochem.models import Compressors,Markethubs_Naturalgas
+from petrochem.models import Compressors,Buffs
 from django.apps import apps
 
 
@@ -475,7 +475,7 @@ def parse_states(data):
 #####
 #####
 #####
-def generate_geojson_buffs(request):
+def generate_geojson_buffs_alt(request):
     print('=============')
     print('=============')
     model_name = 'Buffs'
@@ -579,6 +579,7 @@ def generate_geojson_comps(request):
         tmp=vars(x)
         tmp.pop('_state')
         newwell.append(tmp)
+    
     geojson = {
         "type": "FeatureCollection",
         "features": [
@@ -596,10 +597,10 @@ def generate_geojson_comps(request):
     return JsonResponse(mapdata, safe=False)
 
 
-def generate_geojson_comps2(request):
+def generate_geojson_buffs(request):
     # print('using the right one...')
     attrvals = list()
-    attrvals = Markethubs_Naturalgas.objects.all()
+    attrvals = Buffs.objects.all()
 
     newwell = list()
     for n,x in enumerate(attrvals):
@@ -621,4 +622,32 @@ def generate_geojson_comps2(request):
     }
     mapdata = json.dumps(geojson)
 
+    return JsonResponse(mapdata, safe=False)
+
+def generate_geojson_buffs2(request):
+    print('using the right one...')
+    attrvals = list()
+    attrvals = Buffs.objects.all()
+
+    newwell = list()
+    for n,x in enumerate(attrvals):
+        # print(x)
+        tmp=vars(x)
+        tmp.pop('_state')
+        newwell.append(tmp)
+    geojson = {
+        "type": "FeatureCollection",
+        "features": [
+        {
+            "type": "Feature",
+            "geometry" : {
+                "type": "Point",
+                "coordinates": [d["longitude"], d["latitude"]],
+                },
+            "properties" : d,
+        } for d in newwell]
+    }
+    mapdata = json.dumps(geojson)
+    # print(mapdata)
+    print('did this run?????')
     return JsonResponse(mapdata, safe=False)

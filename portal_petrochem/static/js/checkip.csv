@@ -1,0 +1,29 @@
+###js script
+async function logIPs() {
+    // 1. Get client IP
+    const clientResponse = await fetch('https://api.ipify.org?format=json');
+    const clientData = await clientResponse.json();
+    console.log("Client IP:", clientData.ip);
+
+    // 2. Get server IP from Django view
+    const serverResponse = await fetch('/petrochem/get_server_ip');
+    const serverData = await serverResponse.json();
+    console.log("Server IP:", serverData.server_ip);
+}
+
+###python view
+
+import socket
+from django.shortcuts import render
+import requests
+
+def get_server_ip(request):
+    try:
+        response = requests.get('https://ifconfig.me', timeout=5)
+        server_ip = response.text.strip()
+    except Exception as e:
+        server_ip = f"Error: {e}"
+    return JsonResponse({'server_ip': server_ip})
+
+###url
+path('get_server_ip', views.get_server_ip, name='get_server_ip'),

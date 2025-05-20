@@ -17,6 +17,6 @@ urlpatterns = [
     path('generate_geojson_buffs',views.generate_geojson_buffs, name="generate_geojson_buffs"),
     path('generate_geojson_comps',views.generate_geojson_comps, name="generate_geojson_comps"),
     path('generate_geojson_lines',views.generate_geojson_lines, name="generate_geojson_lines"),
-    path('generate_geojson_comps2',views.generate_geojson_comps2, name="generate_geojson_comps2"),
-
+    path('generate_geojson_buffs_alt',views.generate_geojson_buffs_alt, name="generate_geojson_buffs_alt"),
+    path('generate_geojson_buffs2',views.generate_geojson_buffs2, name="generate_geojson_buffs2"),
 ]

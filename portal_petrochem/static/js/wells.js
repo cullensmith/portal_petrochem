@@ -1,3 +1,5 @@
+console.log('print something')
+
 //create layer variables
 var lines_pipeline_crudeoil;
 var lines_pipeline_fractracker;
@@ -31,7 +33,22 @@ var points_eia_storage_naturalgas;
 var points_eia_terminal_crudeoil;
 var points_eia_terminal_lng;
 var points_eia_terminal_petroleum;
+var points_eia_powerplants_batterystorage ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
+// var points_eia_powerplants ;
 
+
+var buffs;
 // Create constants for the filter items
 const statetextbox = document.getElementById('statePicks');
 const ctytextbox = document.getElementById('countyPicks');
@@ -726,7 +743,6 @@ function applyCategoryFilter_orig() {
 }
 
 
-
 ////////
 ////////
 function applyCategoryFilter() {
@@ -783,62 +799,62 @@ function applyCategoryFilter() {
         .catch(error => console.log(error));
         createLineLayer();
         applyCategoryFilter2();
-    }
-    function applyCategoryFilter() {
-        // Fetch GeoJSON data from the server
-        fetch('/petrochem/generate_geojson_comps')
-            .then(response => response.json())
-            .then(data => {
-                console.log(data)
-                d=JSON.parse(data)
-                console.log(d)
+    };
+    // function applyCategoryFilter() {
+    //     // Fetch GeoJSON data from the server
+    //     fetch('/petrochem/generate_geojson_comps')
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             console.log(data)
+    //             d=JSON.parse(data)
+    //             console.log(d)
     
-                // Example point style
-                const defaultStyle = {
-                    radius: 2,
-                    fillColor: "#ff7800",
-                    color: "#000",
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                };
-                const highlightStyle = {
-                    radius: 5  // what you want on hover
-                };
+    //             // Example point style
+    //             const defaultStyle = {
+    //                 radius: 2,
+    //                 fillColor: "#ff7800",
+    //                 color: "#000",
+    //                 weight: 1,
+    //                 opacity: 1,
+    //                 fillOpacity: 0.8
+    //             };
+    //             const highlightStyle = {
+    //                 radius: 5  // what you want on hover
+    //             };
     
-                // Add the GeoJSON layer to the map
-                compressors = L.geoJSON(d, {
-                    // filter: function (feature) {
-                    //     return feature.properties.ft_category === 'Production Well';
-                    // },
-                    pointToLayer: function (feature, latlng) {
-                        return L.circleMarker(latlng, defaultStyle);
-                    },
-                    onEachFeature: function (feature, layer) {
-                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
-                        layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
-                        });
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
-                            feature.properties.naics_desc + "<br><b>Operator: </b>" + 
-                            feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            feature.properties.x + "<br><b>Latitude: </b>" +
-                            feature.properties.y
-                        );
-                    }
+    //             // Add the GeoJSON layer to the map
+    //             compressors = L.geoJSON(d, {
+    //                 // filter: function (feature) {
+    //                 //     return feature.properties.ft_category === 'Production Well';
+    //                 // },
+    //                 pointToLayer: function (feature, latlng) {
+    //                     return L.circleMarker(latlng, defaultStyle);
+    //                 },
+    //                 onEachFeature: function (feature, layer) {
+    //                     // Bind a popup to each circle marker based on the properties in the GeoJSON data
+    //                     layer.on({
+    //                         mouseover: function (e) {
+    //                             e.target.setStyle(highlightStyle);
+    //                         },
+    //                         mouseout: function (e) {
+    //                             e.target.setStyle(defaultStyle);
+    //                         }
+    //                     });
+    //                     layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
+    //                         feature.properties.naics_desc + "<br><b>Operator: </b>" + 
+    //                         feature.properties.operator + "<br><b>Longitude:</b> " + 
+    //                         feature.properties.x + "<br><b>Latitude: </b>" +
+    //                         feature.properties.y
+    //                     );
+    //                 }
             
-                }).addTo(map);
-                createTable(d);
-            })
-            .catch(error => console.log(error));
-            createLineLayer();
-            applyCategoryFilter2();
-        }
+    //             }).addTo(map);
+    //             createTable(d);
+    //         })
+    //         .catch(error => console.log(error));
+    //         createLineLayer();
+    //         applyCategoryFilter2();
+    //     }
 
 // fetch('/petrochem/generate_geojson_buffs')
 //     .then(response => response.json())
@@ -905,6 +921,8 @@ function createHexagonMarker(latlng) {
         })
     });
     }
+
+
 function createPointLayer(ptlay) {
     // Fetch GeoJSON data from the server
     const grab = ptlay
@@ -917,6 +935,7 @@ function createPointLayer(ptlay) {
 
 
             if (ptlay === 'Compressors') {
+                console.log('checked compressor stations')
                 // Example point style
                 const defaultStyle = {
                     radius: 2,
@@ -949,12 +968,31 @@ function createPointLayer(ptlay) {
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
-                            const nearest = getNearestFeature(clickedLatLng, targetLayerGroup);
-                          
-                            if (nearest) {
-                              console.log('Nearest feature properties:', nearest.feature?.properties);
-                              // Optionally, highlight or show popup
-                              nearest.bindPopup(`Nearest object: ${nearest.feature?.properties.name}`).openPopup();
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                    <h3>Within 1KM</h3>
+                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
+                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
+                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
+                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
+                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
+                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
+                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
+                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
+                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
+                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
+                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
+                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
+                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+                                    <!-- Add other attributes as needed -->
+                                `;
                             }
                           });
                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
@@ -999,6 +1037,36 @@ function createPointLayer(ptlay) {
                                 e.target.setStyle(defaultStyle);
                             }
                         });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                    <h3>Within 1KM</h3>
+                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
+                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
+                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
+                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
+                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
+                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
+                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
+                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
+                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
+                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
+                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
+                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
+                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+                                    <!-- Add other attributes as needed -->
+                                `;
+                            }
+                          });
+
                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
                             //  + "<br><b>Operator: </b>" + 
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
@@ -1041,6 +1109,36 @@ function createPointLayer(ptlay) {
                                 e.target.setStyle(defaultStyle);
                             }
                         });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                    <h3>Within 1KM</h3>
+                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
+                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
+                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
+                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
+                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
+                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
+                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
+                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
+                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
+                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
+                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
+                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
+                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+                                    <!-- Add other attributes as needed -->
+                                `;
+                            }
+                          });
+
                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
                             //  + "<br><b>Operator: </b>" + 
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
@@ -1083,6 +1181,36 @@ function createPointLayer(ptlay) {
                                 e.target.setStyle(defaultStyle);
                             }
                         });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                    <h3>Within 1KM</h3>
+                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
+                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
+                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
+                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
+                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
+                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
+                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
+                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
+                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
+                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
+                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
+                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
+                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+                                    <!-- Add other attributes as needed -->
+                                `;
+                            }
+                          });
+
                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
                             //  + "<br><b>Operator: </b>" + 
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
@@ -1124,6 +1252,36 @@ function createPointLayer(ptlay) {
                                 e.target.setStyle(defaultStyle);
                             }
                         });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                    <h3>Within 1KM</h3>
+                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
+                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
+                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
+                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
+                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
+                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
+                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
+                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
+                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
+                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
+                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
+                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
+                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+                                    <!-- Add other attributes as needed -->
+                                `;
+                            }
+                          });
+
                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
                             //  + "<br><b>Operator: </b>" + 
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
@@ -1165,6 +1323,36 @@ function createPointLayer(ptlay) {
                                 e.target.setStyle(defaultStyle);
                             }
                         });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                    <h3>Within 1KM</h3>
+                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
+                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
+                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
+                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
+                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
+                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
+                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
+                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
+                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
+                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
+                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
+                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
+                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+                                    <!-- Add other attributes as needed -->
+                                `;
+                            }
+                          });
+
                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
                             //  + "<br><b>Operator: </b>" + 
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
@@ -1206,6 +1394,36 @@ function createPointLayer(ptlay) {
                                 e.target.setStyle(defaultStyle);
                             }
                         });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                    <h3>Within 1KM</h3>
+                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
+                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
+                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
+                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
+                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
+                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
+                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
+                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
+                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
+                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
+                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
+                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
+                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+                                    <!-- Add other attributes as needed -->
+                                `;
+                            }
+                          });
+
                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
                             //  + "<br><b>Operator: </b>" + 
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
@@ -1215,7 +1433,79 @@ function createPointLayer(ptlay) {
                     }
             
                 }).addTo(map);
-            };
+            } else if (ptlay === 'Powerplants_Batterystorage') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_powerplants_batterystorage = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                    <h3>Within 1KM</h3>
+                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
+                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
+                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
+                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
+                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
+                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
+                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
+                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
+                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
+                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
+                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
+                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
+                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+                                    <!-- Add other attributes as needed -->
+                                `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            }
+            ;
             createTable(d);
         })
         .catch(error => console.log(error));
@@ -1233,6 +1523,448 @@ function createPointLayer(ptlay) {
 //     }
 //     }).addTo(map);
 
+
+
+
+var demobuffer;
+function generate_buffs() {
+    console.log('generating the buffer layer')
+    // Fetch GeoJSON data from the server
+    fetch(`/petrochem/generate_geojson_buffs2`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data)
+            d=JSON.parse(data)
+            console.log(d)
+
+
+            // Example point style
+            const defaultStyle = {
+                radius: 8,
+                fillColor: "#ff7800",
+                color: "#000",
+                weight: 1,
+                opacity: 0,
+                fillOpacity: 0
+            };
+            const highlightStyle = {
+                radius: 5  // what you want on hover
+            };
+            // Add the GeoJSON layer to the map
+            demobuffer = L.geoJSON(d, {
+                // filter: function (feature) {
+                //     return feature.properties.ft_category === 'Production Well';
+                // },
+                pointToLayer: function (feature, latlng) {
+                    return L.circleMarker(latlng, defaultStyle);
+                },
+                onEachFeature: function (feature, layer) {
+
+                }
+            }).addTo(map);
+    })};
+
+generate_buffs();
+
+
+// Function to find the closest feature
+function findClosestFeature(clickedLatLng) {
+    let closestFeature = null;
+    let closestDistance = Infinity;
+
+    demobuffer.eachLayer(function (layer) {
+        let featureLatLng = layer.getLatLng();
+        let distance = clickedLatLng.distanceTo(featureLatLng);
+
+        if (distance < closestDistance) {
+            closestDistance = distance;
+            closestFeature = layer.feature;
+        }
+    });
+    // console.log('inside function closestFeature')
+    // console.log(closestFeature)
+    return closestFeature;
+}
+
+
+
+// function creatBuffPointLayer() {
+//     // Fetch GeoJSON data from the server
+//     fetch(`/petrochem/generate_geojson_buffs`)
+//         .then(response => response.json())
+//         .then(data => {
+//             console.log(data)
+//             d=JSON.parse(data)
+//             console.log(d)
+
+
+//             if (ptlay === 'Compressors') {
+//                 // Example point style
+//                 const defaultStyle = {
+//                     radius: 2,
+//                     fillColor: "#ff7800",
+//                     color: "#000",
+//                     weight: 1,
+//                     opacity: 1,
+//                     fillOpacity: 0.8
+//                 };
+//                 const highlightStyle = {
+//                     radius: 5  // what you want on hover
+//                 };
+//                 console.log('clicked compressor stations')
+
+//                 // Add the GeoJSON layer to the map
+//                 points_compressorstations = L.geoJSON(d, {
+//                     // filter: function (feature) {
+//                     //     return feature.properties.ft_category === 'Production Well';
+//                     // },
+//                     pointToLayer: function (feature, latlng) {
+//                         return L.circleMarker(latlng, defaultStyle);
+//                     },
+//                     onEachFeature: function (feature, layer) {
+//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
+//                         layer.on({
+//                             mouseover: function (e) {
+//                                 e.target.setStyle(highlightStyle);
+//                             },
+//                             mouseout: function (e) {
+//                                 e.target.setStyle(defaultStyle);
+//                             }
+//                         });
+//                         layer.on('click', function(e) {
+//                             const clickedLatLng = e.latlng;
+//                             // const nearest = getNearestFeature(clickedLatLng, targetLayerGroup);
+                          
+//                             // if (nearest) {
+//                             //   console.log('Nearest feature properties:', nearest.feature?.properties);
+//                             //   // Optionally, highlight or show popup
+//                             //   nearest.bindPopup(`Nearest object: ${nearest.feature?.properties.name}`).openPopup();
+//                             // }
+
+//                                 // Find the closest feature from layer2
+//                             const closestFeature = findClosestFeature(clickedLatLng);
+//                             console.log('clicked on a compressor station')
+//                             if (closestFeature) {
+//                                 console.log('closest feat')
+//                                 // console.log(closestFeature)
+//                                 console.log('properties')
+//                                 // console.log(closestFeature.properties)
+//                                 // Display the attributes in the box
+//                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+//                                 attributesBox.innerHTML = `
+//                                     <h3>Closest Feature Attributes</h3>
+//                                     <p><b>Attribute 1:</b> ${closestFeature.properties.j_wht}</p>
+//                                     <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
+//                                     <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+//                                     <!-- Add other attributes as needed -->
+//                                 `;
+//                             }
+//                           });
+//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
+//                             feature.properties.naics_desc + "<br><b>Operator: </b>" + 
+//                             feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                             feature.properties.x + "<br><b>Latitude: </b>" +
+//                             feature.properties.y
+//                         );
+//                     }
+            
+//                 }).addTo(map);
+//             } else if (ptlay === 'Bordercrossing_Electric') {
+//                 // Example point style
+
+//                 // Add the GeoJSON layer to the map
+//                 points_eia_bordercrossing_electric = L.geoJSON(d, {
+//                         // filter: function (feature) {
+//                         //     return feature.properties.ft_category === 'Production Well';
+//                         // },
+//                         pointToLayer: function (feature, latlng) {
+//                             const marker = createTriangleMarker(latlng);
+                        
+//                             marker.on('mouseover', () => {
+//                               const el = marker.getElement().querySelector('.triangle-marker');
+//                               el.style.transform = 'scale(2)';
+//                             });
+                        
+//                             marker.on('mouseout', () => {
+//                               const el = marker.getElement().querySelector('.triangle-marker');
+//                               el.style.transform = 'scale(1)';
+//                             });
+                        
+//                             return marker;
+//                           },
+//                     onEachFeature: function (feature, layer) {
+//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
+//                         layer.on({
+//                             mouseover: function (e) {
+//                                 e.target.setStyle(highlightStyle);
+//                             },
+//                             mouseout: function (e) {
+//                                 e.target.setStyle(defaultStyle);
+//                             }
+//                         });
+//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+//                             //  + "<br><b>Operator: </b>" + 
+//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                             // feature.properties.x + "<br><b>Latitude: </b>" +
+//                             // feature.properties.y
+//                         );
+//                     }
+            
+//                 }).addTo(map);
+//             } else if (ptlay === 'Bordercrossing_Liquids') {
+//                 // Example point style
+
+//                 // Add the GeoJSON layer to the map
+//                 points_eia_bordercrossing_liquids = L.geoJSON(d, {
+//                         // filter: function (feature) {
+//                         //     return feature.properties.ft_category === 'Production Well';
+//                         // },
+//                         pointToLayer: function (feature, latlng) {
+//                             const marker = createTriangleMarker(latlng);
+                        
+//                             marker.on('mouseover', () => {
+//                               const el = marker.getElement().querySelector('.triangle-marker');
+//                               el.style.transform = 'scale(2)';
+//                             });
+                        
+//                             marker.on('mouseout', () => {
+//                               const el = marker.getElement().querySelector('.triangle-marker');
+//                               el.style.transform = 'scale(1)';
+//                             });
+                        
+//                             return marker;
+//                           },
+//                     onEachFeature: function (feature, layer) {
+//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
+//                         layer.on({
+//                             mouseover: function (e) {
+//                                 e.target.setStyle(highlightStyle);
+//                             },
+//                             mouseout: function (e) {
+//                                 e.target.setStyle(defaultStyle);
+//                             }
+//                         });
+//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+//                             //  + "<br><b>Operator: </b>" + 
+//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                             // feature.properties.x + "<br><b>Latitude: </b>" +
+//                             // feature.properties.y
+//                         );
+//                     }
+            
+//                 }).addTo(map);
+//             }  else if (ptlay === 'Bordercrossing_Naturalgas') {
+//                 // Example point style
+
+//                 // Add the GeoJSON layer to the map
+//                 points_eia_bordercrossing_naturalgas = L.geoJSON(d, {
+//                         // filter: function (feature) {
+//                         //     return feature.properties.ft_category === 'Production Well';
+//                         // },
+//                         pointToLayer: function (feature, latlng) {
+//                             const marker = createTriangleMarker(latlng);
+                        
+//                             marker.on('mouseover', () => {
+//                               const el = marker.getElement().querySelector('.triangle-marker');
+//                               el.style.transform = 'scale(2)';
+//                             });
+                        
+//                             marker.on('mouseout', () => {
+//                               const el = marker.getElement().querySelector('.triangle-marker');
+//                               el.style.transform = 'scale(1)';
+//                             });
+                        
+//                             return marker;
+//                           },
+//                     onEachFeature: function (feature, layer) {
+//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
+//                         layer.on({
+//                             mouseover: function (e) {
+//                                 e.target.setStyle(highlightStyle);
+//                             },
+//                             mouseout: function (e) {
+//                                 e.target.setStyle(defaultStyle);
+//                             }
+//                         });
+//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+//                             //  + "<br><b>Operator: </b>" + 
+//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                             // feature.properties.x + "<br><b>Latitude: </b>" +
+//                             // feature.properties.y
+//                         );
+//                     }
+            
+//                 }).addTo(map);
+//             }  else if (ptlay === 'Markethubs_hgl') {
+//                 // Example point style
+
+//                 // Add the GeoJSON layer to the map
+//                 points_eia_markethub_hgl = L.geoJSON(d, {
+//                         // filter: function (feature) {
+//                         //     return feature.properties.ft_category === 'Production Well';
+//                         // },
+//                         pointToLayer: function (feature, latlng) {
+//                             const marker = createDiamondMarker(latlng);
+                        
+//                             marker.on('mouseover', () => {
+//                                 const el = marker.getElement().querySelector('.diamond-marker');
+//                                 el.style.transform = 'scale(2) rotate(45deg)';
+//                               });
+//                               marker.on('mouseout', () => {
+//                                 const el = marker.getElement().querySelector('.diamond-marker');
+//                                 el.style.transform = 'scale(1) rotate(45deg)';
+//                               });
+                        
+//                             return marker;
+//                           },
+//                     onEachFeature: function (feature, layer) {
+//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
+//                         layer.on({
+//                             mouseover: function (e) {
+//                                 e.target.setStyle(highlightStyle);
+//                             },
+//                             mouseout: function (e) {
+//                                 e.target.setStyle(defaultStyle);
+//                             }
+//                         });
+//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+//                             //  + "<br><b>Operator: </b>" + 
+//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                             // feature.properties.x + "<br><b>Latitude: </b>" +
+//                             // feature.properties.y
+//                         );
+//                     }
+            
+//                 }).addTo(map);
+//             } else if (ptlay === 'Markethubs_Naturalgas') {
+//                 // Example point style
+
+//                 // Add the GeoJSON layer to the map
+//                 points_eia_markethub_naturalgas = L.geoJSON(d, {
+//                         // filter: function (feature) {
+//                         //     return feature.properties.ft_category === 'Production Well';
+//                         // },
+//                         pointToLayer: function (feature, latlng) {
+//                             const marker = createDiamondMarker(latlng);
+                        
+//                             marker.on('mouseover', () => {
+//                                 const el = marker.getElement().querySelector('.diamond-marker');
+//                                 el.style.transform = 'scale(2) rotate(45deg)';
+//                               });
+//                               marker.on('mouseout', () => {
+//                                 const el = marker.getElement().querySelector('.diamond-marker');
+//                                 el.style.transform = 'scale(1) rotate(45deg)';
+//                               });
+                        
+//                             return marker;
+//                           },
+//                     onEachFeature: function (feature, layer) {
+//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
+//                         layer.on({
+//                             mouseover: function (e) {
+//                                 e.target.setStyle(highlightStyle);
+//                             },
+//                             mouseout: function (e) {
+//                                 e.target.setStyle(defaultStyle);
+//                             }
+//                         });
+//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+//                             //  + "<br><b>Operator: </b>" + 
+//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                             // feature.properties.x + "<br><b>Latitude: </b>" +
+//                             // feature.properties.y
+//                         );
+//                     }
+            
+//                 }).addTo(map);
+//             } else if (ptlay === 'Ports_Petroleum') {
+//                 // Example point style
+
+//                 // Add the GeoJSON layer to the map
+//                 points_eia_ports_petroleum = L.geoJSON(d, {
+//                         // filter: function (feature) {
+//                         //     return feature.properties.ft_category === 'Production Well';
+//                         // },
+//                         pointToLayer: function (feature, latlng) {
+//                             const marker = createDiamondMarker(latlng);
+                        
+//                             marker.on('mouseover', () => {
+//                                 const el = marker.getElement().querySelector('.diamond-marker');
+//                                 el.style.transform = 'scale(2) rotate(45deg)';
+//                               });
+//                               marker.on('mouseout', () => {
+//                                 const el = marker.getElement().querySelector('.diamond-marker');
+//                                 el.style.transform = 'scale(1) rotate(45deg)';
+//                               });
+                        
+//                             return marker;
+//                           },
+//                     onEachFeature: function (feature, layer) {
+//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
+//                         layer.on({
+//                             mouseover: function (e) {
+//                                 e.target.setStyle(highlightStyle);
+//                             },
+//                             mouseout: function (e) {
+//                                 e.target.setStyle(defaultStyle);
+//                             }
+//                         });
+//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+//                             //  + "<br><b>Operator: </b>" + 
+//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                             // feature.properties.x + "<br><b>Latitude: </b>" +
+//                             // feature.properties.y
+//                         );
+//                     }
+            
+//                 }).addTo(map);
+//             } else if (ptlay === 'Powerplants_Batterystorage') {
+//                 // Example point style
+
+//                 // Add the GeoJSON layer to the map
+//                 points_eia_powerplants_batterystorage = L.geoJSON(d, {
+//                         // filter: function (feature) {
+//                         //     return feature.properties.ft_category === 'Production Well';
+//                         // },
+//                         pointToLayer: function (feature, latlng) {
+//                             const marker = createDiamondMarker(latlng);
+                        
+//                             marker.on('mouseover', () => {
+//                                 const el = marker.getElement().querySelector('.diamond-marker');
+//                                 el.style.transform = 'scale(2) rotate(45deg)';
+//                               });
+//                               marker.on('mouseout', () => {
+//                                 const el = marker.getElement().querySelector('.diamond-marker');
+//                                 el.style.transform = 'scale(1) rotate(45deg)';
+//                               });
+                        
+//                             return marker;
+//                           },
+//                     onEachFeature: function (feature, layer) {
+//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
+//                         layer.on({
+//                             mouseover: function (e) {
+//                                 e.target.setStyle(highlightStyle);
+//                             },
+//                             mouseout: function (e) {
+//                                 e.target.setStyle(defaultStyle);
+//                             }
+//                         });
+//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+//                             //  + "<br><b>Operator: </b>" + 
+//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
+//                             // feature.properties.x + "<br><b>Latitude: </b>" +
+//                             // feature.properties.y
+//                         );
+//                     }
+            
+//                 }).addTo(map);
+//             }
+//             ;
+//         })
+//         .catch(error => console.log(error));
+
+//     }
 
 
 function applyCategoryFilter2() {
@@ -3219,15 +3951,33 @@ document.getElementById('eia_ports_petroleum').addEventListener('change', functi
     }
 });
 
-app.listen(3000, () => {
-    const os = require('os');
-    const interfaces = os.networkInterfaces();
-  
-    Object.values(interfaces).forEach(ifaceGroup => {
-      ifaceGroup.forEach(iface => {
-        if (iface.family === 'IPv4' && !iface.internal) {
-          console.log('Server running at IP:', iface.address);
+
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_powerplants_batterystorage').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_powerplants_batterystorage) {
+            console.log('compressors - needs to load')
+            createPointLayer('Powerplants_Batterystorage')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_powerplants_batterystorage.addTo(map);
         }
-      });
-    });
-  });
+    } else if (points_eia_powerplants_batterystorage) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_powerplants_batterystorage);
+    }
+});
+// app.listen(3000, () => {
+//     const os = require('os');
+//     const interfaces = os.networkInterfaces();
+  
+//     Object.values(interfaces).forEach(ifaceGroup => {
+//       ifaceGroup.forEach(iface => {
+//         if (iface.family === 'IPv4' && !iface.internal) {
+//           console.log('Server running at IP:', iface.address);
+//         }
+//       });
+//     });
+//   });

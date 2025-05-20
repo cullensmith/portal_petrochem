@@ -439,11 +439,55 @@ class Buffs(models.Model):
     j_18 = models.CharField(max_length=50, blank=True, null=True)
     j_nw = models.CharField(max_length=50, blank=True, null=True)
     j_u18 = models.CharField(max_length=50, blank=True, null=True)
-    geomjson = models.CharField(max_length=50, blank=True, null=True)
+    # geomjson = models.CharField(max_length=50, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = '"eia"."petrofacill_1km_pop_042025"'
+    
+    def __str__(self) -> str:
+        return super().__str__()
+    
+class Powerplants_Batterystorage(models.Model):
+    id = models.IntegerField(primary_key=True)
+    objectid = models.IntegerField()
+    plant_code = models.IntegerField()
+    plant_name = models.CharField(max_length=50, blank=True, null=True)
+    utility_id = models.IntegerField()
+    utility_name = models.CharField(max_length=50, blank=True, null=True)
+    sector_name = models.CharField(max_length=50, blank=True, null=True)
+    street_address = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    county = models.CharField(max_length=50, blank=True, null=True)
+    state = models.CharField(max_length=50, blank=True, null=True)
+    zip = models.IntegerField()
+    primsource = models.CharField(max_length=50, blank=True, null=True)
+    source_desc = models.CharField(max_length=50, blank=True, null=True)
+    tech_desc = models.CharField(max_length=50, blank=True, null=True)
+    install_mw = models.CharField(max_length=50, blank=True, null=True)
+    total_mw = models.CharField(max_length=50, blank=True, null=True)
+    bat_mw = models.CharField(max_length=50, blank=True, null=True)
+    bio_mw = models.CharField(max_length=50, blank=True, null=True)
+    coal_mw = models.CharField(max_length=50, blank=True, null=True)
+    geo_mw = models.CharField(max_length=50, blank=True, null=True)
+    hydro_mw = models.CharField(max_length=50, blank=True, null=True)
+    hydrops_mw = models.CharField(max_length=50, blank=True, null=True)
+    ng_mw = models.CharField(max_length=50, blank=True, null=True)
+    nuclear_mw = models.CharField(max_length=50, blank=True, null=True)
+    crude_mw = models.CharField(max_length=50, blank=True, null=True)
+    solar_mw = models.CharField(max_length=50, blank=True, null=True)
+    wind_mw = models.CharField(max_length=50, blank=True, null=True)
+    other_mw = models.CharField(max_length=50, blank=True, null=True)
+    source = models.CharField(max_length=50, blank=True, null=True)
+    period = models.CharField(max_length=50, blank=True, null=True)
+    longitude = models.CharField(max_length=50, blank=True, null=True)
+    latitude = models.CharField(max_length=50, blank=True, null=True)
+    x = models.CharField(max_length=50, blank=True, null=True)
+    y = models.CharField(max_length=50, blank=True, null=True)
+    
+    class Meta:
+        managed = False
+        db_table = '"eia"."powerplants_batterystorage"'
     
     def __str__(self) -> str:
         return super().__str__()
