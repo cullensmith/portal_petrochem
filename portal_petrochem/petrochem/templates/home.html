@@ -592,11 +592,11 @@
     <div class="main-content">
         <div class="left">
             <div id="tabbtns" style="display:grid;grid-template-columns: 50% 50%;height: 5vh">
-                <button class="tabbtn sel" id="filterbtn" style="border-top-left-radius:20px;margin-left:-12px">Impacted<br>Demographics</button>
-                <button class="tabbtn" id="resultsbtn" style="border-top-right-radius:20px;margin-right:-12px">Update<br>Attribute<br>Table</button>
+                <button class="tabbtn " id="filterbtn" style="border-top-left-radius:20px;margin-left:-12px">Impacted<br>Demographics</button>
+                <button class="tabbtn sel" id="resultsbtn" style="border-top-right-radius:20px;margin-right:-12px">Update<br>Attribute<br>Table</button>
             </div>
 
-            <div class=" tabpanel " id="filterpanel" > {% comment %} class was class="catgrid tabpanel" {% endcomment %}
+            <div class=" tabpanel hide" id="filterpanel" > {% comment %} class was class="catgrid tabpanel" {% endcomment %}
                 <div id="attributes-box" style="position: relative; padding: 10px; border-radius: 5px;">
                     {% comment %} <h3>Demographics of the population within </h3> {% endcomment %}
                     <p>Click a point feature in the map to see the population demographics within 1km of your facility.</p>
@@ -639,7 +639,7 @@
                     <div id="spinnerid" class="loader" style="margin:auto"></div>
                 </div>
             </div>
-            <div class="tabpanel hide" id="resultspanel">
+            <div class="tabpanel " id="resultspanel">
                 <div id="postapply"  style="margin-top:30px">
                     <div class="refine" id="refineblock">
                         <div class="filter">  {% comment %} toggle-states show"> {% endcomment %} 
@@ -735,7 +735,7 @@
                         <div class="legenditem " id="legenditemid_36"><label class="category1 " id="legenditemid_46"><input type="checkbox" id="eia_markethub_naturalgas" class="legenditemchk"  unchecked> Natural Gas (Market Hub)</label></div>
                         <div class="legenditem " id="legenditemid_55"><label class="category1 " id="legenditemid_65"><input type="checkbox" id="eia_ports_petroleum" class="legenditemchk"  unchecked> Petroleum (Port)</label></div>
                         <div class="legenditem " id="legenditemid_56"><label class="category1 " id="legenditemid_66"><input type="checkbox" id="eia_reserve_petroleum" class=""  unchecked> Petroleum (Reserve)</label></div>
-                        <div class="legenditem " id="legenditemid_57"><label class="category1 " id="legenditemid_67"><input type="checkbox" id="eia_storage_naturalgas" class=""  unchecked> Natural Gas (Storage)</label></div>
+                        <div class="legenditem " id="legenditemid_57"><label class="category1 " id="legenditemid_67"><input type="checkbox" id="eia_storage_naturalgas" class=""  unchecked> Natural Gas (Underground Storage)</label></div>
                         <div class="legenditem " id="legenditemid_58"><label class="category1 " id="legenditemid_68"><input type="checkbox" id="eia_terminal_crudeoil" class=""  unchecked> Crude Oil (Terminal)</label></div>
                         <div class="legenditem " id="legenditemid_59"><label class="category1 " id="legenditemid_69"><input type="checkbox" id="eia_terminal_lng" class=""  unchecked> LNG (Terminal)</label></div>
                         <div class="legenditem " id="legenditemid_70"><label class="category1 " id="legenditemid_80"><input type="checkbox" id="eia_terminal_petroleum" class=""  unchecked> Petroleum (Terminal)</label></div>
