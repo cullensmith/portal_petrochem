@@ -8,11 +8,18 @@ var lines_pipeline_naturalgas;
 var lines_pipeline_petroleum;
 
 var points_compressorstations;
+var points_eia_bordercrossing_electric;
+var points_eia_bordercrossing_liquids;
+var points_eia_bordercrossing_naturalgas;
+var points_eia_markethub_hgl;
+var points_eia_markethub_naturalgas;
+var points_eia_ports_petroleum;
+var points_eia_powerplants_batterystorage ;
 var points_eia_electric_generator;
 var points_eia_plants_biodiesel;
 var points_eia_plants_ethanol;
 var points_eia_plants_ethylene_cracker;
-var points_eia_plants_batterystorage;
+//var points_eia_plants_batterystorage;
 var points_eia_plants_coal;
 var points_eia_plants_geothermal;
 var points_eia_plants_hydroelectric;
@@ -22,18 +29,12 @@ var points_eia_plants_nuclear;
 var points_eia_plants_petroleum;
 var points_eia_plants_processing_naturalgas;
 var points_eia_plants_refinery_petroleum;
-var points_eia_bordercrossing_electric;
-var points_eia_bordercrossing_liquids;
-var points_eia_bordercrossing_naturalgas;
-var points_eia_markethub_hgl;
-var points_eia_markethub_naturalgas;
-var points_eia_ports_petroleum;
+
 var points_eia_reserve_petroleum;
 var points_eia_storage_naturalgas;
 var points_eia_terminal_crudeoil;
 var points_eia_terminal_lng;
 var points_eia_terminal_petroleum;
-var points_eia_powerplants_batterystorage ;
 // var points_eia_powerplants ;
 // var points_eia_powerplants ;
 // var points_eia_powerplants ;
@@ -976,23 +977,31 @@ function createPointLayer(ptlay) {
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
-                                    <h3>Within 1KM</h3>
-                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
-                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
-                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
-                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
-                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
-                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
-                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
-                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
-                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
-                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
-                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
-                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
-                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
-                                    <!-- Add other attributes as needed -->
-                                `;
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
                             }
                           });
                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
@@ -1047,23 +1056,31 @@ function createPointLayer(ptlay) {
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
-                                    <h3>Within 1KM</h3>
-                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
-                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
-                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
-                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
-                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
-                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
-                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
-                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
-                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
-                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
-                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
-                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
-                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
-                                    <!-- Add other attributes as needed -->
-                                `;
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
                             }
                           });
 
@@ -1119,23 +1136,31 @@ function createPointLayer(ptlay) {
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
-                                    <h3>Within 1KM</h3>
-                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
-                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
-                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
-                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
-                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
-                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
-                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
-                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
-                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
-                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
-                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
-                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
-                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
-                                    <!-- Add other attributes as needed -->
-                                `;
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
                             }
                           });
 
@@ -1191,23 +1216,31 @@ function createPointLayer(ptlay) {
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
-                                    <h3>Within 1KM</h3>
-                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
-                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
-                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
-                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
-                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
-                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
-                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
-                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
-                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
-                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
-                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
-                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
-                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
-                                    <!-- Add other attributes as needed -->
-                                `;
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
                             }
                           });
 
@@ -1262,23 +1295,31 @@ function createPointLayer(ptlay) {
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
-                                    <h3>Within 1KM</h3>
-                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
-                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
-                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
-                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
-                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
-                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
-                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
-                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
-                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
-                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
-                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
-                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
-                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
-                                    <!-- Add other attributes as needed -->
-                                `;
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
                             }
                           });
 
@@ -1333,23 +1374,31 @@ function createPointLayer(ptlay) {
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
-                                    <h3>Within 1KM</h3>
-                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
-                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
-                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
-                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
-                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
-                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
-                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
-                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
-                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
-                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
-                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
-                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
-                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
-                                    <!-- Add other attributes as needed -->
-                                `;
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
                             }
                           });
 
@@ -1404,23 +1453,31 @@ function createPointLayer(ptlay) {
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
-                                    <h3>Within 1KM</h3>
-                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
-                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
-                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
-                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
-                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
-                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
-                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
-                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
-                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
-                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
-                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
-                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
-                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
-                                    <!-- Add other attributes as needed -->
-                                `;
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
                             }
                           });
 
@@ -1475,23 +1532,1532 @@ function createPointLayer(ptlay) {
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
-                                    <h3>Within 1KM</h3>
-                                    <p><b>tpop:</b> ${closestFeature.properties.j_tpop}</p>
-                                    <p><b>wht:</b> ${closestFeature.properties.j_wht}</p>
-                                    <p><b>b_aa:</b> ${closestFeature.properties.j_b_aa}</p>
-                                    <p><b>ai_an:</b> ${closestFeature.properties.j_ai_an}</p>
-                                    <p><b>asn:</b> ${closestFeature.properties.j_asn}</p>
-                                    <p><b>nh_opi:</b> ${closestFeature.properties.j_nh_opi}</p>
-                                    <p><b>oth:</b> ${closestFeature.properties.j_oth}</p>
-                                    <p><b>2r:</b> ${closestFeature.properties.j_2r}</p>
-                                    <p><b>hl:</b> ${closestFeature.properties.j_hl}</p>
-                                    <p><b>o18:</b> ${closestFeature.properties.j_18}</p>
-                                    <p><b>nw:</b> ${closestFeature.properties.j_nw}</p>
-                                    <p><b>u18:</b> ${closestFeature.properties.j_u18}</p>
-                                    <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-                                    <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
-                                    <!-- Add other attributes as needed -->
-                                `;
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Ports_Petroleum') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_ports_petroleum = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Electric_Generator') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_electric_generator = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Biodiesel') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_biodiesel = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Ethanol') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_ethanol = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Ethylene_Cracker') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_ethylene_cracker = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Coal') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_coal = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Geothermal') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_geothermal = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Hydroelectric') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_hydroelectric = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Hydropumped') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_hydropumped = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Power_Naturalgas') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_power_naturalgas = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Nuclear') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_nuclear = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Petroleum') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_petroleum = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Processing_Naturalgas') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_processing_naturalgas = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Plants_Refinery_Petroleum') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_plants_refinery_petroleum = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Reserve_Petroleum') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_reserve_petroleum = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Storage_Naturalgas') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_storage_naturalgas = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Terminal_Crudeoil') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_terminal_crudeoil = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Terminal_Lng') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_terminal_lng = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+
+                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
+                            //  + "<br><b>Operator: </b>" + 
+                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
+                            // feature.properties.x + "<br><b>Latitude: </b>" +
+                            // feature.properties.y
+                        );
+                    }
+            
+                }).addTo(map);
+            } else if (ptlay === 'Terminal_Petroleum') {
+                // Example point style
+
+                // Add the GeoJSON layer to the map
+                points_eia_terminal_petroleum = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createDiamondMarker(latlng);
+                        
+                            marker.on('mouseover', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(2) rotate(45deg)';
+                              });
+                              marker.on('mouseout', () => {
+                                const el = marker.getElement().querySelector('.diamond-marker');
+                                el.style.transform = 'scale(1) rotate(45deg)';
+                              });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: function (e) {
+                                e.target.setStyle(highlightStyle);
+                            },
+                            mouseout: function (e) {
+                                e.target.setStyle(defaultStyle);
+                            }
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
                             }
                           });
 
@@ -1511,6 +3077,7 @@ function createPointLayer(ptlay) {
         .catch(error => console.log(error));
 
     }
+
 // L.geoJSON(yourGeoJSON, {
 //     pointToLayer: function (feature, latlng) {
 //         return L.marker(latlng, {
@@ -1653,10 +3220,10 @@ function findClosestFeature(clickedLatLng) {
 //                                 // Display the attributes in the box
 //                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
 //                                 attributesBox.innerHTML = `
-//                                     <h3>Closest Feature Attributes</h3>
-//                                     <p><b>Attribute 1:</b> ${closestFeature.properties.j_wht}</p>
-//                                     <!--<p><b>Attribute 2:</b> ${closestFeature.properties.attribute2}</p>-->
-//                                     <!--<p><b>Attribute 3:</b> ${closestFeature.properties.attribute3}</p>-->
+//                                     <h3 style="text-decoration: underline;">Closest Feature Attributes</h3>
+//                                     <p><b>Attribute 1:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+//                                     <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+//                                     <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
 //                                     <!-- Add other attributes as needed -->
 //                                 `;
 //                             }
@@ -2507,15 +4074,6 @@ function sortTable() {
 }
 
 
-
-// document.getElementById('sortbtn').addEventListener('click', function () {
-//     sortTable();
-// });
-
-// function revert() {
-//     updateTable(filteredData)
-// }
-
 let tabledata=null;
 function updateTable(geojson) {
     populateSortDropdown(geojson);
@@ -2685,56 +4243,42 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 });
 
 const statesarray = [
-    "Alabama", 
+    "Border Crossing: Electric", 
     // "Alaska", 
-    "Arizona", 
-    "Arkansas", 
-    "California", 
-    "Colorado", 
+    "Border Crossing: Liquid", 
+    "Border Crossing: Natural Gas", 
+    "Market Hub: HGL", 
+    "Market Hub: Natural Gas", 
     // "Connecticut", 
     // "Delaware", 
-    "Florida", 
+    "Port: Petroleum", 
     // "Georgia", 
     // "Hawaii", 
-    "Idaho", 
-    "Illinois", 
-    "Indiana", 
-    "Iowa", 
-    "Kansas", 
-    "Kentucky", 
-    "Louisiana", 
+    "Reserve: Petroleum", 
+    "Underground Storage: Natural Gas", 
+    "Terminal: Crude Oil", 
+    "Terminal: LNG", 
+    "Terminal: Petroleum", 
+    "Compressor Stations", 
+    "Plants: Biodiesel", 
     // "Maine", 
-    "Maryland", 
+    "Plants: Ethanol", 
     // "Massachusetts", 
-    "Michigan", 
+    "Plants: Ethylene Cracker", 
     // "Minnesota", 
-    "Mississippi", 
-    "Missouri", 
-    "Montana", 
-    "Nebraska", 
-    "Nevada", 
+    "Plants: Battery Storage", 
+    "Plants: Coal", 
+    "Plants: Geothermal", 
+    "Plants: Hydroelectric", 
+    "Plants: Hydro Pumped Storage", 
     // "New Hampshire", 
     // "New Jersey", 
-    "New Mexico", 
-    "New York", 
+    "Power Plants: Natural Gas", 
+    "Power Plants: Nuclear", 
     // "North Carolina", 
-    "North Dakota", 
-    "Ohio", 
-    "Oklahoma", 
-    "Oregon", 
-    "Pennsylvania", 
-    // "Rhode Island", 
-    // "South Carolina", 
-    "South Dakota", 
-    "Tennessee", 
-    "Texas (disabled)", 
-    "Utah", 
-    // "Vermont", 
-    "Virginia", 
-    "Washington", 
-    "West Virginia",
-    // "Wisconsin", 
-    "Wyoming"
+    "Power Plants: Petroleum", 
+    "Processing Plant: Natural Gas", 
+    "Refinery: Petroleum"
     ];
 
 // Iterate through the statesarray array and create a button for each st
@@ -3032,8 +4576,11 @@ function toggleselection(c,v) {
         // Create a span for the original text
         const textSpan = document.createElement('span');
         if (c === 'state') {
+            console.log(v)
             if (v === "Alabama") {
                 textSpan.textContent = 'AL'
+            } else if (v === "Border Crossing: Electric") {
+                textSpan.textContent = 'Border Crossing: Electric';  // Set the text inside the span
             } else if (v === "Arizona") {
                 textSpan.textContent = 'AZ';  // Set the text inside the span
             } else if (v === "Arkansas") {
@@ -3511,27 +5058,27 @@ togglePointLayerByZoom();
 
 
 
-// Create the Leaflet Draw Control
-var drawControl = new L.Control.Draw({
-    draw: {
-        circle: true, // Allow the user to draw a circle
-        circlemarker: false,
-        polygon: false,
-        polyline: false,
-        rectangle: false,
-        marker: false,
-    }
-});
+// // Create the Leaflet Draw Control
+// var drawControl = new L.Control.Draw({
+//     draw: {
+//         circle: true, // Allow the user to draw a circle
+//         circlemarker: false,
+//         polygon: false,
+//         polyline: false,
+//         rectangle: false,
+//         marker: false,
+//     }
+// });
 
-// Manually attach the draw control to a div outside the map
-var drawControlsDiv = document.getElementById('draw-controls');
+// // Manually attach the draw control to a div outside the map
+// var drawControlsDiv = document.getElementById('draw-controls');
 
-// Attach the draw control to the separate div
-map.addControl(drawControl);
+// // Attach the draw control to the separate div
+// map.addControl(drawControl);
 
-// Move the control outside of the map container
-var controlContainer = document.querySelector('.leaflet-draw-toolbar');
-drawControlsDiv.appendChild(controlContainer);
+// // Move the control outside of the map container
+// var controlContainer = document.querySelector('.leaflet-draw-toolbar');
+// drawControlsDiv.appendChild(controlContainer);
 
 // // Now a box
 // // Create the Leaflet Draw Control
@@ -3557,7 +5104,7 @@ drawControlsDiv.appendChild(controlContainer);
 // drawControlsDivB.appendChild(controlContainerB);
 
 // Attach the draw control to the separate div
-map.addControl(drawControl);
+// map.addControl(drawControl);
 // map.addControl(drawControlB);
 
 // Move the control outside of the map container
@@ -3712,11 +5259,37 @@ window.onload = function() {
     // document.getElementById('category5').checked = false;
     // document.getElementById('category6').checked = false;
 
-    document.getElementById('pipeline_fractracker').checked = false;
+    //document.getElementById('pipeline_fractracker').checked = false;
     document.getElementById('pipeline_crudeoil').checked = false;
     document.getElementById('pipeline_hgl').checked = false;
     document.getElementById('pipeline_naturalgas').checked = false;
     document.getElementById('pipeline_petroleum').checked = false;
+    document.getElementById('eia_bordercrossing_electric').checked = false;
+    document.getElementById('eia_bordercrossing_liquids').checked = false;
+    document.getElementById('eia_bordercrossing_naturalgas').checked = false;
+    document.getElementById('eia_markethub_hgl').checked = false;
+    document.getElementById('eia_markethub_naturalgas').checked = false;
+    document.getElementById('eia_ports_petroleum').checked = false;
+    document.getElementById('eia_reserve_petroleum').checked = false;
+    document.getElementById('eia_storage_naturalgas').checked = false;
+    document.getElementById('eia_terminal_crudeoil').checked = false;
+    document.getElementById('eia_terminal_lng').checked = false;
+    document.getElementById('eia_terminal_petroleum').checked = false;
+    document.getElementById('eia_compressorstations').checked = false;
+    document.getElementById('eia_plants_biodiesel').checked = false;
+    document.getElementById('eia_plants_ethanol').checked = false;
+    document.getElementById('eia_plants_ethylene_cracker').checked = false;
+    document.getElementById('eia_powerplants_batterystorage').checked = false;
+    // document.getElementById('eia_electric_generator').checked = false;
+    document.getElementById('eia_plants_coal').checked = false;
+    document.getElementById('eia_plants_geothermal').checked = false;
+    document.getElementById('eia_plants_hydroelectric').checked = false;
+    document.getElementById('eia_plants_power_naturalgas').checked = false;
+    document.getElementById('eia_plants_nuclear').checked = false;
+    document.getElementById('eia_plants_petroleum').checked = false;
+    document.getElementById('eia_plants_processing_naturalgas').checked = false;
+    document.getElementById('eia_plants_refinery_petroleum').checked = false;
+
 }
 
 const legend = document.querySelector('.legend'); // or your actual legend class/id
@@ -3775,22 +5348,22 @@ document.getElementById('pipeline_naturalgas').addEventListener('change', functi
     }
 });
 
-// Toggle line visibility based on checkbox
-document.getElementById('pipeline_fractracker').addEventListener('change', function() {
-    if (this.checked) {
-        // console.log('pipeline_naturalgas - checked')
-        if (!lines_pipeline_fractracker) {
-            console.log('pipeline_naturalgas - needs to load')
-            // createLineLayer('Pipeline_Fractracker')
-        } else {
-            // console.log('pipeline_naturalgas - just adding')
-            lines_pipeline_fractracker.addTo(map);
-        }
-    } else if (lines_pipeline_fractracker) {
-        console.log('pipeline_naturalgas - fake removing')
-        // map.removeLayer(lines_pipeline_fractracker);
-    }
-});
+// // Toggle line visibility based on checkbox
+// document.getElementById('pipeline_fractracker').addEventListener('change', function() {
+//     if (this.checked) {
+//         // console.log('pipeline_naturalgas - checked')
+//         if (!lines_pipeline_fractracker) {
+//             console.log('pipeline_naturalgas - needs to load')
+//             // createLineLayer('Pipeline_Fractracker')
+//         } else {
+//             // console.log('pipeline_naturalgas - just adding')
+//             lines_pipeline_fractracker.addTo(map);
+//         }
+//     } else if (lines_pipeline_fractracker) {
+//         console.log('pipeline_naturalgas - fake removing')
+//         // map.removeLayer(lines_pipeline_fractracker);
+//     }
+// });
 
 // Toggle line visibility based on checkbox
 document.getElementById('pipeline_hgl').addEventListener('change', function() {
@@ -3968,6 +5541,333 @@ document.getElementById('eia_powerplants_batterystorage').addEventListener('chan
     } else if (points_eia_powerplants_batterystorage) {
         console.log('compressors - removing')
         map.removeLayer(points_eia_powerplants_batterystorage);
+    }
+});
+
+
+
+// // Toggle line visibility based on checkbox
+// document.getElementById('eia_electric_generator').addEventListener('change', function() {
+//     if (this.checked) {
+//         console.log('compressors - checked')
+//         if (!points_eia_electric_generator) {
+//             console.log('compressors - needs to load')
+//             createPointLayer('Electric_Generator')
+//         } else {
+//             console.log('compressors - just adding')
+//             points_eia_electric_generator.addTo(map);
+//         }
+//     } else if (points_eia_electric_generator) {
+//         console.log('compressors - removing')
+//         map.removeLayer(points_eia_electric_generator);
+//     }
+// });
+
+
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_biodiesel').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_biodiesel) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Biodiesel')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_biodiesel.addTo(map);
+        }
+    } else if (points_eia_plants_biodiesel) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_biodiesel);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_ethanol').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_ethanol) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Ethanol')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_ethanol.addTo(map);
+        }
+    } else if (points_eia_plants_ethanol) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_ethanol);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_ethylene_cracker').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_ethylene_cracker) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Ethylene_Cracker')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_ethylene_cracker.addTo(map);
+        }
+    } else if (points_eia_plants_ethylene_cracker) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_ethylene_cracker);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_coal').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_coal) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Coal')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_coal.addTo(map);
+        }
+    } else if (points_eia_plants_coal) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_coal);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_geothermal').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_geothermal) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Geothermal')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_geothermal.addTo(map);
+        }
+    } else if (points_eia_plants_geothermal) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_geothermal);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_hydroelectric').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_hydroelectric) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Hydroelectric')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_hydroelectric.addTo(map);
+        }
+    } else if (points_eia_plants_hydroelectric) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_hydroelectric);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_hydropumped').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_hydropumped) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Hydropumped')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_hydropumped.addTo(map);
+        }
+    } else if (points_eia_plants_hydropumped) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_hydropumped);
+    }
+});
+
+// // Toggle line visibility based on checkbox
+// document.getElementById('eia_plants_hydropumped').addEventListener('change', function() {
+//     if (this.checked) {
+//         console.log('compressors - checked')
+//         if (!points_eia_plants_hydropumped) {
+//             console.log('compressors - needs to load')
+//             createPointLayer('Plants_Hydropumped')
+//         } else {
+//             console.log('compressors - just adding')
+//             points_eia_plants_hydropumped.addTo(map);
+//         }
+//     } else if (points_eia_plants_hydropumped) {
+//         console.log('compressors - removing')
+//         map.removeLayer(points_eia_plants_hydropumped);
+//     }
+// });
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_power_naturalgas').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_power_naturalgas) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Naturalgas')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_power_naturalgas.addTo(map);
+        }
+    } else if (points_eia_plants_power_naturalgas) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_power_naturalgas);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_nuclear').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_nuclear) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Nuclear')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_nuclear.addTo(map);
+        }
+    } else if (points_eia_plants_nuclear) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_nuclear);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_petroleum').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_petroleum) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Petroleum')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_petroleum.addTo(map);
+        }
+    } else if (points_eia_plants_petroleum) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_petroleum);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_processing_naturalgas').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_processing_naturalgas) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Processing_Naturalgas')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_processing_naturalgas.addTo(map);
+        }
+    } else if (points_eia_plants_processing_naturalgas) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_processing_naturalgas);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_plants_refinery_petroleum').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_plants_refinery_petroleum) {
+            console.log('compressors - needs to load')
+            createPointLayer('Plants_Refinery_Petroleum')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_plants_refinery_petroleum.addTo(map);
+        }
+    } else if (points_eia_plants_refinery_petroleum) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_plants_refinery_petroleum);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_reserve_petroleum').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_reserve_petroleum) {
+            console.log('compressors - needs to load')
+            createPointLayer('Reserve_Petroleum')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_reserve_petroleum.addTo(map);
+        }
+    } else if (points_eia_reserve_petroleum) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_reserve_petroleum);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_storage_naturalgas').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_storage_naturalgas) {
+            console.log('compressors - needs to load')
+            createPointLayer('Storage_Naturalgas')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_storage_naturalgas.addTo(map);
+        }
+    } else if (points_eia_storage_naturalgas) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_storage_naturalgas);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_terminal_crudeoil').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_terminal_crudeoil) {
+            console.log('compressors - needs to load')
+            createPointLayer('Terminal_Crudeoil')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_terminal_crudeoil.addTo(map);
+        }
+    } else if (points_eia_terminal_crudeoil) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_terminal_crudeoil);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_terminal_lng').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_terminal_lng) {
+            console.log('compressors - needs to load')
+            createPointLayer('Terminal_Lng')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_terminal_lng.addTo(map);
+        }
+    } else if (points_eia_terminal_lng) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_terminal_lng);
+    }
+});
+
+// Toggle line visibility based on checkbox
+document.getElementById('eia_terminal_petroleum').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('compressors - checked')
+        if (!points_eia_terminal_petroleum) {
+            console.log('compressors - needs to load')
+            createPointLayer('Terminal_Petroleum')
+        } else {
+            console.log('compressors - just adding')
+            points_eia_terminal_petroleum.addTo(map);
+        }
+    } else if (points_eia_terminal_petroleum) {
+        console.log('compressors - removing')
+        map.removeLayer(points_eia_terminal_petroleum);
     }
 });
 // app.listen(3000, () => {

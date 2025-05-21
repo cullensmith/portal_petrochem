@@ -579,19 +579,34 @@ def generate_geojson_comps(request):
         tmp=vars(x)
         tmp.pop('_state')
         newwell.append(tmp)
-    
-    geojson = {
-        "type": "FeatureCollection",
-        "features": [
-        {
-            "type": "Feature",
-            "geometry" : {
-                "type": "Point",
-                "coordinates": [d["x"], d["y"]],
-                },
-            "properties" : d,
-        } for d in newwell]
-    }
+    try:
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [d["x"], d["y"]],
+                    },
+                    "properties": d,
+                } for d in newwell
+            ]
+        }
+    except (KeyError, TypeError):
+        geojson = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [d["longitude"], d["latitude"]],
+                    },
+                    "properties": d,
+                } for d in newwell
+            ]
+        }
     mapdata = json.dumps(geojson)
 
     return JsonResponse(mapdata, safe=False)
