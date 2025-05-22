@@ -2280,9 +2280,9 @@ function createPointLayer(ptlay) {
                     }
             
                 }).addTo(map);
-            } else if (ptlay === 'Plants_Power_Naturalgas') {
+            } else if (ptlay === 'Plants_Naturalgas') {
                 // Example point style
-
+                console.log('adding the natural gas power plants')
                 // Add the GeoJSON layer to the map
                 points_eia_plants_power_naturalgas = L.geoJSON(d, {
                         // filter: function (feature) {
@@ -5284,6 +5284,7 @@ window.onload = function() {
     document.getElementById('eia_plants_coal').checked = false;
     document.getElementById('eia_plants_geothermal').checked = false;
     document.getElementById('eia_plants_hydroelectric').checked = false;
+    document.getElementById('eia_plants_hydropumped').checked = false;
     document.getElementById('eia_plants_power_naturalgas').checked = false;
     document.getElementById('eia_plants_nuclear').checked = false;
     document.getElementById('eia_plants_petroleum').checked = false;
@@ -5684,27 +5685,11 @@ document.getElementById('eia_plants_hydropumped').addEventListener('change', fun
     }
 });
 
-// // Toggle line visibility based on checkbox
-// document.getElementById('eia_plants_hydropumped').addEventListener('change', function() {
-//     if (this.checked) {
-//         console.log('compressors - checked')
-//         if (!points_eia_plants_hydropumped) {
-//             console.log('compressors - needs to load')
-//             createPointLayer('Plants_Hydropumped')
-//         } else {
-//             console.log('compressors - just adding')
-//             points_eia_plants_hydropumped.addTo(map);
-//         }
-//     } else if (points_eia_plants_hydropumped) {
-//         console.log('compressors - removing')
-//         map.removeLayer(points_eia_plants_hydropumped);
-//     }
-// });
 
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_power_naturalgas').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        console.log('Natural Gas Power Plant - checked')
         if (!points_eia_plants_power_naturalgas) {
             console.log('compressors - needs to load')
             createPointLayer('Plants_Naturalgas')
