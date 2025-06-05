@@ -730,10 +730,14 @@ function applyCategoryFilter() {
         console.log('that was it')
         if (!points_eia_bordercrossing_electric) {
             // console.log('compressors - needs to load')
-            createPointLayer('Bordercrossing_Electric')
+            document.getElementById('eia_bordercrossing_naturalgas').checked = true;
+
+            createPointLayer('Bordercrossing_Electric');
+            
         } else {
             console.log('update table with border crossing electric')
             // points_eia_bordercrossing_electric.addTo(map);
+            document.getElementById('eia_bordercrossing_electric').checked = true;
             tableJson('Bordercrossing_Electric')
             console.log('just needed to recreate the table')
         }
