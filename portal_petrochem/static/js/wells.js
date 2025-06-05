@@ -62,6 +62,19 @@ const cattextbox = document.getElementById('ftacatPicks');
 const catbuttonContainer = document.getElementById('ftacat-container');
 
 
+// Styles
+const highlightStyle = {
+    radius: 5  // what you want on hover
+};
+// Example point style
+const defaultStyle = {
+    radius: 2,
+    fillColor: "#ff7800",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+};
 
 // Main portion centered around the map container
 // Initialize Leaflet map
@@ -634,20 +647,6 @@ function applyCategoryFilter_orig() {
     document.getElementById('filterpanel').classList.add('hide')
     document.getElementById('filterbtn').classList.remove('sel')
     document.getElementById('loadingpanel').classList.remove('hide');
-    // let dots = '';
-    // let dotCount = 0;
-    // dotInterval = setInterval(() => {
-    //     dotCount += 1;
-    //     if (dotCount > 2) {
-    //         thetext = '   '; // Reset dots
-    //         dotCount = 0;
-    //     } else {
-    //         thetext = '...'
-    //     }
-    // }, 1000); // Update text every 500ms
-    // document.getElementById('loading-dots').textContent = thetext;
-
-    // document.getElementById('refineblock').style.display = 'none';
 
     var category = document.getElementById('ftacatPicks').value; 
     
@@ -698,41 +697,6 @@ function applyCategoryFilter_orig() {
             document.getElementById('resultspanel').classList.remove('hide')
             document.getElementById('resultsbtn').classList.add('sel')
 
-        //     document.getElementById('legenditemid_21').classList.remove('dim')
-        //     document.getElementById('legenditemid_11').classList.remove('dim')
-        //     document.getElementById('category1').classList.remove('dim')
-            
-        //     document.getElementById('legenditemid_22').classList.remove('dim')
-        //     document.getElementById('legenditemid_12').classList.remove('dim')
-        //     document.getElementById('category2').classList.remove('dim')
-
-        //     document.getElementById('legenditemid_23').classList.remove('dim')
-        //     document.getElementById('legenditemid_13').classList.remove('dim')
-        //     document.getElementById('category3').classList.remove('dim')
-            
-        //     document.getElementById('legenditemid_24').classList.remove('dim')
-        //     document.getElementById('legenditemid_14').classList.remove('dim')
-        //     document.getElementById('category4').classList.remove('dim')
-
-        //     document.getElementById('legenditemid_25').classList.remove('dim')
-        //     document.getElementById('legenditemid_15').classList.remove('dim')
-        //     document.getElementById('category5').classList.remove('dim')
-
-        //     document.getElementById('legenditemid26').classList.remove('dim')
-        //     document.getElementById('legenditemid16').classList.remove('dim')
-        //     document.getElementById('category6').classList.remove('dim')
-
-        //     document.getElementById('legenditemid27').classList.remove('dim')
-        //     document.getElementById('legenditemid17').classList.remove('dim')
-        //     document.getElementById('countylayer').classList.remove('dim')
-
-        //     document.getElementById('legenditemid28').classList.remove('dim')
-        //     document.getElementById('legenditemid18').classList.remove('dim')
-        //     document.getElementById('countycount').classList.remove('dim')
-
-        //     document.getElementById('legenditemid29').classList.remove('dim')
-        //     document.getElementById('legenditemid19').classList.remove('dim')
-        //     document.getElementById('countychoropleth').classList.remove('dim')
         },
 
         error: function(xhr, status, error) {
@@ -745,157 +709,470 @@ function applyCategoryFilter_orig() {
 
 
 ////////
-////////
-function applyCategoryFilter() {
-    // Fetch GeoJSON data from the server
-    fetch('/petrochem/generate_geojson_comps')
+function tableJson(i) {
+    const grab = i
+    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
             console.log(data)
             d=JSON.parse(data)
             console.log(d)
+            createTable(d); 
+})}
 
-            // Example point style
-            const defaultStyle = {
-                radius: 2,
-                fillColor: "#ff7800",
-                color: "#000",
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8
-            };
-            const highlightStyle = {
-                radius: 5  // what you want on hover
-            };
+////////
+function applyCategoryFilter() {
+    // Fetch GeoJSON data from the server
+    console.log('clicked this one')
+    var datalayer = getSelValues('statePicks').replace(",,,","");  // Assuming this returns a comma-delimited string
 
-            // Add the GeoJSON layer to the map
-            compressors = L.geoJSON(d, {
-                // filter: function (feature) {
-                //     return feature.properties.ft_category === 'Production Well';
-                // },
-                pointToLayer: function (feature, latlng) {
-                    return L.circleMarker(latlng, defaultStyle);
-                },
-                onEachFeature: function (feature, layer) {
-                    // Bind a popup to each circle marker based on the properties in the GeoJSON data
-                    layer.on({
-                        mouseover: function (e) {
-                            e.target.setStyle(highlightStyle);
-                        },
-                        mouseout: function (e) {
-                            e.target.setStyle(defaultStyle);
-                        }
-                    });
-                    layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
-                        feature.properties.naics_desc + "<br><b>Operator: </b>" + 
-                        feature.properties.operator + "<br><b>Longitude:</b> " + 
-                        feature.properties.x + "<br><b>Latitude: </b>" +
-                        feature.properties.y
-                    );
-                }
+    if (datalayer === 'Border Crossing: Electric') {
+        console.log('that was it')
+        if (!points_eia_bordercrossing_electric) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Bordercrossing_Electric')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Bordercrossing_Electric')
+            console.log('just needed to recreate the table')
+        }
+
+    } else if (datalayer === 'Compressor Stations') {
+        console.log('that was it')
+        if (!points_compressorstations) {
+            createPointLayer('Compressors')
+        } else {
+            console.log('update table with border crossing electric')
+            tableJson('Compressors')
+            console.log('just needed to recreate the table')
+        }
+
+    } else if (datalayer === 'Border Crossing: Liquid') {
+        console.log('that was it')
+        if (!points_eia_bordercrossing_liquids) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Bordercrossing_Liquids')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Bordercrossing_Liquids')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Border Crossing: Natural Gas') {
+        console.log('that was it')
+        if (!points_eia_bordercrossing_naturalgas) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Bordercrossing_Naturalgas')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Bordercrossing_Naturalgas')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Market Hub: Natural Gas') {
+        console.log('that was it')
+        if (!points_eia_markethub_naturalgas) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Markethubs_Naturalgas')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Markethubs_Naturalgas')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Market Hub: HGL') {
+        console.log('that was it')
+        if (!points_eia_markethub_hgl) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Markethubs_hgl')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Markethubs_hgl')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Ports: Petroleum') {
+        console.log('that was it')
+        if (!points_eia_ports_petroleum) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Ports_Petroleum')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Ports_Petroleum')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Plants: Battery Storage') {
+        console.log('that was it')
+        if (!points_eia_powerplants_batterystorage) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Powerplants_Batterystorage')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Powerplants_Batterystorage')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Plants: Biodiesel') {
+        console.log('that was it')
+        if (!points_eia_plants_biodiesel) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Biodiesel')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Biodiesel')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Plants: Ethanol') {
+        console.log('that was it')
+        if (!points_eia_plants_ethanol) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Ethanol')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Ethanol')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Plants: Ethylene Cracker') {
+        console.log('that was it')
+        if (!points_eia_plants_ethylene_cracker) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Ethylene_Cracker')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Ethylene_Cracker')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Plants: Coal') {
+        console.log('that was it')
+        if (!points_eia_plants_coal) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Coal')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Coal')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }  else if (datalayer === 'Plants: Coal') {
+        console.log('that was it')
+        if (!points_eia_plants_coal) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Coal')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Coal')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }  else if (datalayer === 'Plants: Coal') {
+        console.log('that was it')
+        if (!points_eia_plants_coal) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Coal')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Coal')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }  else if (datalayer === 'Plants: Geothermal') {
+        console.log('that was it')
+        if (!points_eia_plants_geothermal) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Geothermal')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Geothermal')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }  else if (datalayer === 'Plants: Hydro Pumped Storage') {
+        console.log('that was it')
+        if (!points_eia_plants_hydropumped) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Hydropumped')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Hydropumped')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }  else if (datalayer === 'Power Plants: Natural Gas') {
+        console.log('that was it')
+        if (!points_eia_plants_power_naturalgas) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Naturalgas')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Naturalgas')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }  else if (datalayer === 'Plants: Hydroelectric') {
+        console.log('that was it')
+        if (!points_eia_plants_hydroelectric) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Hydroelectric')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Hydroelectric')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }  else if (datalayer === 'Power Plants: Nuclear') {
+        console.log('that was it')
+        if (!points_eia_plants_nuclear) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Nuclear')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Nuclear')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }   else if (datalayer === 'Power Plants: Petroleum') {
+        console.log('that was it')
+        if (!points_eia_plants_petroleum) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Petroleum')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Petroleum')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }   else if (datalayer === 'Processing Plants: Natural Gas') {
+        console.log('that was it')
+        if (!points_eia_plants_processing_naturalgas) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Processing_Naturalgas')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Processing_Naturalgas')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }   else if (datalayer === 'Refinery: Petroleum') {
+        console.log('that was it')
+        if (!points_eia_plants_refinery_petroleum) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Plants_Refinery_Petroleum')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Plants_Refinery_Petroleum')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }   else if (datalayer === 'Reserve: Petroleum') {
+        console.log('that was it')
+        if (!points_eia_reserve_petroleum) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Reserve_Petroleum')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Reserve_Petroleum')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }   else if (datalayer === 'Underground Storage: Natural Gas') {
+        console.log('that was it')
+        if (!points_eia_storage_naturalgas) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Storage_Naturalgas')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Storage_Naturalgas')
+            console.log('just needed to recreate the table')
+        }
+
+
+    }  else if (datalayer === 'Terminal: Crude Oil') {
+        console.log('that was it')
+        if (!points_eia_terminal_crudeoil) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Terminal_Crudeoil')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Terminal_Crudeoil')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Terminal: LNG') {
+        console.log('that was it')
+        if (!points_eia_terminal_lng) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Terminal_Lng')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Terminal_Lng')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Terminal: Petroleum') {
+        console.log('that was it')
+        if (!points_eia_terminal_petroleum) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Terminal_Petroleum')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Terminal_Petroleum')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else if (datalayer === 'Reserve: Petroleum') {
+        console.log('that was it')
+        if (!points_eia_reserve_petroleum) {
+            // console.log('compressors - needs to load')
+            createPointLayer('Reserve_Petroleum')
+        } else {
+            console.log('update table with border crossing electric')
+            // points_eia_bordercrossing_electric.addTo(map);
+            tableJson('Reserve_Petroleum')
+            console.log('just needed to recreate the table')
+        }
+
+
+    } else  {console.log('nope')
+    }
+
+    // Toggle line visibility based on checkbox
+    document.getElementById('eia_bordercrossing_electric').addEventListener('change', function() {
+        if (this.checked) {
+            // console.log('compressors - checked')
+            if (!points_eia_bordercrossing_electric) {
+                // console.log('compressors - needs to load')
+                createPointLayer('Bordercrossing_Electric')
+            } else {
+                // console.log('compressors - just adding')
+                points_eia_bordercrossing_electric.addTo(map);
+            }
+        } else if (points_eia_bordercrossing_electric) {
+            // console.log('compressors - removing')
+            map.removeLayer(points_eia_bordercrossing_electric);
+        }
+    });
+
+    // console.log(datalayer)
+
+    // createPointLayer('Bordercrossing_Electric')
+    // updateTable(geojson) 
+
+    // fetch('/petrochem/generate_geojson_comps')
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         console.log(data)
+    //         d=JSON.parse(data)
+    //         console.log(d)
+
+
+
+
+    //         // Add the GeoJSON layer to the map
+    //         compressors = L.geoJSON(d, {
+    //             // filter: function (feature) {
+    //             //     return feature.properties.ft_category === 'Production Well';
+    //             // },
+    //             pointToLayer: function (feature, latlng) {
+    //                 return L.circleMarker(latlng, defaultStyle);
+    //             },
+    //             onEachFeature: function (feature, layer) {
+    //                 // Bind a popup to each circle marker based on the properties in the GeoJSON data
+    //                 layer.on({
+    //                     mouseover: function (e) {
+    //                         e.target.setStyle(highlightStyle);
+    //                     },
+    //                     mouseout: function (e) {
+    //                         e.target.setStyle(defaultStyle);
+    //                     }
+    //                 });
+    //                 layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
+    //                     feature.properties.naics_desc + "<br><b>Operator: </b>" + 
+    //                     feature.properties.operator + "<br><b>Longitude:</b> " + 
+    //                     feature.properties.x + "<br><b>Latitude: </b>" +
+    //                     feature.properties.y
+    //                 );
+    //             }
         
-            }).addTo(map);
-            createTable(d);
-        })
-        .catch(error => console.log(error));
-        createLineLayer();
-        applyCategoryFilter2();
+    //         }).addTo(map);
+    //         createTable(d);
+    //     })
+    //     .catch(error => console.log(error));
+    //     createLineLayer();
+    //     applyCategoryFilter2();
     };
-    // function applyCategoryFilter() {
-    //     // Fetch GeoJSON data from the server
-    //     fetch('/petrochem/generate_geojson_comps')
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             console.log(data)
-    //             d=JSON.parse(data)
-    //             console.log(d)
-    
-    //             // Example point style
-    //             const defaultStyle = {
-    //                 radius: 2,
-    //                 fillColor: "#ff7800",
-    //                 color: "#000",
-    //                 weight: 1,
-    //                 opacity: 1,
-    //                 fillOpacity: 0.8
-    //             };
-    //             const highlightStyle = {
-    //                 radius: 5  // what you want on hover
-    //             };
-    
-    //             // Add the GeoJSON layer to the map
-    //             compressors = L.geoJSON(d, {
-    //                 // filter: function (feature) {
-    //                 //     return feature.properties.ft_category === 'Production Well';
-    //                 // },
-    //                 pointToLayer: function (feature, latlng) {
-    //                     return L.circleMarker(latlng, defaultStyle);
-    //                 },
-    //                 onEachFeature: function (feature, layer) {
-    //                     // Bind a popup to each circle marker based on the properties in the GeoJSON data
-    //                     layer.on({
-    //                         mouseover: function (e) {
-    //                             e.target.setStyle(highlightStyle);
-    //                         },
-    //                         mouseout: function (e) {
-    //                             e.target.setStyle(defaultStyle);
-    //                         }
-    //                     });
-    //                     layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
-    //                         feature.properties.naics_desc + "<br><b>Operator: </b>" + 
-    //                         feature.properties.operator + "<br><b>Longitude:</b> " + 
-    //                         feature.properties.x + "<br><b>Latitude: </b>" +
-    //                         feature.properties.y
-    //                     );
-    //                 }
-            
-    //             }).addTo(map);
-    //             createTable(d);
-    //         })
-    //         .catch(error => console.log(error));
-    //         createLineLayer();
-    //         applyCategoryFilter2();
-    //     }
 
-// fetch('/petrochem/generate_geojson_buffs')
-//     .then(response => response.json())
-//     .then(data => {
-//         const buffs = L.geoJSON(data, {
-//         style: {
-//             color: 'blue',
-//             weight: 2,
-//             fillOpacity: 0.3
-//         },
-//         onEachFeature: function (feature, layer) {
-//             if (feature.properties && feature.properties.name) {
-//             layer.bindPopup(feature.properties.name);
-//             }
-//         }
-//         }).addTo(map);
-    
-//         // Optional: zoom to the layer bounds
-//         // map.fitBounds(polygonLayer.getBounds());
-//     })
-//     .catch(error => {
-//         console.error('Error loading GeoJSON:', error);
-//     });
+     
 
-function createTriangleMarker(latlng) {
+function createTriangleMarker(latlng,newcolor) {
     return L.marker(latlng, {
         icon: L.divIcon({
         className: 'custom-marker-icon',
-        html: '<div class="triangle-marker"></div>',
+        html:  `<div class="triangle-marker" style="border-bottom: 8px solid #${newcolor};"></div>`,
         iconSize: [8, 8],
         iconAnchor: [4, 4]
         })
     });
     }
     
-function createDiamondMarker(latlng) {
+function createDiamondMarker(latlng,newcolor) {
     return L.marker(latlng, {
         icon: L.divIcon({
         className: 'custom-marker-icon',
-        html: '<div class="diamond-marker"></div>',
+        html: `<div class="diamond-marker" style="background:#${newcolor};"></div>`,
         iconSize: [8, 8],
         iconAnchor: [4, 4]
         })
@@ -905,7 +1182,7 @@ function createPentagonMarker(latlng) {
     return L.marker(latlng, {
         icon: L.divIcon({
         className: 'custom-marker-icon',
-        html: '<div class="pentagon-marker"></div>',
+        html: `<div class="pentagon-marker" style="background:#${newcolor};"></div>`,
         iconSize: [8, 8],
         iconAnchor: [4, 4]
         })
@@ -916,7 +1193,7 @@ function createHexagonMarker(latlng) {
     return L.marker(latlng, {
         icon: L.divIcon({
         className: 'custom-marker-icon',
-        html: '<div class="hexagon-marker"></div>',
+        html: `<div class="hexagon-marker" style="background:#${newcolor};"></div>`,
         iconSize: [8, 8],
         iconAnchor: [4, 4]
         })
@@ -1015,15 +1292,15 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Bordercrossing_Electric') {
                 // Example point style
-
+                newcolor = '5d792f'
                 // Add the GeoJSON layer to the map
                 points_eia_bordercrossing_electric = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createTriangleMarker(latlng);
-                        
+                            const marker = createTriangleMarker(latlng,newcolor);
+                            
                             marker.on('mouseover', () => {
                               const el = marker.getElement().querySelector('.triangle-marker');
                               el.style.transform = 'scale(2)';
@@ -1084,25 +1361,25 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
+                        layer.bindPopup( "<br><b>Owner: </b>" + feature.properties.owner
+                             + "<br><b>Linename: </b>" + 
+                            feature.properties.linename + "<br><b>Longitude:</b> " + 
+                            parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                            parseFloat(feature.properties.y).toFixed(6)
                         );
                     }
             
                 }).addTo(map);
             } else if (ptlay === 'Bordercrossing_Liquids') {
                 // Example point style
-
+                newcolor = '00253B'
                 // Add the GeoJSON layer to the map
                 points_eia_bordercrossing_liquids = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createTriangleMarker(latlng);
+                            const marker = createTriangleMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                               const el = marker.getElement().querySelector('.triangle-marker');
@@ -1129,7 +1406,6 @@ function createPointLayer(ptlay) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
                             if (closestFeature) {
                                 console.log('closest feat')
                                 console.log(closestFeature)
@@ -1164,25 +1440,25 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
+                        layer.bindPopup( "<br><b>Owner: </b>" + feature.properties.owner
+                             + "<br><b>Pipeline: </b>" + 
+                            feature.properties.pipeline  + "<br><b>Longitude:</b> " + 
+                            parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                            parseFloat(feature.properties.y).toFixed(6)
                         );
                     }
             
                 }).addTo(map);
             }  else if (ptlay === 'Bordercrossing_Naturalgas') {
                 // Example point style
-
+                newcolor = 'de541e'
                 // Add the GeoJSON layer to the map
                 points_eia_bordercrossing_naturalgas = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createTriangleMarker(latlng);
+                            const marker = createTriangleMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                               const el = marker.getElement().querySelector('.triangle-marker');
@@ -1243,26 +1519,25 @@ function createPointLayer(ptlay) {
                             `;
                             }
                           });
-
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
+                          layer.bindPopup( "<br><b>Owner: </b>" + feature.properties.owner
+                          + "<br><b>Pipeline: </b>" + 
+                         feature.properties.pipeline  + "<br><b>Longitude:</b> " + 
+                         parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                         parseFloat(feature.properties.y).toFixed(6)
+                     );
                     }
             
                 }).addTo(map);
             }  else if (ptlay === 'Markethubs_hgl') {
                 // Example point style
-
+                newcolor = '0287D4'
                 // Add the GeoJSON layer to the map
                 points_eia_markethub_hgl = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -1323,25 +1598,24 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
+                    layer.bindPopup( "<br><b>Facility: </b>" + 
+                         feature.properties.facility  + "<br><b>Longitude:</b> " + 
+                         parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                         parseFloat(feature.properties.y).toFixed(6)
+                     );
                     }
             
                 }).addTo(map);
             } else if (ptlay === 'Markethubs_Naturalgas') {
                 // Example point style
-
+                newcolor = '00253B'
                 // Add the GeoJSON layer to the map
                 points_eia_markethub_naturalgas = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -1402,25 +1676,24 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
-                    }
+                    layer.bindPopup( "<br><b>Hub Name: </b>" + 
+                          feature.properties.hubname  + "<br><b>Longitude:</b> " + 
+                          parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                          parseFloat(feature.properties.y).toFixed(6)
+                      );
+                     }
             
                 }).addTo(map);
             } else if (ptlay === 'Ports_Petroleum') {
                 // Example point style
-
+                newcolor = 'A3CF5F'
                 // Add the GeoJSON layer to the map
                 points_eia_ports_petroleum = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -1481,32 +1754,32 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
-                    }
+                    layer.bindPopup( "<br><b>Port Name: </b>" + 
+                          feature.properties.name + "<br><b>Port Code: </b>" + 
+                          feature.properties.portcode  + "<br><b>Longitude:</b> " + 
+                          parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                          parseFloat(feature.properties.y).toFixed(6)
+                      );
+                     }
             
                 }).addTo(map);
             } else if (ptlay === 'Powerplants_Batterystorage') {
                 // Example point style
-
+                newcolor = '00253B'
                 // Add the GeoJSON layer to the map
                 points_eia_powerplants_batterystorage = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -1560,190 +1833,32 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
+                    layer.bindPopup( "<br><b>Plant Name: </b>" + 
+                          feature.properties.plant_name + "<br><b>Utility Name: </b>" + 
+                          feature.properties.utility_name  + "<br><b>Longitude:</b> " + 
+                          parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                          parseFloat(feature.properties.y).toFixed(6)
+                      );
                     }
             
                 }).addTo(map);
-            } else if (ptlay === 'Ports_Petroleum') {
+            }  else if (ptlay === 'Plants_Biodiesel') {
                 // Example point style
-
-                // Add the GeoJSON layer to the map
-                points_eia_ports_petroleum = L.geoJSON(d, {
-                        // filter: function (feature) {
-                        //     return feature.properties.ft_category === 'Production Well';
-                        // },
-                        pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
-                        
-                            marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
-                              });
-                              marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
-                              });
-                        
-                            return marker;
-                          },
-                    onEachFeature: function (feature, layer) {
-                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
-                        layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
-                        });
-                        layer.on('click', function(e) {
-                            const clickedLatLng = e.latlng;
-                            const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
-                            if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
-                                // Display the attributes in the box
-                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
-                                attributesBox.innerHTML = `
-                                <br>
-                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
-                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
-                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
-                                <br>
-                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
-                                <br>
-                                <h4 style="text-decoration: underline;">Racial Profile</h4>
-                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
-                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
-                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
-                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
-                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
-                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
-                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
-                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
-                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
-                                <br>
-                                <h4 style="text-decoration: underline;">Age</h4>
-                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
-                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
-                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
-                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
-                                <!-- Add other attributes as needed -->
-                            `;
-                            }
-                          });
-
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
-                    }
-            
-                }).addTo(map);
-            } else if (ptlay === 'Electric_Generator') {
-                // Example point style
-
-                // Add the GeoJSON layer to the map
-                points_eia_electric_generator = L.geoJSON(d, {
-                        // filter: function (feature) {
-                        //     return feature.properties.ft_category === 'Production Well';
-                        // },
-                        pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
-                        
-                            marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
-                              });
-                              marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
-                              });
-                        
-                            return marker;
-                          },
-                    onEachFeature: function (feature, layer) {
-                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
-                        layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
-                        });
-                        layer.on('click', function(e) {
-                            const clickedLatLng = e.latlng;
-                            const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
-                            if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
-                                // Display the attributes in the box
-                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
-                                attributesBox.innerHTML = `
-                                <br>
-                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
-                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
-                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
-                                <br>
-                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
-                                <br>
-                                <h4 style="text-decoration: underline;">Racial Profile</h4>
-                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
-                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
-                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
-                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
-                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
-                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
-                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
-                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
-                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
-                                <br>
-                                <h4 style="text-decoration: underline;">Age</h4>
-                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
-                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
-                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
-                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
-                                <!-- Add other attributes as needed -->
-                            `;
-                            }
-                          });
-
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
-                    }
-            
-                }).addTo(map);
-            } else if (ptlay === 'Plants_Biodiesel') {
-                // Example point style
-
+                newcolor = '00253B'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_biodiesel = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createPentagonMarker(latlng);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -1797,32 +1912,32 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
+                    layer.bindPopup( "<br><b>Company: </b>" + 
+                          feature.properties.company + "<br><b>Site: </b>" + 
+                          feature.properties.site  + "<br><b>Longitude:</b> " + 
+                          parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                          parseFloat(feature.properties.y).toFixed(6)
+                      );
                     }
             
                 }).addTo(map);
             } else if (ptlay === 'Plants_Ethanol') {
                 // Example point style
-
+                newcolor = '0287D4'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_ethanol = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createPentagonMarker(latlng);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -1876,32 +1991,32 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
+                          layer.bindPopup( "<br><b>Company: </b>" + 
+                          feature.properties.company + "<br><b>Site: </b>" + 
+                          feature.properties.site  + "<br><b>Longitude:</b> " + 
+                          parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                          parseFloat(feature.properties.y).toFixed(6)
+                      );
                     }
             
                 }).addTo(map);
             } else if (ptlay === 'Plants_Ethylene_Cracker') {
                 // Example point style
-
+                newcolor = 'A3CF5F'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_ethylene_cracker = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createPentagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -1955,25 +2070,25 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
-                        );
+                    layer.bindPopup( "<br><b>Company: </b>" + 
+                          feature.properties.company + "<br><b>Site: </b>" + 
+                          feature.properties.site  + "<br><b>Longitude:</b> " + 
+                          parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
+                          parseFloat(feature.properties.y).toFixed(6)
+                      );
                     }
             
                 }).addTo(map);
             } else if (ptlay === 'Plants_Coal') {
                 // Example point style
-
+                newcolor='000000'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_coal = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2045,14 +2160,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Plants_Geothermal') {
                 // Example point style
-
+                newcolor='5d792f'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_geothermal = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2124,14 +2239,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Plants_Hydroelectric') {
                 // Example point style
-
+                newcolor='0287D4'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_hydroelectric = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2203,14 +2318,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Plants_Hydropumped') {
                 // Example point style
-
+                newcolor='A3CF5F'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_hydropumped = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2282,6 +2397,7 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Plants_Naturalgas') {
                 // Example point style
+                newcolor = 'A3CF5F'
                 console.log('adding the natural gas power plants')
                 // Add the GeoJSON layer to the map
                 points_eia_plants_power_naturalgas = L.geoJSON(d, {
@@ -2289,14 +2405,14 @@ function createPointLayer(ptlay) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -2350,25 +2466,25 @@ function createPointLayer(ptlay) {
                             }
                           });
 
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-                            //  + "<br><b>Operator: </b>" + 
-                            // feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            // feature.properties.x + "<br><b>Latitude: </b>" +
-                            // feature.properties.y
+                        layer.bindPopup( "<br><b>Plant Name: </b>" + feature.properties.plant_name
+                             + "<br><b>Utility: </b>" + 
+                            feature.properties.utility_name + "<br><b>Longitude:</b> " + 
+                            feature.properties.longitude + "<br><b>Latitude: </b>" +
+                            feature.properties.latitude
                         );
                     }
             
                 }).addTo(map);
             } else if (ptlay === 'Plants_Nuclear') {
                 // Example point style
-
+                newcolor='FFC857'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_nuclear = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2440,14 +2556,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Plants_Petroleum') {
                 // Example point style
-
+                newcolor='ff0000'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_petroleum = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createHexagonMarker(latlng);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2519,14 +2635,15 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Plants_Processing_Naturalgas') {
                 // Example point style
-
+                newcolor = 'de541e'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_processing_naturalgas = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createPentagonMarker(latlng,newcolor);
+
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2598,15 +2715,15 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Plants_Refinery_Petroleum') {
                 // Example point style
-
+                newcolor = '000000'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_refinery_petroleum = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
-                        
+                            const marker = createPentagonMarker(latlng,newcolor);
+
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
@@ -2677,14 +2794,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Reserve_Petroleum') {
                 // Example point style
-
+                newcolor = '5d792f'
                 // Add the GeoJSON layer to the map
                 points_eia_reserve_petroleum = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2756,14 +2873,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Storage_Naturalgas') {
                 // Example point style
-
+                newcolor='de541e'
                 // Add the GeoJSON layer to the map
                 points_eia_storage_naturalgas = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2835,14 +2952,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Terminal_Crudeoil') {
                 // Example point style
-
+                newcolor='000000'
                 // Add the GeoJSON layer to the map
                 points_eia_terminal_crudeoil = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2914,14 +3031,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Terminal_Lng') {
                 // Example point style
-
+                newcolor='FFC857'
                 // Add the GeoJSON layer to the map
                 points_eia_terminal_lng = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -2993,14 +3110,14 @@ function createPointLayer(ptlay) {
                 }).addTo(map);
             } else if (ptlay === 'Terminal_Petroleum') {
                 // Example point style
-
+                newcolor = 'ff0000'
                 // Add the GeoJSON layer to the map
                 points_eia_terminal_petroleum = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createDiamondMarker(latlng);
+                            const marker = createDiamondMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
@@ -4534,8 +4651,8 @@ function toggleselection(c,v) {
         } else {
             statetextbox.style.display='flex';
         };
-    } else if (ecount>6 && c ==='state') {
-        alert("You've selected the max number of states per search.");
+    } else if (ecount>1 && c ==='state') {
+        alert("You've selected the max number of states per search. Please click on the currently displayed table to remove it from the search box.");
     } else {
         if (c === 'state') {
             document.getElementById(v+'btn').classList = 'highlightbutton'
@@ -4581,75 +4698,55 @@ function toggleselection(c,v) {
                 textSpan.textContent = 'AL'
             } else if (v === "Border Crossing: Electric") {
                 textSpan.textContent = 'Border Crossing: Electric';  // Set the text inside the span
-            } else if (v === "Arizona") {
-                textSpan.textContent = 'AZ';  // Set the text inside the span
-            } else if (v === "Arkansas") {
-                textSpan.textContent = 'AR';  // Set the text inside the span
-            } else if (v === "California") {
-                textSpan.textContent = 'CA';  // Set the text inside the span
-            } else if (v === "Colorado") {
-                textSpan.textContent = 'CO';  // Set the text inside the span
-            } else if (v === "Florida") {
-                textSpan.textContent = 'FL';  // Set the text inside the span
-            } else if (v === "Idaho") {
-                textSpan.textContent = 'ID';  // Set the text inside the span
-            } else if (v === "Illinois") {
-                textSpan.textContent = 'IL';  // Set the text inside the span
-            } else if (v === "Indiana") {
-                textSpan.textContent = 'IN';  // Set the text inside the span
-            } else if (v === "Iowa") {
-                textSpan.textContent = 'IA';  // Set the text inside the span
-            } else if (v === "Kansas") {
-                textSpan.textContent = 'KS';  // Set the text inside the span
-            } else if (v === "Kentucky") {
-                textSpan.textContent = 'KY';  // Set the text inside the span
-            } else if (v === "Louisiana") {
-                textSpan.textContent = 'LA';  // Set the text inside the span
-            } else if (v === "Maryland") {
-                textSpan.textContent = 'MD';  // Set the text inside the span
-            } else if (v === "Michigan") {
-                textSpan.textContent = 'MI';  // Set the text inside the span
-            } else if (v === "Mississippi") {
-                textSpan.textContent = 'MS';  // Set the text inside the span
-            } else if (v === "Missouri") {
-                textSpan.textContent = 'MO';  // Set the text inside the span
-            } else if (v === "Montana") {
-                textSpan.textContent = 'MT';  // Set the text inside the span
-            } else if (v === "Nebraska") {
-                textSpan.textContent = 'NE';  // Set the text inside the span
-            } else if (v === "Nevada") {
-                textSpan.textContent = 'NV';  // Set the text inside the span
-            } else if (v === "New Mexico") {
-                textSpan.textContent = 'NM';  // Set the text inside the span
-            } else if (v === "New York") {
-                textSpan.textContent = 'NY';  // Set the text inside the span
-            } else if (v === "North Dakota") {
-                textSpan.textContent = 'ND';  // Set the text inside the span
-            } else if (v === "Ohio") {
-                textSpan.textContent = 'OH';  // Set the text inside the span
-            } else if (v === "Oklahoma") {
-                textSpan.textContent = 'OK';  // Set the text inside the span
-            } else if (v === "Oregon") {
-                textSpan.textContent = 'OR';  // Set the text inside the span
-            } else if (v === "Pennsylvania") {
-                textSpan.textContent = 'PA';  // Set the text inside the span
-            } else if (v === "South Dakota") {
-                textSpan.textContent = 'SD';  // Set the text inside the span
-            } else if (v === "Tennessee") {
-                textSpan.textContent = 'TN';  // Set the text inside the span
-            } else if (v === "Texas") {
-                textSpan.textContent = 'TX';  // Set the text inside the span
-            } else if (v === "Utah") {
-                textSpan.textContent = 'UT';  // Set the text inside the span
-            } else if (v === "Virginia") {
-                textSpan.textContent = 'VA';  // Set the text inside the span
-            } else if (v === "Washington") {
-                textSpan.textContent = 'WA';  // Set the text inside the span
-            } else if (v === "West Virginia") {
-                textSpan.textContent = 'WV';  // Set the text inside the span
-            } else if (v === "Wyoming") {
-                textSpan.textContent = 'WY';  // Set the text inside the span
-            }
+            } else if (v === "Border Crossing: Liquid") {
+                textSpan.textContent = 'Border Crossing: Liquid';  // Set the text inside the span
+            } else if (v === "Border Crossing: Natural Gas") {
+                textSpan.textContent = 'Border Crossing: Natural Gas';  // Set the text inside the span
+            } else if (v === "Market Hub: HGL") {
+                textSpan.textContent = 'Market Hub: HGL';  // Set the text inside the span
+            } else if (v === "Market Hub: Natural Gas") {
+                textSpan.textContent = 'Market Hub: Natural Gas';  // Set the text inside the span
+            } else if (v === "Port: Petroleum") {
+                textSpan.textContent = 'Port: Petroleum';  // Set the text inside the span
+            } else if (v === "Reserve: Petroleum") {
+                textSpan.textContent = 'Reserve: Petroleum';  // Set the text inside the span
+            } else if (v === "Underground Storage: Natural Gas") {
+                textSpan.textContent = 'Underground Storage: Natural Gas';  // Set the text inside the span
+            } else if (v === "Terminal: Crude Oil") {
+                textSpan.textContent = 'Terminal: Crude Oil';  // Set the text inside the span
+            } else if (v === "Terminal: LNG") {
+                textSpan.textContent = 'Terminal: LNG';  // Set the text inside the span
+            } else if (v === "Terminal: Petroleum") {
+                textSpan.textContent = 'Terminal: Petroleum';  // Set the text inside the span
+            } else if (v === "Compressor Stations") {
+                textSpan.textContent = 'Compressor Stations';  // Set the text inside the span
+            } else if (v === "Plants: Biodiesel") {
+                textSpan.textContent = 'Plants: Biodiesel';  // Set the text inside the span
+            } else if (v === "Plants: Ethanol") {
+                textSpan.textContent = 'Plants: EthanolMD';  // Set the text inside the span
+            } else if (v === "Plants: Ehylene Cracker") {
+                textSpan.textContent = 'Plants: Ehylene Cracker';  // Set the text inside the span
+            } else if (v === "Plants: Battery Storage") {
+                textSpan.textContent = 'Plants: Battery Storage';  // Set the text inside the span
+            } else if (v === "Plants: Coal") {
+                textSpan.textContent = 'Plants: Coal';  // Set the text inside the span
+            } else if (v === "Plants: Geothermal") {
+                textSpan.textContent = 'Plants: Geothermal';  // Set the text inside the span
+            } else if (v === "Plants: Hydroelectric") {
+                textSpan.textContent = 'Plants: Hydroelectric';  // Set the text inside the span
+            } else if (v === "Plants: Hydro Pumped Storage") {
+                textSpan.textContent = 'Plants: Hydro Pumped Storage';  // Set the text inside the span
+            } else if (v === "Power Plants: Natural Gas") {
+                textSpan.textContent = 'Power Plants: Natural Gas';  // Set the text inside the span
+            } else if (v === "Power Plants: Nuclear") {
+                textSpan.textContent = 'Power Plants: Nuclear';  // Set the text inside the span
+            } else if (v === "Power Plants: Petroleum") {
+                textSpan.textContent = 'Power Plants: Petroleum';  // Set the text inside the span
+            } else if (v === "Processing Plants: Natural Gas") {
+                textSpan.textContent = 'Processing Plants: Natural Gas';  // Set the text inside the span
+            } else if (v === "Refinery: Petroleum") {
+                textSpan.textContent = 'Refinery: Petroleum';  // Set the text inside the span
+            } 
             
         } else {
             textSpan.textContent = v;  // Set the text inside the span
