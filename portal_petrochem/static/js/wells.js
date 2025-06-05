@@ -1236,8 +1236,21 @@ function createPointLayer(ptlay) {
                     //     return feature.properties.ft_category === 'Production Well';
                     // },
                     pointToLayer: function (feature, latlng) {
-                        return L.circleMarker(latlng, defaultStyle);
-                    },
+                        newcolor = '00253B'
+                        const marker = createTriangleMarker(latlng,newcolor);
+                    
+                        marker.on('mouseover', () => {
+                          const el = marker.getElement().querySelector('.triangle-marker');
+                          el.style.transform = 'scale(2)';
+                        });
+                    
+                        marker.on('mouseout', () => {
+                          const el = marker.getElement().querySelector('.triangle-marker');
+                          el.style.transform = 'scale(1)';
+                        });
+                    
+                        return marker;
+                      },
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
@@ -1383,6 +1396,7 @@ function createPointLayer(ptlay) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
+                            
                             const marker = createTriangleMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
