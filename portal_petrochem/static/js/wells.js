@@ -714,7 +714,7 @@ function tableJson(i) {
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data)
+            // console.log(data)
             d=JSON.parse(data)
             console.log(d)
             createTable(d); 
@@ -723,23 +723,17 @@ function tableJson(i) {
 ////////
 function applyCategoryFilter() {
     // Fetch GeoJSON data from the server
-    console.log('clicked this one')
     var datalayer = getSelValues('statePicks').replace(",,,","");  // Assuming this returns a comma-delimited string
 
     if (datalayer === 'Border Crossing: Electric') {
-        console.log('that was it')
+        document.getElementById('eia_bordercrossing_electric').checked = true;
+        document.getElementById('tabledataset').innerText = `Border Crossing: Electric`;
         if (!points_eia_bordercrossing_electric) {
-            // console.log('compressors - needs to load')
-            document.getElementById('eia_bordercrossing_naturalgas').checked = true;
-
             createPointLayer('Bordercrossing_Electric');
-            
         } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            document.getElementById('eia_bordercrossing_electric').checked = true;
-            tableJson('Bordercrossing_Electric')
-            console.log('just needed to recreate the table')
+            points_eia_bordercrossing_electric.addTo(map);
+            document.getElementById('tabledataset').innerText = `Border Crossing: Electric`;
+            // tableJson('Bordercrossing_Electric')
         }
 
     } else if (datalayer === 'Compressor Stations') {
@@ -749,6 +743,8 @@ function applyCategoryFilter() {
         } else {
             console.log('update table with border crossing electric')
             tableJson('Compressors')
+            document.getElementById('tabledataset').innerText = `Compressor Stations`;
+
             console.log('just needed to recreate the table')
         }
 
@@ -761,6 +757,8 @@ function applyCategoryFilter() {
             console.log('update table with border crossing electric')
             // points_eia_bordercrossing_electric.addTo(map);
             tableJson('Bordercrossing_Liquids')
+            document.getElementById('tabledataset').innerText = `Border Crossing: Liquid`;
+
             console.log('just needed to recreate the table')
         }
 
@@ -1211,9 +1209,9 @@ function createPointLayer(ptlay) {
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
-            console.log(data)
+            // console.log(data)
             d=JSON.parse(data)
-            console.log(d)
+            // console.log(d)
 
 
             if (ptlay === 'Compressors') {
@@ -1948,7 +1946,7 @@ function createPointLayer(ptlay) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createPentagonMarker(latlng);
+                            const marker = createPentagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
@@ -2109,11 +2107,11 @@ function createPointLayer(ptlay) {
                             const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -2188,11 +2186,11 @@ function createPointLayer(ptlay) {
                             const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -2346,11 +2344,11 @@ function createPointLayer(ptlay) {
                             const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -2505,11 +2503,11 @@ function createPointLayer(ptlay) {
                             const marker = createHexagonMarker(latlng,newcolor);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -2584,11 +2582,11 @@ function createPointLayer(ptlay) {
                             const marker = createHexagonMarker(latlng);
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.hexagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -2661,14 +2659,13 @@ function createPointLayer(ptlay) {
                         // },
                         pointToLayer: function (feature, latlng) {
                             const marker = createPentagonMarker(latlng,newcolor);
-
                         
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -2741,13 +2738,13 @@ function createPointLayer(ptlay) {
                         // },
                         pointToLayer: function (feature, latlng) {
                             const marker = createPentagonMarker(latlng,newcolor);
-
+                        
                             marker.on('mouseover', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(2) rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
-                                const el = marker.getElement().querySelector('.diamond-marker');
+                                const el = marker.getElement().querySelector('.pentagon-marker');
                                 el.style.transform = 'scale(1) rotate(45deg)';
                               });
                         
@@ -3213,19 +3210,6 @@ function createPointLayer(ptlay) {
 
     }
 
-// L.geoJSON(yourGeoJSON, {
-//     pointToLayer: function (feature, latlng) {
-//         return L.marker(latlng, {
-//         icon: L.divIcon({
-//             className: 'custom-marker',
-//             html: '<div class="triangle"></div>', // or "square"
-//             iconSize: [20, 20]
-//         })
-//         });
-//     }
-//     }).addTo(map);
-
-
 
 
 var demobuffer;
@@ -3235,9 +3219,9 @@ function generate_buffs() {
     fetch(`/petrochem/generate_geojson_buffs2`)
         .then(response => response.json())
         .then(data => {
-            console.log(data)
+            // console.log(data)
             d=JSON.parse(data)
-            console.log(d)
+            // console.log(d)
 
 
             // Example point style
@@ -3284,390 +3268,11 @@ function findClosestFeature(clickedLatLng) {
             closestFeature = layer.feature;
         }
     });
-    // console.log('inside function closestFeature')
-    // console.log(closestFeature)
+
     return closestFeature;
 }
 
 
-
-// function creatBuffPointLayer() {
-//     // Fetch GeoJSON data from the server
-//     fetch(`/petrochem/generate_geojson_buffs`)
-//         .then(response => response.json())
-//         .then(data => {
-//             console.log(data)
-//             d=JSON.parse(data)
-//             console.log(d)
-
-
-//             if (ptlay === 'Compressors') {
-//                 // Example point style
-//                 const defaultStyle = {
-//                     radius: 2,
-//                     fillColor: "#ff7800",
-//                     color: "#000",
-//                     weight: 1,
-//                     opacity: 1,
-//                     fillOpacity: 0.8
-//                 };
-//                 const highlightStyle = {
-//                     radius: 5  // what you want on hover
-//                 };
-//                 console.log('clicked compressor stations')
-
-//                 // Add the GeoJSON layer to the map
-//                 points_compressorstations = L.geoJSON(d, {
-//                     // filter: function (feature) {
-//                     //     return feature.properties.ft_category === 'Production Well';
-//                     // },
-//                     pointToLayer: function (feature, latlng) {
-//                         return L.circleMarker(latlng, defaultStyle);
-//                     },
-//                     onEachFeature: function (feature, layer) {
-//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
-//                         layer.on({
-//                             mouseover: function (e) {
-//                                 e.target.setStyle(highlightStyle);
-//                             },
-//                             mouseout: function (e) {
-//                                 e.target.setStyle(defaultStyle);
-//                             }
-//                         });
-//                         layer.on('click', function(e) {
-//                             const clickedLatLng = e.latlng;
-//                             // const nearest = getNearestFeature(clickedLatLng, targetLayerGroup);
-                          
-//                             // if (nearest) {
-//                             //   console.log('Nearest feature properties:', nearest.feature?.properties);
-//                             //   // Optionally, highlight or show popup
-//                             //   nearest.bindPopup(`Nearest object: ${nearest.feature?.properties.name}`).openPopup();
-//                             // }
-
-//                                 // Find the closest feature from layer2
-//                             const closestFeature = findClosestFeature(clickedLatLng);
-//                             console.log('clicked on a compressor station')
-//                             if (closestFeature) {
-//                                 console.log('closest feat')
-//                                 // console.log(closestFeature)
-//                                 console.log('properties')
-//                                 // console.log(closestFeature.properties)
-//                                 // Display the attributes in the box
-//                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
-//                                 attributesBox.innerHTML = `
-//                                     <h3 style="text-decoration: underline;">Closest Feature Attributes</h3>
-//                                     <p><b>Attribute 1:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
-//                                     <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
-//                                     <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
-//                                     <!-- Add other attributes as needed -->
-//                                 `;
-//                             }
-//                           });
-//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
-//                             feature.properties.naics_desc + "<br><b>Operator: </b>" + 
-//                             feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                             feature.properties.x + "<br><b>Latitude: </b>" +
-//                             feature.properties.y
-//                         );
-//                     }
-            
-//                 }).addTo(map);
-//             } else if (ptlay === 'Bordercrossing_Electric') {
-//                 // Example point style
-
-//                 // Add the GeoJSON layer to the map
-//                 points_eia_bordercrossing_electric = L.geoJSON(d, {
-//                         // filter: function (feature) {
-//                         //     return feature.properties.ft_category === 'Production Well';
-//                         // },
-//                         pointToLayer: function (feature, latlng) {
-//                             const marker = createTriangleMarker(latlng);
-                        
-//                             marker.on('mouseover', () => {
-//                               const el = marker.getElement().querySelector('.triangle-marker');
-//                               el.style.transform = 'scale(2)';
-//                             });
-                        
-//                             marker.on('mouseout', () => {
-//                               const el = marker.getElement().querySelector('.triangle-marker');
-//                               el.style.transform = 'scale(1)';
-//                             });
-                        
-//                             return marker;
-//                           },
-//                     onEachFeature: function (feature, layer) {
-//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
-//                         layer.on({
-//                             mouseover: function (e) {
-//                                 e.target.setStyle(highlightStyle);
-//                             },
-//                             mouseout: function (e) {
-//                                 e.target.setStyle(defaultStyle);
-//                             }
-//                         });
-//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-//                             //  + "<br><b>Operator: </b>" + 
-//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                             // feature.properties.x + "<br><b>Latitude: </b>" +
-//                             // feature.properties.y
-//                         );
-//                     }
-            
-//                 }).addTo(map);
-//             } else if (ptlay === 'Bordercrossing_Liquids') {
-//                 // Example point style
-
-//                 // Add the GeoJSON layer to the map
-//                 points_eia_bordercrossing_liquids = L.geoJSON(d, {
-//                         // filter: function (feature) {
-//                         //     return feature.properties.ft_category === 'Production Well';
-//                         // },
-//                         pointToLayer: function (feature, latlng) {
-//                             const marker = createTriangleMarker(latlng);
-                        
-//                             marker.on('mouseover', () => {
-//                               const el = marker.getElement().querySelector('.triangle-marker');
-//                               el.style.transform = 'scale(2)';
-//                             });
-                        
-//                             marker.on('mouseout', () => {
-//                               const el = marker.getElement().querySelector('.triangle-marker');
-//                               el.style.transform = 'scale(1)';
-//                             });
-                        
-//                             return marker;
-//                           },
-//                     onEachFeature: function (feature, layer) {
-//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
-//                         layer.on({
-//                             mouseover: function (e) {
-//                                 e.target.setStyle(highlightStyle);
-//                             },
-//                             mouseout: function (e) {
-//                                 e.target.setStyle(defaultStyle);
-//                             }
-//                         });
-//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-//                             //  + "<br><b>Operator: </b>" + 
-//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                             // feature.properties.x + "<br><b>Latitude: </b>" +
-//                             // feature.properties.y
-//                         );
-//                     }
-            
-//                 }).addTo(map);
-//             }  else if (ptlay === 'Bordercrossing_Naturalgas') {
-//                 // Example point style
-
-//                 // Add the GeoJSON layer to the map
-//                 points_eia_bordercrossing_naturalgas = L.geoJSON(d, {
-//                         // filter: function (feature) {
-//                         //     return feature.properties.ft_category === 'Production Well';
-//                         // },
-//                         pointToLayer: function (feature, latlng) {
-//                             const marker = createTriangleMarker(latlng);
-                        
-//                             marker.on('mouseover', () => {
-//                               const el = marker.getElement().querySelector('.triangle-marker');
-//                               el.style.transform = 'scale(2)';
-//                             });
-                        
-//                             marker.on('mouseout', () => {
-//                               const el = marker.getElement().querySelector('.triangle-marker');
-//                               el.style.transform = 'scale(1)';
-//                             });
-                        
-//                             return marker;
-//                           },
-//                     onEachFeature: function (feature, layer) {
-//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
-//                         layer.on({
-//                             mouseover: function (e) {
-//                                 e.target.setStyle(highlightStyle);
-//                             },
-//                             mouseout: function (e) {
-//                                 e.target.setStyle(defaultStyle);
-//                             }
-//                         });
-//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-//                             //  + "<br><b>Operator: </b>" + 
-//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                             // feature.properties.x + "<br><b>Latitude: </b>" +
-//                             // feature.properties.y
-//                         );
-//                     }
-            
-//                 }).addTo(map);
-//             }  else if (ptlay === 'Markethubs_hgl') {
-//                 // Example point style
-
-//                 // Add the GeoJSON layer to the map
-//                 points_eia_markethub_hgl = L.geoJSON(d, {
-//                         // filter: function (feature) {
-//                         //     return feature.properties.ft_category === 'Production Well';
-//                         // },
-//                         pointToLayer: function (feature, latlng) {
-//                             const marker = createDiamondMarker(latlng);
-                        
-//                             marker.on('mouseover', () => {
-//                                 const el = marker.getElement().querySelector('.diamond-marker');
-//                                 el.style.transform = 'scale(2) rotate(45deg)';
-//                               });
-//                               marker.on('mouseout', () => {
-//                                 const el = marker.getElement().querySelector('.diamond-marker');
-//                                 el.style.transform = 'scale(1) rotate(45deg)';
-//                               });
-                        
-//                             return marker;
-//                           },
-//                     onEachFeature: function (feature, layer) {
-//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
-//                         layer.on({
-//                             mouseover: function (e) {
-//                                 e.target.setStyle(highlightStyle);
-//                             },
-//                             mouseout: function (e) {
-//                                 e.target.setStyle(defaultStyle);
-//                             }
-//                         });
-//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-//                             //  + "<br><b>Operator: </b>" + 
-//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                             // feature.properties.x + "<br><b>Latitude: </b>" +
-//                             // feature.properties.y
-//                         );
-//                     }
-            
-//                 }).addTo(map);
-//             } else if (ptlay === 'Markethubs_Naturalgas') {
-//                 // Example point style
-
-//                 // Add the GeoJSON layer to the map
-//                 points_eia_markethub_naturalgas = L.geoJSON(d, {
-//                         // filter: function (feature) {
-//                         //     return feature.properties.ft_category === 'Production Well';
-//                         // },
-//                         pointToLayer: function (feature, latlng) {
-//                             const marker = createDiamondMarker(latlng);
-                        
-//                             marker.on('mouseover', () => {
-//                                 const el = marker.getElement().querySelector('.diamond-marker');
-//                                 el.style.transform = 'scale(2) rotate(45deg)';
-//                               });
-//                               marker.on('mouseout', () => {
-//                                 const el = marker.getElement().querySelector('.diamond-marker');
-//                                 el.style.transform = 'scale(1) rotate(45deg)';
-//                               });
-                        
-//                             return marker;
-//                           },
-//                     onEachFeature: function (feature, layer) {
-//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
-//                         layer.on({
-//                             mouseover: function (e) {
-//                                 e.target.setStyle(highlightStyle);
-//                             },
-//                             mouseout: function (e) {
-//                                 e.target.setStyle(defaultStyle);
-//                             }
-//                         });
-//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-//                             //  + "<br><b>Operator: </b>" + 
-//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                             // feature.properties.x + "<br><b>Latitude: </b>" +
-//                             // feature.properties.y
-//                         );
-//                     }
-            
-//                 }).addTo(map);
-//             } else if (ptlay === 'Ports_Petroleum') {
-//                 // Example point style
-
-//                 // Add the GeoJSON layer to the map
-//                 points_eia_ports_petroleum = L.geoJSON(d, {
-//                         // filter: function (feature) {
-//                         //     return feature.properties.ft_category === 'Production Well';
-//                         // },
-//                         pointToLayer: function (feature, latlng) {
-//                             const marker = createDiamondMarker(latlng);
-                        
-//                             marker.on('mouseover', () => {
-//                                 const el = marker.getElement().querySelector('.diamond-marker');
-//                                 el.style.transform = 'scale(2) rotate(45deg)';
-//                               });
-//                               marker.on('mouseout', () => {
-//                                 const el = marker.getElement().querySelector('.diamond-marker');
-//                                 el.style.transform = 'scale(1) rotate(45deg)';
-//                               });
-                        
-//                             return marker;
-//                           },
-//                     onEachFeature: function (feature, layer) {
-//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
-//                         layer.on({
-//                             mouseover: function (e) {
-//                                 e.target.setStyle(highlightStyle);
-//                             },
-//                             mouseout: function (e) {
-//                                 e.target.setStyle(defaultStyle);
-//                             }
-//                         });
-//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-//                             //  + "<br><b>Operator: </b>" + 
-//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                             // feature.properties.x + "<br><b>Latitude: </b>" +
-//                             // feature.properties.y
-//                         );
-//                     }
-            
-//                 }).addTo(map);
-//             } else if (ptlay === 'Powerplants_Batterystorage') {
-//                 // Example point style
-
-//                 // Add the GeoJSON layer to the map
-//                 points_eia_powerplants_batterystorage = L.geoJSON(d, {
-//                         // filter: function (feature) {
-//                         //     return feature.properties.ft_category === 'Production Well';
-//                         // },
-//                         pointToLayer: function (feature, latlng) {
-//                             const marker = createDiamondMarker(latlng);
-                        
-//                             marker.on('mouseover', () => {
-//                                 const el = marker.getElement().querySelector('.diamond-marker');
-//                                 el.style.transform = 'scale(2) rotate(45deg)';
-//                               });
-//                               marker.on('mouseout', () => {
-//                                 const el = marker.getElement().querySelector('.diamond-marker');
-//                                 el.style.transform = 'scale(1) rotate(45deg)';
-//                               });
-                        
-//                             return marker;
-//                           },
-//                     onEachFeature: function (feature, layer) {
-//                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
-//                         layer.on({
-//                             mouseover: function (e) {
-//                                 e.target.setStyle(highlightStyle);
-//                             },
-//                             mouseout: function (e) {
-//                                 e.target.setStyle(defaultStyle);
-//                             }
-//                         });
-//                         layer.bindPopup( "<br><b>NAICS Desc: </b>" + feature.properties.naics_desc
-//                             //  + "<br><b>Operator: </b>" + 
-//                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
-//                             // feature.properties.x + "<br><b>Latitude: </b>" +
-//                             // feature.properties.y
-//                         );
-//                     }
-            
-//                 }).addTo(map);
-//             }
-//             ;
-//         })
-//         .catch(error => console.log(error));
-
-//     }
 
 
 function applyCategoryFilter2() {
@@ -3675,9 +3280,9 @@ function applyCategoryFilter2() {
     fetch('/petrochem/generate_geojson_comps2')
         .then(response => response.json())
         .then(data => {
-            console.log(data)
+            // console.log(data)
             d=JSON.parse(data)
-            console.log(d)
+            // console.log(d)
 
             // Example point style
             const defaultStyle = {
@@ -3745,7 +3350,7 @@ function createLineLayer(lay) {
         .then(data => {
             console.log('here are the lines');
             data=JSON.parse(data)
-            console.log(data); // The GeoJSON data is already parsed
+            // console.log(data); // The GeoJSON data is already parsed
 
             if (lay === 'Pipeline_Naturalgas') {
 
@@ -4145,7 +3750,7 @@ function populateSortDropdown(geojson) {
     // Placeholder option
     const placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = 'Choose a field';
+    placeholder.textContent = 'Choose a field to sort';
     placeholder.style.color = '#8a8a8a';
     placeholder.selected = true;
     select.appendChild(placeholder);
@@ -4183,7 +3788,7 @@ function sortTable() {
     console.log('Sort field:', field);
 
     if (!field) {
-        alert("Please choose a field to sort by.");
+        alert("Please choose a field.");
         return;
     }
 
@@ -4205,17 +3810,17 @@ function sortTable() {
         features: sortedFeatures
     };
 
-    updateTable(sortedGeojson);  // 🔁 re-render with sorted data
+    updateTable(sortedGeojson);  //  re-render with sorted data
 }
 
 
 let tabledata=null;
 function updateTable(geojson) {
     populateSortDropdown(geojson);
-    console.log(geojson);
+    // console.log(geojson);
 
     tabledata = geojson
-
+    // document.getElementById('tabledataset').innerText = `looking here`;
     if (!geojson || !Array.isArray(geojson.features)) {
         console.error('Invalid GeoJSON data');
         return;
@@ -4236,7 +3841,9 @@ function updateTable(geojson) {
         const endIndex = startIndex + rowsPerPage;
         const pageFeatures = features.slice(startIndex, endIndex);
 
-        document.getElementById('records').innerText =
+        
+
+        document.getElementById('records').innerText = 
             `Records ${startIndex + 1} - ${maxrec(page)} of ${features.length}`;
 
         tableBody.innerHTML = '';  // Clear previous rows
@@ -4379,16 +3986,11 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 
 const statesarray = [
     "Border Crossing: Electric", 
-    // "Alaska", 
     "Border Crossing: Liquid", 
     "Border Crossing: Natural Gas", 
     "Market Hub: HGL", 
     "Market Hub: Natural Gas", 
-    // "Connecticut", 
-    // "Delaware", 
     "Port: Petroleum", 
-    // "Georgia", 
-    // "Hawaii", 
     "Reserve: Petroleum", 
     "Underground Storage: Natural Gas", 
     "Terminal: Crude Oil", 
@@ -4396,23 +3998,17 @@ const statesarray = [
     "Terminal: Petroleum", 
     "Compressor Stations", 
     "Plants: Biodiesel", 
-    // "Maine", 
     "Plants: Ethanol", 
-    // "Massachusetts", 
     "Plants: Ethylene Cracker", 
-    // "Minnesota", 
-    "Plants: Battery Storage", 
+    "Power Plants: Battery Storage", 
     "Plants: Coal", 
     "Plants: Geothermal", 
     "Plants: Hydroelectric", 
-    "Plants: Hydro Pumped Storage", 
-    // "New Hampshire", 
-    // "New Jersey", 
+    "Plants: Hydro Pumped Storage",  
     "Power Plants: Natural Gas", 
     "Power Plants: Nuclear", 
-    // "North Carolina", 
     "Power Plants: Petroleum", 
-    "Processing Plant: Natural Gas", 
+    "Processing Plants: Natural Gas", 
     "Refinery: Petroleum"
     ];
 
@@ -4644,193 +4240,115 @@ fbutton.addEventListener('mouseleave', () => {
 
 function toggleselection(c,v) {
     var earray = statetextbox.querySelectorAll("*");
-    var ecount = earray.length;
 
     if (document.getElementById('input-'+v) != null) {
+
         if (c==='state') {
             document.getElementById(v+'btn').classList = 'filterbutton'
-        } else if (c==='county') {
-            document.getElementById(v+'btn').classList = 'filterbutton'
-        } else if (c==='status') {
-            document.getElementById(v+'btn').classList = 'filterbutton'
-        } else if (c==='type') {
-            document.getElementById(v+'btn').classList = 'filterbutton'
-        } else if (c==='ftacat') {
-            document.getElementById(v+'btn').classList = 'filterbutton'
-        };
+        } ;
         document.getElementById('input-'+v).remove();
         if (statetextbox.innerHTML === '') {
-            // statetextbox.innerHTML = '**REQUIRED**';
             statetextbox.style.display = 'none';
-            document.getElementById('countybutton').classList.remove('notyet')
-            document.getElementById('statusbutton').classList.remove('notyet')
-            document.getElementById('typebutton').classList.remove('notyet')
-            document.getElementById('ftacatbutton').classList.remove('notyet')
         } else {
             statetextbox.style.display='flex';
         };
-    } else if (ecount>1 && c ==='state') {
-        alert("You've selected the max number of states per search. Please click on the currently displayed table to remove it from the search box.");
-    } else {
-        if (c === 'state') {
-            document.getElementById(v+'btn').classList = 'highlightbutton'
-        } else if (c === 'county') {
-            document.getElementById(v+'btn').classList = 'highlightbutton'
-        } else if (c === 'status') {
-            document.getElementById(v+'btn').classList = 'highlightbutton'
-        } else if (c === 'type') {
-            document.getElementById(v+'btn').classList = 'highlightbutton'
-        } else if (c === 'ftacat') {
-            document.getElementById(v+'btn').classList = 'highlightbutton'
-        }
-        var buttonState = document.createElement('button-state');
-        buttonState.classList.add('selbutton');
-        statetextbox.style.display='flex';
-        buttonState.onclick = function() {
-            document.getElementById(buttonState.id.slice(6) + 'btn').classList = 'filterbutton';
-            buttonState.remove();
-            if (statetextbox.innerHTML === '') {
-                // statetextbox.innerHTML = '**REQUIRED**';
-                statetextbox.style.display = 'none';
-                document.getElementById('countybutton').classList.add('notyet')
-                document.getElementById('statusbutton').classList.remove('notyet')
-                document.getElementById('typebutton').classList.remove('notyet')
-                document.getElementById('ftacatbutton').classList.remove('notyet')
-    
-            } else if (ctytextbox.innerHTML==='') {
-                ctytextbox.innerHTML='You can limit your results to those within a specific county by clicking the corresponding button below.'
-            } else if (statustextbox.innerHTML==='') {
-                statustextbox.innerHTML='Status varies from state to state, take a look at the reference below.'
-            } else if (typetextbox.innerHTML==='') {
-                typetextbox.innerHTML='Type varies from state to state, take a look at the reference below.'
-            } else if (cattextbox.innerHTML==='') {
-                cattextbox.innerHTML='Our attempt to normalize the varying classifications across the country. '
-            } ;
-        };
-        
-        // Create a span for the original text
-        const textSpan = document.createElement('span');
-        if (c === 'state') {
-            console.log(v)
-            if (v === "Alabama") {
-                textSpan.textContent = 'AL'
-            } else if (v === "Border Crossing: Electric") {
-                textSpan.textContent = 'Border Crossing: Electric';  // Set the text inside the span
-            } else if (v === "Border Crossing: Liquid") {
-                textSpan.textContent = 'Border Crossing: Liquid';  // Set the text inside the span
-            } else if (v === "Border Crossing: Natural Gas") {
-                textSpan.textContent = 'Border Crossing: Natural Gas';  // Set the text inside the span
-            } else if (v === "Market Hub: HGL") {
-                textSpan.textContent = 'Market Hub: HGL';  // Set the text inside the span
-            } else if (v === "Market Hub: Natural Gas") {
-                textSpan.textContent = 'Market Hub: Natural Gas';  // Set the text inside the span
-            } else if (v === "Port: Petroleum") {
-                textSpan.textContent = 'Port: Petroleum';  // Set the text inside the span
-            } else if (v === "Reserve: Petroleum") {
-                textSpan.textContent = 'Reserve: Petroleum';  // Set the text inside the span
-            } else if (v === "Underground Storage: Natural Gas") {
-                textSpan.textContent = 'Underground Storage: Natural Gas';  // Set the text inside the span
-            } else if (v === "Terminal: Crude Oil") {
-                textSpan.textContent = 'Terminal: Crude Oil';  // Set the text inside the span
-            } else if (v === "Terminal: LNG") {
-                textSpan.textContent = 'Terminal: LNG';  // Set the text inside the span
-            } else if (v === "Terminal: Petroleum") {
-                textSpan.textContent = 'Terminal: Petroleum';  // Set the text inside the span
-            } else if (v === "Compressor Stations") {
-                textSpan.textContent = 'Compressor Stations';  // Set the text inside the span
-            } else if (v === "Plants: Biodiesel") {
-                textSpan.textContent = 'Plants: Biodiesel';  // Set the text inside the span
-            } else if (v === "Plants: Ethanol") {
-                textSpan.textContent = 'Plants: EthanolMD';  // Set the text inside the span
-            } else if (v === "Plants: Ehylene Cracker") {
-                textSpan.textContent = 'Plants: Ehylene Cracker';  // Set the text inside the span
-            } else if (v === "Plants: Battery Storage") {
-                textSpan.textContent = 'Plants: Battery Storage';  // Set the text inside the span
-            } else if (v === "Plants: Coal") {
-                textSpan.textContent = 'Plants: Coal';  // Set the text inside the span
-            } else if (v === "Plants: Geothermal") {
-                textSpan.textContent = 'Plants: Geothermal';  // Set the text inside the span
-            } else if (v === "Plants: Hydroelectric") {
-                textSpan.textContent = 'Plants: Hydroelectric';  // Set the text inside the span
-            } else if (v === "Plants: Hydro Pumped Storage") {
-                textSpan.textContent = 'Plants: Hydro Pumped Storage';  // Set the text inside the span
-            } else if (v === "Power Plants: Natural Gas") {
-                textSpan.textContent = 'Power Plants: Natural Gas';  // Set the text inside the span
-            } else if (v === "Power Plants: Nuclear") {
-                textSpan.textContent = 'Power Plants: Nuclear';  // Set the text inside the span
-            } else if (v === "Power Plants: Petroleum") {
-                textSpan.textContent = 'Power Plants: Petroleum';  // Set the text inside the span
-            } else if (v === "Processing Plants: Natural Gas") {
-                textSpan.textContent = 'Processing Plants: Natural Gas';  // Set the text inside the span
-            } else if (v === "Refinery: Petroleum") {
-                textSpan.textContent = 'Refinery: Petroleum';  // Set the text inside the span
-            } 
-            
-        } else {
-            textSpan.textContent = v;  // Set the text inside the span
-        };
-        // Create a span for the 'X' that will appear on hover
-        const closeSpan = document.createElement('span');
-        closeSpan.textContent = ' X';
-        closeSpan.style.display = 'none';  // Hide 'X' initially
-        closeSpan.style.color = "red";
-
-        // Append the spans inside the button
-        buttonState.appendChild(textSpan);
-        buttonState.appendChild(closeSpan);
-
-
-
-        // Add hover effect to display 'X'
-        buttonState.addEventListener('mouseenter', () => {
-            closeSpan.style.display = 'inline';  // Show the 'X' when hovered
-        });
-
-        buttonState.addEventListener('mouseleave', () => {
-            closeSpan.style.display = 'none';  // Hide the 'X' when not hovered
-        });
-
-        // buttonState.textContent = v;
-        buttonState.id = "input-" + v;
-        buttonState.style.fontWeight = 'bold';
-
-
-        // Append the new button to the input box (which is now an input field)
-        // if (statetextbox.innerHTML==='**REQUIRED**' && c==='state') {
-        if (statetextbox.innerHTML==='' && c==='state') {
-            statetextbox.innerHTML='';
-            document.getElementById('countybutton').classList.remove('notyet')
-            document.getElementById('statusbutton').classList.remove('notyet')
-            document.getElementById('typebutton').classList.remove('notyet')
-            document.getElementById('ftacatbutton').classList.remove('notyet')
-
-        } else if (c==='county' && ctytextbox.innerHTML==='You can limit your results to those within a specific county by clicking the corresponding button below.') {
-            ctytextbox.innerHTML=''
-        } else if (c==='status' && statustextbox.innerHTML==='Status varies from state to state, take a look at the reference below.') {
-            statustextbox.innerHTML=''
-        } else if (c==='type' && typetextbox.innerHTML==='Type varies from state to state, take a look at the reference below.') {
-            typetextbox.innerHTML=''
-        } else if (c==='ftacat' && cattextbox.innerHTML==='Our attempt to normalize the varying classifications across the country. ') {
-            cattextbox.innerHTML=''
-        } ;
-        
-        if (c === 'state') {
-            statetextbox.appendChild(buttonState);
-
-        } else if (c === 'county') {
-            // console.log(ctytextbox.innerHTML.slice(5))
-            if (ctytextbox.innerHTML.slice(0,5) === 'Not n'){
-                ctytextbox.innerHTML = ''
-            }
-            ctytextbox.appendChild(buttonState);
-        } else if (c === 'status') {
-            statustextbox.appendChild(buttonState);
-        } else if (c === 'type') {
-            typetextbox.appendChild(buttonState);
-        } else if (c === 'ftacat') {
-            cattextbox.appendChild(buttonState);
-        }
     }
+    // if (c === 'state') {
+    //     document.getElementById(v+'btn').classList = 'highlightbutton'
+    // } 
+    var buttonState = document.createElement('button-state');
+
+    buttonState.classList.add('selbutton');
+    statetextbox.style.display='flex';
+    buttonState.onclick = function() {
+        document.getElementById(buttonState.id.slice(6) + 'btn').classList = 'filterbutton';
+        buttonState.remove(); 
+    };
+    
+    // Create a span for the original text
+    const textSpan = document.createElement('span');
+    if (c === 'state') {
+        console.log(v)
+        if (v === "Border Crossing: Electric") {
+            textSpan.textContent = 'Border Crossing: Electric';  // Set the text inside the span
+        } else if (v === "Border Crossing: Liquid") {
+            textSpan.textContent = 'Border Crossing: Liquid';  // Set the text inside the span
+        } else if (v === "Border Crossing: Natural Gas") {
+            textSpan.textContent = 'Border Crossing: Natural Gas';  // Set the text inside the span
+        } else if (v === "Market Hub: HGL") {
+            textSpan.textContent = 'Market Hub: HGL';  // Set the text inside the span
+        } else if (v === "Market Hub: Natural Gas") {
+            textSpan.textContent = 'Market Hub: Natural Gas';  // Set the text inside the span
+        } else if (v === "Port: Petroleum") {
+            textSpan.textContent = 'Port: Petroleum';  // Set the text inside the span
+        } else if (v === "Reserve: Petroleum") {
+            textSpan.textContent = 'Reserve: Petroleum';  // Set the text inside the span
+        } else if (v === "Underground Storage: Natural Gas") {
+            textSpan.textContent = 'Underground Storage: Natural Gas';  // Set the text inside the span
+        } else if (v === "Terminal: Crude Oil") {
+            textSpan.textContent = 'Terminal: Crude Oil';  // Set the text inside the span
+        } else if (v === "Terminal: LNG") {
+            textSpan.textContent = 'Terminal: LNG';  // Set the text inside the span
+        } else if (v === "Terminal: Petroleum") {
+            textSpan.textContent = 'Terminal: Petroleum';  // Set the text inside the span
+        } else if (v === "Compressor Stations") {
+            textSpan.textContent = 'Compressor Stations';  // Set the text inside the span
+        } else if (v === "Plants: Biodiesel") {
+            textSpan.textContent = 'Plants: Biodiesel';  // Set the text inside the span
+        } else if (v === "Plants: Ethanol") {
+            textSpan.textContent = 'Plants: Ethanol';  // Set the text inside the span
+        } else if (v === "Plants: Ethylene Cracker") {
+            textSpan.textContent = 'Plants: Ethylene Cracker';  // Set the text inside the span
+        } else if (v === "Power Plants: Battery Storage") {
+            textSpan.textContent = 'Power Plants: Battery Storage';  // Set the text inside the span
+        } else if (v === "Plants: Coal") {
+            textSpan.textContent = 'Plants: Coal';  // Set the text inside the span
+        } else if (v === "Plants: Geothermal") {
+            textSpan.textContent = 'Plants: Geothermal';  // Set the text inside the span
+        } else if (v === "Plants: Hydroelectric") {
+            textSpan.textContent = 'Plants: Hydroelectric';  // Set the text inside the span
+        } else if (v === "Plants: Hydro Pumped Storage") {
+            textSpan.textContent = 'Plants: Hydro Pumped Storage';  // Set the text inside the span
+        } else if (v === "Power Plants: Natural Gas") {
+            textSpan.textContent = 'Power Plants: Natural Gas';  // Set the text inside the span
+        } else if (v === "Power Plants: Nuclear") {
+            textSpan.textContent = 'Power Plants: Nuclear';  // Set the text inside the span
+        } else if (v === "Power Plants: Petroleum") {
+            textSpan.textContent = 'Power Plants: Petroleum';  // Set the text inside the span
+        } else if (v === "Processing Plants: Natural Gas") {
+            textSpan.textContent = 'Processing Plants: Natural Gas';  // Set the text inside the span
+        } else if (v === "Refinery: Petroleum") {
+            textSpan.textContent = 'Refinery: Petroleum';  // Set the text inside the span
+        } 
+    } else {
+        console.log('check textSpan input')
+    };
+    // Create a span for the 'X' that will appear on hover
+    const closeSpan = document.createElement('span');
+    closeSpan.textContent = ' X';
+    closeSpan.style.display = 'none';  // Hide 'X' initially
+    closeSpan.style.color = "red";
+
+    // Append the spans inside the button
+    buttonState.appendChild(textSpan);
+    buttonState.appendChild(closeSpan);
+
+    // Add hover effect to display 'X'
+    buttonState.addEventListener('mouseenter', () => {
+        closeSpan.style.display = 'inline';  // Show the 'X' when hovered
+    });
+    buttonState.addEventListener('mouseleave', () => {
+        closeSpan.style.display = 'none';  // Hide the 'X' when not hovered
+    });
+
+    // buttonState.textContent = v;
+    buttonState.id = "input-" + v;
+    buttonState.style.fontWeight = 'bold';
+
+    statetextbox.innerHTML='';
+    if (c === 'state') {
+        statetextbox.appendChild(buttonState);
+    }  
 }
 
 
@@ -5519,16 +5037,14 @@ document.getElementById('pipeline_petroleum').addEventListener('change', functio
 // Toggle line visibility based on checkbox
 document.getElementById('eia_compressorstations').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Compressor Stations')
         if (!points_compressorstations) {
-            console.log('compressors - needs to load')
             createPointLayer('Compressors')
+            document.getElementById('tabledataset').innerHTML = 'Compressors'
         } else {
-            console.log('compressors - just adding')
             points_compressorstations.addTo(map);
         }
     } else if (points_compressorstations) {
-        console.log('compressors - removing')
         map.removeLayer(points_compressorstations);
     }
 });
@@ -5536,16 +5052,14 @@ document.getElementById('eia_compressorstations').addEventListener('change', fun
 // Toggle line visibility based on checkbox
 document.getElementById('eia_bordercrossing_electric').addEventListener('change', function() {
     if (this.checked) {
-        // console.log('compressors - checked')
+        toggleselection('state','Border Crossing: Electric')
         if (!points_eia_bordercrossing_electric) {
-            // console.log('compressors - needs to load')
             createPointLayer('Bordercrossing_Electric')
+            document.getElementById('tabledataset').innerHTML = 'Border Crossing: Electric'
         } else {
-            // console.log('compressors - just adding')
             points_eia_bordercrossing_electric.addTo(map);
         }
     } else if (points_eia_bordercrossing_electric) {
-        // console.log('compressors - removing')
         map.removeLayer(points_eia_bordercrossing_electric);
     }
 });
@@ -5553,16 +5067,14 @@ document.getElementById('eia_bordercrossing_electric').addEventListener('change'
 // Toggle line visibility based on checkbox
 document.getElementById('eia_bordercrossing_liquids').addEventListener('change', function() {
     if (this.checked) {
-        // console.log('compressors - checked')
+        toggleselection('state','Border Crossing: Liquids')
         if (!points_eia_bordercrossing_liquids) {
-            // console.log('compressors - needs to load')
             createPointLayer('Bordercrossing_Liquids')
+            document.getElementById('tabledataset').innerHTML = 'Border Crossing: Liquid'
         } else {
-            // console.log('compressors - just adding')
             points_eia_bordercrossing_liquids.addTo(map);
         }
     } else if (points_eia_bordercrossing_liquids) {
-        // console.log('compressors - removing')
         map.removeLayer(points_eia_bordercrossing_liquids);
     }
 });
@@ -5571,16 +5083,14 @@ document.getElementById('eia_bordercrossing_liquids').addEventListener('change',
 // Toggle line visibility based on checkbox
 document.getElementById('eia_bordercrossing_naturalgas').addEventListener('change', function() {
     if (this.checked) {
-        // console.log('compressors - checked')
+        toggleselection('state','Border Crossing: Natural Gas')
         if (!points_eia_bordercrossing_naturalgas) {
-            // console.log('compressors - needs to load')
             createPointLayer('Bordercrossing_Naturalgas')
+            document.getElementById('tabledataset').innerHTML = 'Border Crossing: Natural Gas'
         } else {
-            // console.log('compressors - just adding')
             points_eia_bordercrossing_naturalgas.addTo(map);
         }
     } else if (points_eia_bordercrossing_naturalgas) {
-        // console.log('compressors - removing')
         map.removeLayer(points_eia_bordercrossing_naturalgas);
     }
 });
@@ -5590,16 +5100,14 @@ document.getElementById('eia_bordercrossing_naturalgas').addEventListener('chang
 // Toggle line visibility based on checkbox
 document.getElementById('eia_markethub_naturalgas').addEventListener('change', function() {
     if (this.checked) {
-        // console.log('compressors - checked')
+        toggleselection('state','Market Hub: Natural Gas')
         if (!points_eia_markethub_naturalgas) {
-            // console.log('compressors - needs to load')
             createPointLayer('Markethubs_Naturalgas')
+            document.getElementById('tabledataset').innerHTML = 'Market Hub: Natural Gas'
         } else {
-            // console.log('compressors - just adding')
             points_eia_markethub_naturalgas.addTo(map);
         }
     } else if (points_eia_markethub_naturalgas) {
-        // console.log('compressors - removing')
         map.removeLayer(points_eia_markethub_naturalgas);
     }
 });
@@ -5608,16 +5116,14 @@ document.getElementById('eia_markethub_naturalgas').addEventListener('change', f
 // Toggle line visibility based on checkbox
 document.getElementById('eia_markethub_hgl').addEventListener('change', function() {
     if (this.checked) {
-        // console.log('compressors - checked')
+        toggleselection('state','Market Hub: HGL')
         if (!points_eia_markethub_hgl) {
-            // console.log('compressors - needs to load')
             createPointLayer('Markethubs_hgl')
+            document.getElementById('tabledataset').innerHTML = 'Market Hub: HGL'
         } else {
-            // console.log('compressors - just adding')
             points_eia_markethub_hgl.addTo(map);
         }
     } else if (points_eia_markethub_hgl) {
-        // console.log('compressors - removing')
         map.removeLayer(points_eia_markethub_hgl);
     }
 });
@@ -5627,16 +5133,14 @@ document.getElementById('eia_markethub_hgl').addEventListener('change', function
 // Toggle line visibility based on checkbox
 document.getElementById('eia_ports_petroleum').addEventListener('change', function() {
     if (this.checked) {
-        // console.log('compressors - checked')
+        toggleselection('state','Ports: Petroleum')
         if (!points_eia_ports_petroleum) {
-            // console.log('compressors - needs to load')
             createPointLayer('Ports_Petroleum')
+            document.getElementById('tabledataset').innerHTML = 'Ports: Petroleum'
         } else {
-            // console.log('compressors - just adding')
             points_eia_ports_petroleum.addTo(map);
         }
     } else if (points_eia_ports_petroleum) {
-        // console.log('compressors - removing')
         map.removeLayer(points_eia_ports_petroleum);
     }
 });
@@ -5646,16 +5150,15 @@ document.getElementById('eia_ports_petroleum').addEventListener('change', functi
 // Toggle line visibility based on checkbox
 document.getElementById('eia_powerplants_batterystorage').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Power Plants: Battery Storage')
+
         if (!points_eia_powerplants_batterystorage) {
-            console.log('compressors - needs to load')
             createPointLayer('Powerplants_Batterystorage')
+            document.getElementById('tabledataset').innerHTML = 'Power Plants: Battery Storage'
         } else {
-            console.log('compressors - just adding')
             points_eia_powerplants_batterystorage.addTo(map);
         }
     } else if (points_eia_powerplants_batterystorage) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_powerplants_batterystorage);
     }
 });
@@ -5684,16 +5187,14 @@ document.getElementById('eia_powerplants_batterystorage').addEventListener('chan
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_biodiesel').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Plants: Biodiesel')
         if (!points_eia_plants_biodiesel) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Biodiesel')
+            document.getElementById('tabledataset').innerHTML = 'Plants: Biodiesel'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_biodiesel.addTo(map);
         }
     } else if (points_eia_plants_biodiesel) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_biodiesel);
     }
 });
@@ -5701,16 +5202,14 @@ document.getElementById('eia_plants_biodiesel').addEventListener('change', funct
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_ethanol').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Plants: Ethanol')
         if (!points_eia_plants_ethanol) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Ethanol')
+            document.getElementById('tabledataset').innerHTML = 'Plants: Ethanol'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_ethanol.addTo(map);
         }
     } else if (points_eia_plants_ethanol) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_ethanol);
     }
 });
@@ -5718,16 +5217,14 @@ document.getElementById('eia_plants_ethanol').addEventListener('change', functio
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_ethylene_cracker').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Plants: Ethylene Cracker')
         if (!points_eia_plants_ethylene_cracker) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Ethylene_Cracker')
+            document.getElementById('tabledataset').innerHTML = 'Plants: Ethylene Cracker'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_ethylene_cracker.addTo(map);
         }
     } else if (points_eia_plants_ethylene_cracker) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_ethylene_cracker);
     }
 });
@@ -5735,16 +5232,14 @@ document.getElementById('eia_plants_ethylene_cracker').addEventListener('change'
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_coal').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Plants: Coal')
         if (!points_eia_plants_coal) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Coal')
+            document.getElementById('tabledataset').innerHTML = 'Plants: Coal'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_coal.addTo(map);
         }
     } else if (points_eia_plants_coal) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_coal);
     }
 });
@@ -5752,16 +5247,14 @@ document.getElementById('eia_plants_coal').addEventListener('change', function()
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_geothermal').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Plants: Geothermal')
         if (!points_eia_plants_geothermal) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Geothermal')
+            document.getElementById('tabledataset').innerHTML = 'Plants: Geothermal'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_geothermal.addTo(map);
         }
     } else if (points_eia_plants_geothermal) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_geothermal);
     }
 });
@@ -5769,16 +5262,14 @@ document.getElementById('eia_plants_geothermal').addEventListener('change', func
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_hydroelectric').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Plants: Hydroelectric')
         if (!points_eia_plants_hydroelectric) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Hydroelectric')
+            document.getElementById('tabledataset').innerHTML = 'Plants: Hydroelectric'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_hydroelectric.addTo(map);
         }
     } else if (points_eia_plants_hydroelectric) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_hydroelectric);
     }
 });
@@ -5786,16 +5277,14 @@ document.getElementById('eia_plants_hydroelectric').addEventListener('change', f
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_hydropumped').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Plants: Hydro Pumped Storage')
         if (!points_eia_plants_hydropumped) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Hydropumped')
+            document.getElementById('tabledataset').innerHTML = 'Plants: Hydro Pumped Storage'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_hydropumped.addTo(map);
         }
     } else if (points_eia_plants_hydropumped) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_hydropumped);
     }
 });
@@ -5804,16 +5293,14 @@ document.getElementById('eia_plants_hydropumped').addEventListener('change', fun
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_power_naturalgas').addEventListener('change', function() {
     if (this.checked) {
-        console.log('Natural Gas Power Plant - checked')
+        toggleselection('state','Power Plants: Natural Gas')
         if (!points_eia_plants_power_naturalgas) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Naturalgas')
+            document.getElementById('tabledataset').innerHTML = 'Power Plants: Natural Gas'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_power_naturalgas.addTo(map);
         }
     } else if (points_eia_plants_power_naturalgas) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_power_naturalgas);
     }
 });
@@ -5821,16 +5308,14 @@ document.getElementById('eia_plants_power_naturalgas').addEventListener('change'
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_nuclear').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Power Plants: Nuclear')
         if (!points_eia_plants_nuclear) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Nuclear')
+            document.getElementById('tabledataset').innerHTML = 'Power Plants: Nuclear'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_nuclear.addTo(map);
         }
     } else if (points_eia_plants_nuclear) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_nuclear);
     }
 });
@@ -5838,16 +5323,14 @@ document.getElementById('eia_plants_nuclear').addEventListener('change', functio
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_petroleum').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Power Plants: Petroleum')
         if (!points_eia_plants_petroleum) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Petroleum')
+            document.getElementById('tabledataset').innerHTML = 'Power Plants: Petroleum'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_petroleum.addTo(map);
         }
     } else if (points_eia_plants_petroleum) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_petroleum);
     }
 });
@@ -5855,16 +5338,14 @@ document.getElementById('eia_plants_petroleum').addEventListener('change', funct
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_processing_naturalgas').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Processing Plants: Natural Gas')
         if (!points_eia_plants_processing_naturalgas) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Processing_Naturalgas')
+            document.getElementById('tabledataset').innerHTML = 'Processing Plants: Natural Gas'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_processing_naturalgas.addTo(map);
         }
     } else if (points_eia_plants_processing_naturalgas) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_processing_naturalgas);
     }
 });
@@ -5872,16 +5353,14 @@ document.getElementById('eia_plants_processing_naturalgas').addEventListener('ch
 // Toggle line visibility based on checkbox
 document.getElementById('eia_plants_refinery_petroleum').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Refineries: Petroleum')
         if (!points_eia_plants_refinery_petroleum) {
-            console.log('compressors - needs to load')
             createPointLayer('Plants_Refinery_Petroleum')
+            document.getElementById('tabledataset').innerHTML = 'Refineries: Petroleum'
         } else {
-            console.log('compressors - just adding')
             points_eia_plants_refinery_petroleum.addTo(map);
         }
     } else if (points_eia_plants_refinery_petroleum) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_plants_refinery_petroleum);
     }
 });
@@ -5889,16 +5368,14 @@ document.getElementById('eia_plants_refinery_petroleum').addEventListener('chang
 // Toggle line visibility based on checkbox
 document.getElementById('eia_reserve_petroleum').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Reserves: Petroleum')
         if (!points_eia_reserve_petroleum) {
-            console.log('compressors - needs to load')
             createPointLayer('Reserve_Petroleum')
+            document.getElementById('tabledataset').innerHTML = 'Reserves: Petroleum'
         } else {
-            console.log('compressors - just adding')
             points_eia_reserve_petroleum.addTo(map);
         }
     } else if (points_eia_reserve_petroleum) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_reserve_petroleum);
     }
 });
@@ -5906,16 +5383,14 @@ document.getElementById('eia_reserve_petroleum').addEventListener('change', func
 // Toggle line visibility based on checkbox
 document.getElementById('eia_storage_naturalgas').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Storage: Natural Gas')
         if (!points_eia_storage_naturalgas) {
-            console.log('compressors - needs to load')
             createPointLayer('Storage_Naturalgas')
+            document.getElementById('tabledataset').innerHTML = 'Storage: Natural Gas'
         } else {
-            console.log('compressors - just adding')
             points_eia_storage_naturalgas.addTo(map);
         }
     } else if (points_eia_storage_naturalgas) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_storage_naturalgas);
     }
 });
@@ -5923,16 +5398,14 @@ document.getElementById('eia_storage_naturalgas').addEventListener('change', fun
 // Toggle line visibility based on checkbox
 document.getElementById('eia_terminal_crudeoil').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Terminals: Crude Oil')
         if (!points_eia_terminal_crudeoil) {
-            console.log('compressors - needs to load')
             createPointLayer('Terminal_Crudeoil')
+            document.getElementById('tabledataset').innerHTML = 'Terminals: Crude Oil'
         } else {
-            console.log('compressors - just adding')
             points_eia_terminal_crudeoil.addTo(map);
         }
     } else if (points_eia_terminal_crudeoil) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_terminal_crudeoil);
     }
 });
@@ -5940,16 +5413,14 @@ document.getElementById('eia_terminal_crudeoil').addEventListener('change', func
 // Toggle line visibility based on checkbox
 document.getElementById('eia_terminal_lng').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Terminals: LNG')
         if (!points_eia_terminal_lng) {
-            console.log('compressors - needs to load')
             createPointLayer('Terminal_Lng')
+            document.getElementById('tabledataset').innerHTML = 'Terminals: LNG'
         } else {
-            console.log('compressors - just adding')
             points_eia_terminal_lng.addTo(map);
         }
     } else if (points_eia_terminal_lng) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_terminal_lng);
     }
 });
@@ -5957,16 +5428,14 @@ document.getElementById('eia_terminal_lng').addEventListener('change', function(
 // Toggle line visibility based on checkbox
 document.getElementById('eia_terminal_petroleum').addEventListener('change', function() {
     if (this.checked) {
-        console.log('compressors - checked')
+        toggleselection('state','Terminals Petroleum')
         if (!points_eia_terminal_petroleum) {
-            console.log('compressors - needs to load')
             createPointLayer('Terminal_Petroleum')
+            document.getElementById('tabledataset').innerHTML = 'Terminals: Petroleum'
         } else {
-            console.log('compressors - just adding')
             points_eia_terminal_petroleum.addTo(map);
         }
     } else if (points_eia_terminal_petroleum) {
-        console.log('compressors - removing')
         map.removeLayer(points_eia_terminal_petroleum);
     }
 });

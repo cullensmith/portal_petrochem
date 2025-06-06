@@ -679,9 +679,7 @@
                                 <div class="button-container" id="county-container"></div>
                             </div>
                         </div>
-                        <div class="dlbtn" style="padding-top:15px;">
-                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(filteredData)">Download Dataset (CSV)</button>
-                        </div>
+
                         <div id="search" style="margin-top:15px">
                             {% comment %} <label>Refine your search</label> {% endcomment %}
                             <select id="sort-field2" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
@@ -726,6 +724,9 @@
                         </div> {% endcomment %}
                         <div >
                             <button style="padding:20px;margin-top:10px;" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
+                        </div>
+                        <div class="dlbtn" style="padding-top:15px;">
+                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(filteredData)">Download Dataset (CSV)</button>
                         </div>
                     </div>
                 </div>
@@ -809,8 +810,8 @@
                             </div> {% endcomment %}
                         </div>
                         <div style="color:white;margin-top:2px;justify-self:center">
-                            <span id="records"></span>
-                        </div>
+                            <span id="tabledataset"></span>
+                        </div> 
                         <div style="justify-self:right">
                             <!-- Dropdown with a placeholder-like option for "Sort by" -->
                             <select id="sort-field" style="text-align:center;border:none;height:25px;background-color:white;border-radius:7px">
@@ -823,10 +824,19 @@
             </div>
             <div class="bottom" id="bottomContainer">
             <!-- Bottom content of the right side -->
-                <div>
-                    <div id="pagination" style="display:flex;justify-content:center">
-                    </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <!-- Left-aligned -->
+                <div id="pagination" style="flex: 1; text-align: left;">
+                    <!-- Pagination controls go here -->
                 </div>
+            
+                <!-- Centered -->
+                <div style="flex: 1; text-align: center; color: #00253B; margin-top: 2px;">
+                    <span id="records"></span>
+                </div>
+                <!-- Optional: Right-aligned space filler -->
+                <div style="flex: 1;"></div>
+            </div>
                 <div class="tablecontainer">
                     <!-- Grid container for the table -->
                     <table id="maintable">
