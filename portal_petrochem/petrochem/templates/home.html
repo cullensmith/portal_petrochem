@@ -684,16 +684,7 @@
                             {% comment %} <label>Refine your search</label> {% endcomment %}
                             <select id="sort-field2" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
                                 <option value=""style="color:#8a8a8a" selected>Refine your search</option> <!-- Placeholder option -->
-                                {% comment %} <option value="api_num" class="ovdrop">API Number</option>
-                                <option value="county" class="ovdrop">County</option>
-                                <option value="well_name" class="ovdrop">Well Name</option>
-                                <option value="operator" class="ovdrop">Operator</option>
-                                <option value="spud_date" class="ovdrop">Spud Date</option>
-                                <option value="plug_date" class="ovdrop">Plug Date</option>
-                                <option value="well_type" class="ovdrop">Well Type</option>
-                                <option value="well_status" class="ovdrop">Well Status</option>
-                                <option value="well_configuratin" class="ovdrop">Well Configuration</option>
-                                <option value="ft_category" class="ovdrop">FracTracker Category</option> {% endcomment %}
+
                             </select>
                             <div style="display:grid;grid-template-columns:84% 16%;width:100%">
                                 <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
@@ -723,10 +714,10 @@
                             <button class="dropdownapplybutton" style="margin-top:16px;padding:7px" onclick="updateTable(filteredData.features)">Clear Selection</button>
                         </div> {% endcomment %}
                         <div >
-                            <button style="padding:20px;margin-top:10px;" class="dropdownapplybutton" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
+                            <button style="padding:20px;margin-top:10px;" class="dropdownapplybutton hide" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
                         </div>
                         <div class="dlbtn" style="padding-top:15px;">
-                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(filteredData)">Download Dataset (CSV)</button>
+                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(tabledata)">Download Dataset (CSV)</button>
                         </div>
                     </div>
                 </div>

@@ -1,4 +1,3 @@
-console.log('print something')
 
 //create layer variables
 var lines_pipeline_crudeoil;
@@ -29,37 +28,18 @@ var points_eia_plants_nuclear;
 var points_eia_plants_petroleum;
 var points_eia_plants_processing_naturalgas;
 var points_eia_plants_refinery_petroleum;
-
 var points_eia_reserve_petroleum;
 var points_eia_storage_naturalgas;
 var points_eia_terminal_crudeoil;
 var points_eia_terminal_lng;
 var points_eia_terminal_petroleum;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
-// var points_eia_powerplants ;
+
 
 
 var buffs;
 // Create constants for the filter items
 const statetextbox = document.getElementById('statePicks');
-const ctytextbox = document.getElementById('countyPicks');
-const ctybuttonContainer = document.getElementById('county-container');
-const statustextbox = document.getElementById('statusPicks');
-const statusbuttonContainer = document.getElementById('status-container');
-const typetextbox = document.getElementById('typePicks');
-const typebuttonContainer = document.getElementById('type-container');
-const cattextbox = document.getElementById('ftacatPicks');
-const catbuttonContainer = document.getElementById('ftacat-container');
+
 
 
 // Styles
@@ -642,129 +622,79 @@ map.on('zoomend', function () {
 });
 
 
-// Function to apply category filter
-function applyCategoryFilter_orig() {
-    document.getElementById('filterpanel').classList.add('hide')
-    document.getElementById('filterbtn').classList.remove('sel')
-    document.getElementById('loadingpanel').classList.remove('hide');
-
-    var category = document.getElementById('ftacatPicks').value; 
-    
-    var states = getSelValues('statePicks');  // Assuming this returns a comma-delimited string
-    // Split the string into an array
-    states = states.split(',');
-    // Now filter out the null values
-    states = states.filter(value => value !== null && value !== '');  // Also filters out empty strings
-    states = states.join(',');
-
-    // console.log('states')
-    // console.log(states)
-    var counties = getSelValues('countyPicks')
-    var well_status = getSelValues('statusPicks');
-    var well_type = getSelValues('typePicks');
-    var category = getSelValues('ftacatPicks');
-    // open up the loading window
-    // document.getElementById('loading-popupid').style.display = 'block';
-    // Start adding periods to the loading popup text
-    // update this with something better such as spinny thing
 
 
 
-    $.ajax({
-        url: '/petrochem/generate_geojson',
-        method: 'GET',
-        data: {
-            states: states,
-            county: counties,
-            well_type: well_type,
-            well_status: well_status,
-            category: category,
-        },
-        success: function(data) {
-            filteredData = JSON.parse(data);
-            console.log('had success retrieving the records') // replace with action item
-            // updateMapMarkers(data);
-            // console.log(data);
-            // console.log(filteredData);
-            // console.log(filteredData.features);
-            updateTable(filteredData.features);
-            filterProd(data);
-            getCounties(states, counties, data);
-            getStates(states);
-            // document.getElementById('refineblock').style.display = 'block';
-            // document.getElementById('loading-popupid').style.display = 'none';
-            document.getElementById('loadingpanel').classList.add('hide')
-            document.getElementById('resultspanel').classList.remove('hide')
-            document.getElementById('resultsbtn').classList.add('sel')
-
-        },
-
-        error: function(xhr, status, error) {
-            alert("There was an error retrieving you're records. Try adding some filters to reduce the number of resulting features");
-            console.error(error); // make sure to alter user to the error
-            document.getElementById('loading-popupid').style.display = 'none';
-        }
-    });
-}
-
-
-////////
 function tableJson(i) {
     const grab = i
+    console.log('tableJson activated')
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
             // console.log(data)
-            d=JSON.parse(data)
-            console.log(d)
-            createTable(d); 
+            tabledata=JSON.parse(data)
+            console.log(tabledata)
+            createTable(tabledata); 
 })}
 
-////////
+
+
+
+
+
 function applyCategoryFilter() {
     // Fetch GeoJSON data from the server
     var datalayer = getSelValues('statePicks').replace(",,,","");  // Assuming this returns a comma-delimited string
 
     if (datalayer === 'Border Crossing: Electric') {
-        document.getElementById('eia_bordercrossing_electric').checked = true;
-        document.getElementById('tabledataset').innerText = `Border Crossing: Electric`;
+        // document.getElementById('eia_bordercrossing_electric').checked = true;
+        // document.getElementById('tabledataset').innerText = `Border Crossing: Electric`;
         if (!points_eia_bordercrossing_electric) {
-            createPointLayer('Bordercrossing_Electric');
+            // createPointLayer('Bordercrossing_Electric');
+            console.log('not points yet')
         } else {
             points_eia_bordercrossing_electric.addTo(map);
-            document.getElementById('tabledataset').innerText = `Border Crossing: Electric`;
-            // tableJson('Bordercrossing_Electric')
-        }
+            // document.getElementById('tabledataset').innerText = `Border Crossing: Electric`;
+            tableJson('Bordercrossing_Electric')
+        };
+        // document.getElementById('eia_bordercrossing_electric').checked = true;
 
     } else if (datalayer === 'Compressor Stations') {
-        console.log('that was it')
+        // document.getElementById('points_compressorstations').checked = true;
+        // document.getElementById('tabledataset').innerText = `Compressor Stations`;
+
         if (!points_compressorstations) {
-            createPointLayer('Compressors')
+            // createPointLayer('Compressors')
+            console.log('no compressor stations yet')
         } else {
             console.log('update table with border crossing electric')
             tableJson('Compressors')
             document.getElementById('tabledataset').innerText = `Compressor Stations`;
-
             console.log('just needed to recreate the table')
         }
+        // document.getElementById('points_compressorstations').checked = true;
 
-    } else if (datalayer === 'Border Crossing: Liquid') {
-        console.log('that was it')
+    } else if (datalayer === 'Border Crossing: Liquids') {
+        // document.getElementById('eia_bordercrossing_liquids').checked = true;
+        // document.getElementById('tabledataset').innerText = `Border Crossing: Liquids`;
         if (!points_eia_bordercrossing_liquids) {
             // console.log('compressors - needs to load')
-            createPointLayer('Bordercrossing_Liquids')
+            // createPointLayer('Bordercrossing_Liquids')
+            console.log('no liquid points yet')
         } else {
             console.log('update table with border crossing electric')
             // points_eia_bordercrossing_electric.addTo(map);
             tableJson('Bordercrossing_Liquids')
-            document.getElementById('tabledataset').innerText = `Border Crossing: Liquid`;
+            document.getElementById('tabledataset').innerText = `Border Crossing: Liquids`;
 
             console.log('just needed to recreate the table')
         }
+        // document.getElementById('eia_bordercrossing_liquids').checked = true;
 
 
     } else if (datalayer === 'Border Crossing: Natural Gas') {
-        console.log('that was it')
+        document.getElementById('eia_bordercrossing_naturalgas').checked = true;
+        document.getElementById('tabledataset').innerText = `Border Crossing: Natural Gas`;
         if (!points_eia_bordercrossing_naturalgas) {
             // console.log('compressors - needs to load')
             createPointLayer('Bordercrossing_Naturalgas')
@@ -777,7 +707,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Market Hub: Natural Gas') {
-        console.log('that was it')
+        document.getElementById('eia_markethub_naturalgas').checked = true;
+        document.getElementById('tabledataset').innerText = `Market Hub: Natural Gas`;
         if (!points_eia_markethub_naturalgas) {
             // console.log('compressors - needs to load')
             createPointLayer('Markethubs_Naturalgas')
@@ -790,7 +721,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Market Hub: HGL') {
-        console.log('that was it')
+        document.getElementById('eia_markethub_hgl').checked = true;
+        document.getElementById('tabledataset').innerText = `Market Hub: HGL`;
         if (!points_eia_markethub_hgl) {
             // console.log('compressors - needs to load')
             createPointLayer('Markethubs_hgl')
@@ -803,7 +735,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Ports: Petroleum') {
-        console.log('that was it')
+        document.getElementById('eia_ports_petroleum').checked = true;
+        document.getElementById('tabledataset').innerText = `Ports: Petroleum`;
         if (!points_eia_ports_petroleum) {
             // console.log('compressors - needs to load')
             createPointLayer('Ports_Petroleum')
@@ -816,7 +749,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Plants: Battery Storage') {
-        console.log('that was it')
+        document.getElementById('eia_powerplants_batterystorage').checked = true;
+        document.getElementById('tabledataset').innerText = `Plants: Battery Storage`;
         if (!points_eia_powerplants_batterystorage) {
             // console.log('compressors - needs to load')
             createPointLayer('Powerplants_Batterystorage')
@@ -829,7 +763,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Plants: Biodiesel') {
-        console.log('that was it')
+        document.getElementById('eia_plants_biodiesel').checked = true;
+        document.getElementById('tabledataset').innerText = `Plants: Biodiesel`;
         if (!points_eia_plants_biodiesel) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Biodiesel')
@@ -842,7 +777,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Plants: Ethanol') {
-        console.log('that was it')
+        document.getElementById('eia_plants_ethanol').checked = true;
+        document.getElementById('tabledataset').innerText = `Plants: Ethanol`;
         if (!points_eia_plants_ethanol) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Ethanol')
@@ -855,7 +791,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Plants: Ethylene Cracker') {
-        console.log('that was it')
+        document.getElementById('eia_plants_ethylene_cracker').checked = true;
+        document.getElementById('tabledataset').innerText = `Plants: Ethylene Cracker`;
         if (!points_eia_plants_ethylene_cracker) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Ethylene_Cracker')
@@ -867,34 +804,9 @@ function applyCategoryFilter() {
         }
 
 
-    } else if (datalayer === 'Plants: Coal') {
-        console.log('that was it')
-        if (!points_eia_plants_coal) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Coal')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Coal')
-            console.log('just needed to recreate the table')
-        }
-
-
     }  else if (datalayer === 'Plants: Coal') {
-        console.log('that was it')
-        if (!points_eia_plants_coal) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Coal')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Coal')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }  else if (datalayer === 'Plants: Coal') {
-        console.log('that was it')
+        document.getElementById('eia_plants_coal').checked = true;
+        document.getElementById('tabledataset').innerText = `Plants: Coal`;
         if (!points_eia_plants_coal) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Coal')
@@ -907,7 +819,8 @@ function applyCategoryFilter() {
 
 
     }  else if (datalayer === 'Plants: Geothermal') {
-        console.log('that was it')
+        document.getElementById('eia_plants_geothermal').checked = true;
+        document.getElementById('tabledataset').innerText = `Plants: Geothermal`;
         if (!points_eia_plants_geothermal) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Geothermal')
@@ -920,7 +833,8 @@ function applyCategoryFilter() {
 
 
     }  else if (datalayer === 'Plants: Hydro Pumped Storage') {
-        console.log('that was it')
+        document.getElementById('eia_plants_hydropumped').checked = true;
+        document.getElementById('tabledataset').innerText = `Plants: Hydro Pumped Storage`;
         if (!points_eia_plants_hydropumped) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Hydropumped')
@@ -933,7 +847,8 @@ function applyCategoryFilter() {
 
 
     }  else if (datalayer === 'Power Plants: Natural Gas') {
-        console.log('that was it')
+        document.getElementById('eia_plants_power_naturalgas').checked = true;
+        document.getElementById('tabledataset').innerText = `Power Plants: Natural Gas`;
         if (!points_eia_plants_power_naturalgas) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Naturalgas')
@@ -946,7 +861,8 @@ function applyCategoryFilter() {
 
 
     }  else if (datalayer === 'Plants: Hydroelectric') {
-        console.log('that was it')
+        document.getElementById('eia_plants_hydroelectric').checked = true;
+        document.getElementById('tabledataset').innerText = `Plants: Hydroelectric`;
         if (!points_eia_plants_hydroelectric) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Hydroelectric')
@@ -959,7 +875,8 @@ function applyCategoryFilter() {
 
 
     }  else if (datalayer === 'Power Plants: Nuclear') {
-        console.log('that was it')
+        document.getElementById('eia_plants_nuclear').checked = true;
+        document.getElementById('tabledataset').innerText = `Power Plants: Nuclear`;
         if (!points_eia_plants_nuclear) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Nuclear')
@@ -972,7 +889,8 @@ function applyCategoryFilter() {
 
 
     }   else if (datalayer === 'Power Plants: Petroleum') {
-        console.log('that was it')
+        document.getElementById('eia_plants_petroleum').checked = true;
+        document.getElementById('tabledataset').innerText = `Power Plants: Petroleum`;
         if (!points_eia_plants_petroleum) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Petroleum')
@@ -985,7 +903,8 @@ function applyCategoryFilter() {
 
 
     }   else if (datalayer === 'Processing Plants: Natural Gas') {
-        console.log('that was it')
+        document.getElementById('eia_plants_processing_naturalgas').checked = true;
+        document.getElementById('tabledataset').innerText = `Processing Plants: Natural Gas`;
         if (!points_eia_plants_processing_naturalgas) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Processing_Naturalgas')
@@ -998,7 +917,8 @@ function applyCategoryFilter() {
 
 
     }   else if (datalayer === 'Refinery: Petroleum') {
-        console.log('that was it')
+        document.getElementById('eia_plants_refinery_petroleum').checked = true;
+        document.getElementById('tabledataset').innerText = `Refinery: Petroleum`;
         if (!points_eia_plants_refinery_petroleum) {
             // console.log('compressors - needs to load')
             createPointLayer('Plants_Refinery_Petroleum')
@@ -1010,8 +930,9 @@ function applyCategoryFilter() {
         }
 
 
-    }   else if (datalayer === 'Reserve: Petroleum') {
-        console.log('that was it')
+    }   else if (datalayer === 'Reserves: Petroleum') {
+        document.getElementById('eia_reserve_petroleum').checked = true;
+        document.getElementById('tabledataset').innerText = `Reserves: Petroleum`;
         if (!points_eia_reserve_petroleum) {
             // console.log('compressors - needs to load')
             createPointLayer('Reserve_Petroleum')
@@ -1024,7 +945,8 @@ function applyCategoryFilter() {
 
 
     }   else if (datalayer === 'Underground Storage: Natural Gas') {
-        console.log('that was it')
+        document.getElementById('eia_storage_naturalgas').checked = true;
+        document.getElementById('tabledataset').innerText = `Underground Storage: Natural Gas`;
         if (!points_eia_storage_naturalgas) {
             // console.log('compressors - needs to load')
             createPointLayer('Storage_Naturalgas')
@@ -1037,7 +959,8 @@ function applyCategoryFilter() {
 
 
     }  else if (datalayer === 'Terminal: Crude Oil') {
-        console.log('that was it')
+        document.getElementById('eia_terminal_crudeoil').checked = true;
+        document.getElementById('tabledataset').innerText = `Terminal: Crude Oil`;
         if (!points_eia_terminal_crudeoil) {
             // console.log('compressors - needs to load')
             createPointLayer('Terminal_Crudeoil')
@@ -1050,7 +973,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Terminal: LNG') {
-        console.log('that was it')
+        document.getElementById('eia_terminal_lng').checked = true;
+        document.getElementById('tabledataset').innerText = `Terminal: LNG`;
         if (!points_eia_terminal_lng) {
             // console.log('compressors - needs to load')
             createPointLayer('Terminal_Lng')
@@ -1063,7 +987,8 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Terminal: Petroleum') {
-        console.log('that was it')
+        document.getElementById('eia_terminal_petroleum').checked = true;
+        document.getElementById('tabledataset').innerText = `Terminal: Petroleum`;
         if (!points_eia_terminal_petroleum) {
             // console.log('compressors - needs to load')
             createPointLayer('Terminal_Petroleum')
@@ -1075,8 +1000,9 @@ function applyCategoryFilter() {
         }
 
 
-    } else if (datalayer === 'Reserve: Petroleum') {
-        console.log('that was it')
+    } else if (datalayer === 'Reserves: Petroleum') {
+        document.getElementById('eia_reserve_petroleum').checked = true;
+        document.getElementById('tabledataset').innerText = `Reserves: Petroleum`;
         if (!points_eia_reserve_petroleum) {
             // console.log('compressors - needs to load')
             createPointLayer('Reserve_Petroleum')
@@ -1091,70 +1017,7 @@ function applyCategoryFilter() {
     } else  {console.log('nope')
     }
 
-    // Toggle line visibility based on checkbox
-    document.getElementById('eia_bordercrossing_electric').addEventListener('change', function() {
-        if (this.checked) {
-            // console.log('compressors - checked')
-            if (!points_eia_bordercrossing_electric) {
-                // console.log('compressors - needs to load')
-                createPointLayer('Bordercrossing_Electric')
-            } else {
-                // console.log('compressors - just adding')
-                points_eia_bordercrossing_electric.addTo(map);
-            }
-        } else if (points_eia_bordercrossing_electric) {
-            // console.log('compressors - removing')
-            map.removeLayer(points_eia_bordercrossing_electric);
-        }
-    });
 
-    // console.log(datalayer)
-
-    // createPointLayer('Bordercrossing_Electric')
-    // updateTable(geojson) 
-
-    // fetch('/petrochem/generate_geojson_comps')
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         console.log(data)
-    //         d=JSON.parse(data)
-    //         console.log(d)
-
-
-
-
-    //         // Add the GeoJSON layer to the map
-    //         compressors = L.geoJSON(d, {
-    //             // filter: function (feature) {
-    //             //     return feature.properties.ft_category === 'Production Well';
-    //             // },
-    //             pointToLayer: function (feature, latlng) {
-    //                 return L.circleMarker(latlng, defaultStyle);
-    //             },
-    //             onEachFeature: function (feature, layer) {
-    //                 // Bind a popup to each circle marker based on the properties in the GeoJSON data
-    //                 layer.on({
-    //                     mouseover: function (e) {
-    //                         e.target.setStyle(highlightStyle);
-    //                     },
-    //                     mouseout: function (e) {
-    //                         e.target.setStyle(defaultStyle);
-    //                     }
-    //                 });
-    //                 layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
-    //                     feature.properties.naics_desc + "<br><b>Operator: </b>" + 
-    //                     feature.properties.operator + "<br><b>Longitude:</b> " + 
-    //                     feature.properties.x + "<br><b>Latitude: </b>" +
-    //                     feature.properties.y
-    //                 );
-    //             }
-        
-    //         }).addTo(map);
-    //         createTable(d);
-    //     })
-    //     .catch(error => console.log(error));
-    //     createLineLayer();
-    //     applyCategoryFilter2();
     };
 
      
@@ -1206,6 +1069,7 @@ function createHexagonMarker(latlng) {
 function createPointLayer(ptlay) {
     // Fetch GeoJSON data from the server
     const grab = ptlay
+    console.log(`create the ${ptlay} layer`)
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
@@ -1228,6 +1092,7 @@ function createPointLayer(ptlay) {
                 const highlightStyle = {
                     radius: 5  // what you want on hover
                 };
+                if (!points_compressorstations) 
                 // Add the GeoJSON layer to the map
                 points_compressorstations = L.geoJSON(d, {
                     // filter: function (feature) {
@@ -3212,6 +3077,8 @@ function createPointLayer(ptlay) {
 
 
 
+
+
 var demobuffer;
 function generate_buffs() {
     console.log('generating the buffer layer')
@@ -3909,10 +3776,10 @@ function updateTable(geojson) {
     displayRows(currentPage);
 }
 // Function to download CSV of table data
-function downloadTableData(filteredData) {
+function downloadTableData(tabledata) {
     console.log('starting the download')
     // Check if filtered data is available
-    if (!filteredData) {
+    if (!tabledata) {
         console.error("Filtered data is not available.");
         return;
     }
@@ -3921,7 +3788,7 @@ function downloadTableData(filteredData) {
     // Parse filtered data
     // var data = JSON.parse(filteredData);
 
-    var data = filteredData
+    var data = tabledata
     // console.log(data)
     // Function to properly encode special characters for CSV
     function encodeForCSV(str) {
@@ -3986,12 +3853,12 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 
 const statesarray = [
     "Border Crossing: Electric", 
-    "Border Crossing: Liquid", 
+    "Border Crossing: Liquids", 
     "Border Crossing: Natural Gas", 
     "Market Hub: HGL", 
     "Market Hub: Natural Gas", 
     "Port: Petroleum", 
-    "Reserve: Petroleum", 
+    "Reserves: Petroleum", 
     "Underground Storage: Natural Gas", 
     "Terminal: Crude Oil", 
     "Terminal: LNG", 
@@ -4271,18 +4138,18 @@ function toggleselection(c,v) {
         console.log(v)
         if (v === "Border Crossing: Electric") {
             textSpan.textContent = 'Border Crossing: Electric';  // Set the text inside the span
-        } else if (v === "Border Crossing: Liquid") {
-            textSpan.textContent = 'Border Crossing: Liquid';  // Set the text inside the span
+        } else if (v === "Border Crossing: Liquids") {
+            textSpan.textContent = 'Border Crossing: Liquids';  // Set the text inside the span
         } else if (v === "Border Crossing: Natural Gas") {
             textSpan.textContent = 'Border Crossing: Natural Gas';  // Set the text inside the span
         } else if (v === "Market Hub: HGL") {
             textSpan.textContent = 'Market Hub: HGL';  // Set the text inside the span
         } else if (v === "Market Hub: Natural Gas") {
             textSpan.textContent = 'Market Hub: Natural Gas';  // Set the text inside the span
-        } else if (v === "Port: Petroleum") {
-            textSpan.textContent = 'Port: Petroleum';  // Set the text inside the span
-        } else if (v === "Reserve: Petroleum") {
-            textSpan.textContent = 'Reserve: Petroleum';  // Set the text inside the span
+        } else if (v === "Ports: Petroleum") {
+            textSpan.textContent = 'Ports: Petroleum';  // Set the text inside the span
+        } else if (v === "Reserves: Petroleum") {
+            textSpan.textContent = 'Reserves: Petroleum';  // Set the text inside the span
         } else if (v === "Underground Storage: Natural Gas") {
             textSpan.textContent = 'Underground Storage: Natural Gas';  // Set the text inside the span
         } else if (v === "Terminal: Crude Oil") {
@@ -4349,10 +4216,39 @@ function toggleselection(c,v) {
     if (c === 'state') {
         statetextbox.appendChild(buttonState);
     }  
+
+    applyCategoryFilter()
+    getcolumns(v)
+    
 }
 
 
+function getcolumns(ptlay) {
+    // Fetch GeoJSON data from the server
+    // const grab = ptlay
+    console.log('getting columns for:')
+    console.log(ptlay)
+    const grab = getmodname(ptlay)
+    console.log(grab)
+    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
+    .then(response => response.json())
+    .then(data => {
+        // console.log(data);
+        console.log('d feats:');
+        d=JSON.parse(data)
 
+        const dropdown = document.getElementById("sort-field2");
+        dropdown.innerHTML = '<option value="" style="color:#8a8a8a" selected>Refine your search</option>';
+
+        const keys = Object.keys(d.features[0].properties);
+        keys.forEach(key => {
+            const option = document.createElement("option");
+            option.value = key;
+            option.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            dropdown.appendChild(option);
+        });
+    });
+}
 
 
 
@@ -4363,7 +4259,6 @@ var otherwells;
 var orphanwells;
 var notdrilledwells;
 var injectionwells;
-
 var filtproductionwells;
 var filtpluggedwells;
 var filtotherwells;
@@ -4568,96 +4463,7 @@ function filterProd(data) {
     });
     // map.addLayer(productionwells)
 }
-// // Toggle polygons visibility based on checkbox
-// document.getElementById('category6').addEventListener('change', function() {
-//     // document.getElementById('category6').classList.add('loadinglayer');
-//     document.body.classList.add('loadinglayer');
 
-//     if (this.checked) {
-//         productionwells.addTo(map)
-//     } else if (productionwells) {
-//         map.removeLayer(productionwells);
-//     } 
-//     document.body.classList.remove('loadinglayer');
-
-//     // document.getElementById('category6').classList.remove('loadinglayer');
-// });
-
-// // Toggle polygons visibility based on checkbox
-// document.getElementById('category5').addEventListener('change', function() {
-//     if (this.checked) {
-//         pluggedwells.addTo(map);
-//     } else if (pluggedwells) {
-//         map.removeLayer(pluggedwells);
-//     }
-// });
-
-
-// // Toggle polygons visibility based on checkbox
-// document.getElementById('category4').addEventListener('change', function() {
-//     if (this.checked) {
-//         otherwells.addTo(map);
-//     } else if (otherwells) {
-//         map.removeLayer(otherwells);
-//     }
-// });
-
-
-// // Toggle polygons visibility based on checkbox
-// document.getElementById('category3').addEventListener('change', function() {
-//     if (this.checked) {
-//         orphanwells.addTo(map);
-//     } else if (orphanwells) {
-//         map.removeLayer(orphanwells);
-//     }
-// });
-
-
-// // Toggle polygons visibility based on checkbox
-// document.getElementById('category2').addEventListener('change', function() {
-//     if (this.checked) {
-//         notdrilledwells.addTo(map);
-//     } else if (notdrilledwells) {
-//         map.removeLayer(notdrilledwells);
-//     }
-// });
-
-
-// // Toggle polygons visibility based on checkbox
-// document.getElementById('category1').addEventListener('change', function() {
-//     if (this.checked) {
-//         injectionwells.addTo(map);
-//     } else if (injectionwells) {
-//         map.removeLayer(injectionwells);
-//     }
-// });
-
-// Toggle polygons visibility based on checkbox
-// document.getElementById('countylayer').addEventListener('change', function() {
-//     if (this.checked && canvasLayer_cty) {
-//         canvasLayer_cty.addTo(map);
-//     } else if (canvasLayer_cty) {
-//         map.removeLayer(canvasLayer_cty);
-//     }
-// });
-
-
-// Toggle polygons visibility based on checkbox
-// document.getElementById('countychoropleth').addEventListener('click', function() {
-//     if (this.checked) {
-//         ctytallyLayer.addTo(map);
-//     } else if (ctytallyLayer) {
-//         map.removeLayer(ctytallyLayer);
-//     }
-// });
-// Toggle polygons visibility based on checkbox
-// document.getElementById('countycount').addEventListener('click', function() {
-//     if (this.checked) {
-//         markerIconCollection.addTo(map);
-//     } else if (markerIconCollection) {
-//         map.removeLayer(markerIconCollection);
-//     }
-// });
 
 
 // Function to toggle the point layer visibility based on zoom level
@@ -4851,47 +4657,57 @@ if (layer instanceof L.Circle) {
 }
 });
 
-function refinefilter () {
-    f = document.getElementById('sort-field2').value;
-    s = document.getElementById('srch-input').value;
+// function refinefilter() {
+//     console.log('refine filter')
+//     console.log(tabledata)
+//     f = document.getElementById('sort-field2').value;
+//     s = document.getElementById('srch-input').value;
+//     const refinedsrch = {
+//         "type": "FeatureCollection",
+//         "features": tabledata.features.filter(function(feature) {
+//           return feature.properties[f] === s; // Change the value as needed
+//         })
+//       };
+//       console.log('here')
+//       console.log(refinedsrch.features)
+//       updateTable(refinedsrch.features)
+// }
+
+
+function refinefilter() {
+    console.log('Refining filter...');
+    console.log(tabledata);
+
+    const f = document.getElementById('sort-field2').value;
+    const s = document.getElementById('srch-input').value;
+
+    const refinedFeatures = tabledata.features.filter(feature => {
+        if (!feature || !feature.properties || feature.properties[f] == null) return false;
+
+        const propValue = feature.properties[f];
+        return propValue.toString().toLowerCase() === s.toString().toLowerCase();
+    });
+
     const refinedsrch = {
-        "type": "FeatureCollection",
-        "features": filteredData.features.filter(function(feature) {
-          return feature.properties[f] === s; // Change the value as needed
-        })
-      };
-      console.log('here')
-      console.log(refinedsrch.features)
-      updateTable(refinedsrch.features)
+        type: "FeatureCollection",
+        features: refinedFeatures
+    };
+
+    console.log('Filtered GeoJSON:', JSON.stringify(refinedsrch, null, 2));
+    
+    // Optional: Validate GeoJSON
+    if (!Array.isArray(refinedsrch.features)) {
+        console.error('Invalid GeoJSON: "features" is not an array');
+        return;
+    }
+    
+
+
+    updateTable(refinedsrch);
 }
-
-filterbtn.addEventListener('click', (e) => {
-    document.getElementById('resultspanel').classList.add('hide');
-    document.getElementById('filterpanel').classList.remove('hide');
-    document.getElementById('resultsbtn').classList.remove('sel')
-    document.getElementById('filterbtn').classList.add('sel')
-
-
-});
-resultsbtn.addEventListener('click', (e) => {
-    document.getElementById('filterpanel').classList.add('hide');
-    document.getElementById('resultspanel').classList.remove('hide');
-    document.getElementById('filterbtn').classList.remove('sel')
-    document.getElementById('resultsbtn').classList.add('sel')
-
-
-});
-
 
 
 window.onload = function() {
-    // document.getElementById('category1').checked = false;
-    // document.getElementById('category2').checked = false;
-    // document.getElementById('category3').checked = false;
-    // document.getElementById('category4').checked = false;
-    // document.getElementById('category5').checked = false;
-    // document.getElementById('category6').checked = false;
-
     //document.getElementById('pipeline_fractracker').checked = false;
     document.getElementById('pipeline_crudeoil').checked = false;
     document.getElementById('pipeline_hgl').checked = false;
@@ -5054,12 +4870,15 @@ document.getElementById('eia_bordercrossing_electric').addEventListener('change'
     if (this.checked) {
         toggleselection('state','Border Crossing: Electric')
         if (!points_eia_bordercrossing_electric) {
+            console.log('toggled on via checkbox after creating points')
             createPointLayer('Bordercrossing_Electric')
             document.getElementById('tabledataset').innerHTML = 'Border Crossing: Electric'
         } else {
+            console.log('toggled on and added')
             points_eia_bordercrossing_electric.addTo(map);
         }
     } else if (points_eia_bordercrossing_electric) {
+        console.log('toggled off and removing')
         map.removeLayer(points_eia_bordercrossing_electric);
     }
 });
@@ -5070,7 +4889,7 @@ document.getElementById('eia_bordercrossing_liquids').addEventListener('change',
         toggleselection('state','Border Crossing: Liquids')
         if (!points_eia_bordercrossing_liquids) {
             createPointLayer('Bordercrossing_Liquids')
-            document.getElementById('tabledataset').innerHTML = 'Border Crossing: Liquid'
+            document.getElementById('tabledataset').innerHTML = 'Border Crossing: Liquids'
         } else {
             points_eia_bordercrossing_liquids.addTo(map);
         }
@@ -5451,3 +5270,59 @@ document.getElementById('eia_terminal_petroleum').addEventListener('change', fun
 //       });
 //     });
 //   });
+
+
+
+function getmodname(v) {
+    if (v === "Border Crossing: Electric") {
+        return 'Bordercrossing_Electric';  // Set the text inside the span
+    } else if (v === "Border Crossing: Liquids") {
+        return 'Bordercrossing_Liquids';  // Set the text inside the span
+    } else if (v === "Border Crossing: Natural Gas") {
+        return 'Bordercrossing_Naturalgas';  // Set the text inside the span
+    } else if (v === "Market Hub: HGL") {
+        return 'Markethubs_hgl';  // Set the text inside the span
+    } else if (v === "Market Hub: Natural Gas") {
+        return 'Markethubs_Naturalgas';  // Set the text inside the span
+    } else if (v === "Ports: Petroleum") {
+        return 'Ports_Petroleum';  // Set the text inside the span
+    } else if (v === "Reserves: Petroleum") {
+        return 'Reserve_Petroleum';  // Set the text inside the span
+    } else if (v === "Underground Storage: Natural Gas") {
+        return 'Storage_Naturalgas';  // Set the text inside the span
+    } else if (v === "Terminal: Crude Oil") {
+        return 'Terminal_Crudeoil';  // Set the text inside the span
+    } else if (v === "Terminal: LNG") {
+        return 'Terminal_Lng';  // Set the text inside the span
+    } else if (v === "Terminal: Petroleum") {
+        return 'Terminal_Petroleum';  // Set the text inside the span
+    } else if (v === "Compressor Stations") {
+        return 'Compressors';  // Set the text inside the span
+    } else if (v === "Plants: Biodiesel") {
+        return 'Plants_Biodiesel';  // Set the text inside the span
+    } else if (v === "Plants: Ethanol") {
+        return 'Plants_Ethanol';  // Set the text inside the span
+    } else if (v === "Plants: Ethylene Cracker") {
+        return 'Plants_Ethylene_Cracker';  // Set the text inside the span
+    } else if (v === "Power Plants: Battery Storage") {
+        return 'Powerplants_Batterystorage';  // Set the text inside the span
+    } else if (v === "Plants: Coal") {
+        return 'Plants_Coal';  // Set the text inside the span
+    } else if (v === "Plants: Geothermal") {
+        return 'Plants_Geothermal';  // Set the text inside the span
+    } else if (v === "Plants: Hydroelectric") {
+        return 'Plants_Hydroelectric';  // Set the text inside the span
+    } else if (v === "Plants: Hydro Pumped Storage") {
+        return 'Plants_Hydropumped';  // Set the text inside the span
+    } else if (v === "Power Plants: Natural Gas") {
+        return 'Plants_Naturalgas';  // Set the text inside the span
+    } else if (v === "Power Plants: Nuclear") {
+        return 'Plants_Nuclear';  // Set the text inside the span
+    } else if (v === "Power Plants: Petroleum") {
+        return 'Plants_Petroleum';  // Set the text inside the span
+    } else if (v === "Processing Plants: Natural Gas") {
+        return 'Plants_Processing_Naturalgas';  // Set the text inside the span
+    } else if (v === "Refinery: Petroleum") {
+        return 'Plants_Refinery_Petroleum';  // Set the text inside the span
+    } else {textSpan.textContent = 'error - unknown'}
+}
