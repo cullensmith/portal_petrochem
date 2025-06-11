@@ -35,26 +35,14 @@ var points_eia_terminal_lng;
 var points_eia_terminal_petroleum;
 
 
-
 var buffs;
+
 // Create constants for the filter items
 const statetextbox = document.getElementById('statePicks');
 
 
 
-// Styles
-const highlightStyle = {
-    radius: 5  // what you want on hover
-};
-// Example point style
-const defaultStyle = {
-    radius: 2,
-    fillColor: "#ff7800",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8
-};
+
 
 // Main portion centered around the map container
 // Initialize Leaflet map
@@ -162,291 +150,9 @@ control.on('markgeocode', function(event) {
 
 var dots;
 
-// Function to fetch GeoJSON data from a view
-function getStates(data) {
-    // var states = document.getElementById('statePicks').value;
-    $.ajax({
-        url: '/petrochem/getstates_view', // Replace with your view URL
-        method: 'GET',
-        data: {
-            states: data,
-        },
-        success: function(data) {
-            map.eachLayer(function(layer) {
-
-                try {
-                    if (layer._leaflet_id == stateLayer) {
-                        map.removeLayer(layer);
-                    } else {
-                        // console.log('state layer id did not match') 
-                    }
-                    }
-                    catch(err) {
-                        // console.log('no such state layer exists'); 
-                    }
-                    
-            }); 
-            // Convert GeoJSON to vector tiles using leaflet-geojson-vt
-            var geojsonStyle = {
-                fillColor:"#FFFFFF",
-                color: "#000",
-                weight: 3,
-                opacity: .6,
-                fillOpacity: 0.000001,
-                };
-            
-            var options = {
-                maxZoom: 20,
-                minZoom: 6,
-                tolerance: 3,
-                debug: 0,
-                style: geojsonStyle,
-                zIndex: 100,
-            };
-            canvasLayer_state = L.geoJSON(data, options).addTo(map);
-
-
-            stateLayer=canvasLayer_state._leaflet_id
-            try {
-                statebounds = canvasLayer_state.getBounds();
-                map.fitBounds(statebounds);
-                map.on('moveend', function() {
-                    // setCheckboxes();
-                })
-                
-            } catch(err) {
-                // console.log('no such layer exists just yet'); 
-            } 
-
-        },
-        error: function(xhr, status, error) {
-            // Handle error
-            console.error(error);
-        }
-    });
-}
-
-// Function to fetch GeoJSON data from a view
-function getCounties(s,c,data) {
-    pts = data
-    var states = getSelValues('statePicks')
-    $.ajax({
-        url: '/petrochem/getcounties_view', 
-        method: 'GET',
-        data: {
-            states: states,
-        },
-        success: function(data) {
-            
-            // console.log('GeoJSON data received:', data);
-            // Convert GeoJSON to vector tiles using leaflet-geojson-vt
-            map.eachLayer(function(layer) {
-                try {
-                    if (layer._leaflet_id == countyLayer) {
-                        map.removeLayer(layer);
-                    } else {
-                        // console.log('layer id did not match')
-                    }
-                    }
-                    catch(err) {
-                        // console.log('no such county layer exists');
-                    }
-                    
-            }); 
-
-            
-            var geojsonStyle = {
-                fillColor:"#FFFFFF",
-                color: "#000",
-                weight: 1,
-                opacity: .5,
-                fillOpacity: 0.00001,
-                };
-
-            canvasLayer_cty = L.geoJSON(data, {
-                style: geojsonStyle,
-                zIndex: 10,
-                maxZoom: 20,
-                minZoom: 1,
-                tolerance: 3,
-                debug: 0,
-                onEachFeature: function(feature, layer) {
-                    const county = feature.county;
-                    // layer.bindPopup(`<strong>County:</strong> ${county}`);
-                    // Add hover functionality to show county name in a tooltip
-                    layer.on({
-                        mouseover: function(e) {
-                            var layer = e.target;
-                            layer.bindTooltip(`<strong>County:</strong> ${county}`, {
-                                permanent: false,
-                                direction: 'top',
-                                opacity: 0.8
-                            }).openTooltip();
-                        },
-                        mouseout: function(e) {
-                            e.target.closeTooltip();
-                        }
-                    });
-                    // layer.on('click', function () {
-                    //     console.log('clicked it');  // Log the message when the polygon is clicked
-                    // });
-                }
-            }).addTo(map);
-
-            ctyct(data,pts);
-
-
-            countyLayer = canvasLayer_cty._leaflet_id
-            
-        },
-        error: function(xhr, status, error) {
-            // Handle error
-            console.error(error);
-        }
-    });
-}
 
 
 
-function addCtyOptions(states) {
-    // var states = document.getElementById('statePicks').value;
-
-    $.ajax({
-        url: '/petrochem/createCountyList',
-        method: 'GET',
-        data: {
-            states: states,
-        },
-        success: function(data) {
-            // create the "buttons" for each county for the dropdown
-            let ctyitems = JSON.parse(data);
-            highlight = ctytextbox.innerHTML
-            ctybuttonContainer.innerHTML = ''
-            // console.log('what is in the html?')
-            // console.log(highlight)
-            // Iterate through the statesarray array and create a button for each color
-            ctyitems.forEach(ctyitem => {
-                const ctybutton = document.createElement('button');
-                ctybutton.id = ctyitem.stusps + ': ' + ctyitem.county+'btn';
-                // console.log(ctybutton.id)
-                if (highlight.includes(ctybutton.id.slice(0,-3))) {
-                    // console.log('found something to highlight')
-                    ctybutton.className = 'highlightbutton';
-                } else {
-                    ctybutton.className = 'filterbutton';
-                }
-                
-                // console.log(ctyitem.county)
-                ctybutton.innerText = ctyitem.stusps + ': ' + ctyitem.county; // Capitalize the first letter of color
-                ctybutton.onclick = () => toggleselection('county',ctyitem.stusps + ': ' + ctyitem.county);
-                // Append the button to the button-container div
-                ctybuttonContainer.appendChild(ctybutton);
-            });
-        },
-        error: function(xhr,status,error) {
-            console.error(error);
-        }
-    })
-};
-
-
-
-function addStatus(states) {
-    // var states = document.getElementById('statePicks').value;
-    $.ajax({
-        url: '/petrochem/createStatusList',
-        method: 'GET',
-        data: {
-            states: states,
-        },
-        success: function(data) {
-            // create the "buttons" for each county for the dropdown
-            let statusitems = JSON.parse(data);
-            // console.log(statustextbox.innerHTML)
-            highlight = statustextbox.innerHTML
-            statusbuttonContainer.innerHTML = ''
-            // Iterate through the statesarray array and create a button for each color
-            statusitems.forEach(item => {
-                const statusbutton = document.createElement('button');
-                statusbutton.className = 'filterbutton';
-                statusbutton.id = item.stusps + ': ' + item.well_status+'btn';
-                // console.log(ctyitem.county)
-                if (highlight.includes(statusbutton.id.slice(0,-3))) {
-                    // console.log('found something to highlight')
-                    statusbutton.className = 'highlightbutton';
-                } else {
-                    statusbutton.className = 'filterbutton';
-                }
-                statusbutton.innerText = item.stusps + ': ' + item.well_status; // Capitalize the first letter of color
-                statusbutton.onclick = () => toggleselection('status',item.stusps + ': ' + item.well_status);
-                // Append the button to the button-container div
-                statusbuttonContainer.appendChild(statusbutton);
-            });
-        },
-        error: function(xhr,status,error) {
-            console.error(error);
-        }
-    })
-};
-
-function addType(states) {
-    // var states = document.getElementById('statePicks').value;
-    $.ajax({
-        url: '/petrochem/createTypeList',
-        method: 'GET',
-        data: {
-            states: states,
-        },
-        success: function(data) {
-            // create the "buttons" for each county for the dropdown
-            let typeitems = JSON.parse(data);
-            // console.log(typetextbox.innerHTML)
-            highlight = typetextbox.innerHTML
-            typebuttonContainer.innerHTML = ''
-            // Iterate through the statesarray array and create a button for each color
-            typeitems.forEach(item => {
-                const typebutton = document.createElement('button');
-                typebutton.className = 'filterbutton';
-                typebutton.id = item.stusps + ': ' + item.well_type+'btn';
-                // console.log(ctyitem.county)
-                if (highlight.includes(typebutton.id.slice(0,-3))) {
-                    // console.log('found something to highlight')
-                    typebutton.className = 'highlightbutton';
-                } else {
-                    typebutton.className = 'filterbutton';
-                }
-                typebutton.innerText = item.stusps + ': ' + item.well_type; // Capitalize the first letter of color
-                typebutton.onclick = () => toggleselection('type',item.stusps + ': ' + item.well_type);
-                // Append the button to the button-container div
-                typebuttonContainer.appendChild(typebutton);
-            });
-        },
-        error: function(xhr,status,error) {
-            console.error(error);
-        }
-    })
-};
-
-
-
-function getColor(stype) {
-    switch (stype) {
-        case 'Plugged':
-        return  '#0287D4';
-        case 'Injection / Storage / Service':
-        return '#A3CF5F';
-        case 'Production Well':
-        return 'red';
-        case 'Other / Unknown':
-        return '#00253B';
-        case 'Orphaned / Abandoned / Unverified Plug':
-        return '#FFC857';
-        case 'Not Drilled':
-        return 'green';
-        default:
-        return '#FDFFFC';
-    }
-}
 
 var geoJsonCtyLayer;
 var geoJsonCtyLayerid;
@@ -693,42 +399,46 @@ function applyCategoryFilter() {
 
 
     } else if (datalayer === 'Border Crossing: Natural Gas') {
-        document.getElementById('eia_bordercrossing_naturalgas').checked = true;
-        document.getElementById('tabledataset').innerText = `Border Crossing: Natural Gas`;
+        // document.getElementById('eia_bordercrossing_naturalgas').checked = true;
+        // document.getElementById('tabledataset').innerText = `Border Crossing: Natural Gas`;
         if (!points_eia_bordercrossing_naturalgas) {
             // console.log('compressors - needs to load')
-            createPointLayer('Bordercrossing_Naturalgas')
+            // createPointLayer('Bordercrossing_Naturalgas')
         } else {
             console.log('update table with border crossing electric')
             // points_eia_bordercrossing_electric.addTo(map);
             tableJson('Bordercrossing_Naturalgas')
+            document.getElementById('tabledataset').innerText = `Border Crossing: Natural Gas`;
+
             console.log('just needed to recreate the table')
         }
 
 
     } else if (datalayer === 'Market Hub: Natural Gas') {
-        document.getElementById('eia_markethub_naturalgas').checked = true;
-        document.getElementById('tabledataset').innerText = `Market Hub: Natural Gas`;
+        // document.getElementById('eia_markethub_naturalgas').checked = true;
         if (!points_eia_markethub_naturalgas) {
             // console.log('compressors - needs to load')
-            createPointLayer('Markethubs_Naturalgas')
+            // createPointLayer('Markethubs_Naturalgas')
         } else {
             console.log('update table with border crossing electric')
             // points_eia_bordercrossing_electric.addTo(map);
             tableJson('Markethubs_Naturalgas')
+            document.getElementById('tabledataset').innerText = `Market Hub: Natural Gas`;
+
             console.log('just needed to recreate the table')
         }
 
 
     } else if (datalayer === 'Market Hub: HGL') {
-        document.getElementById('eia_markethub_hgl').checked = true;
-        document.getElementById('tabledataset').innerText = `Market Hub: HGL`;
+        // document.getElementById('eia_markethub_hgl').checked = true;
         if (!points_eia_markethub_hgl) {
             // console.log('compressors - needs to load')
-            createPointLayer('Markethubs_hgl')
+            // createPointLayer('Markethubs_hgl')
         } else {
             console.log('update table with border crossing electric')
             // points_eia_bordercrossing_electric.addTo(map);
+            document.getElementById('tabledataset').innerText = `Market Hub: HGL`;
+
             tableJson('Markethubs_hgl')
             console.log('just needed to recreate the table')
         }
@@ -1022,6 +732,26 @@ function applyCategoryFilter() {
 
      
 
+
+function getColor(stype) {
+    switch (stype) {
+        case 'Plugged':
+        return  '#0287D4';
+        case 'Injection / Storage / Service':
+        return '#A3CF5F';
+        case 'Production Well':
+        return 'red';
+        case 'Other / Unknown':
+        return '#00253B';
+        case 'Orphaned / Abandoned / Unverified Plug':
+        return '#FFC857';
+        case 'Not Drilled':
+        return 'green';
+        default:
+        return '#FDFFFC';
+    }
+}
+
 function createTriangleMarker(latlng,newcolor) {
     return L.marker(latlng, {
         icon: L.divIcon({
@@ -1032,7 +762,6 @@ function createTriangleMarker(latlng,newcolor) {
         })
     });
     }
-    
 function createDiamondMarker(latlng,newcolor) {
     return L.marker(latlng, {
         icon: L.divIcon({
@@ -1066,38 +795,29 @@ function createHexagonMarker(latlng) {
     }
 
 
+const highlightStyle = {
+    radius: 5  // what you want on hover
+};
+const defaultStyle = {
+    radius: 2,
+    fillColor: "#ff7800",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8
+};
+
 function createPointLayer(ptlay) {
-    // Fetch GeoJSON data from the server
-    const grab = ptlay
     console.log(`create the ${ptlay} layer`)
-    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
+    displayname = getdisplayname(ptlay)
+    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(ptlay)}`)
         .then(response => response.json())
         .then(data => {
-            // console.log(data)
             d=JSON.parse(data)
-            // console.log(d)
-
-
             if (ptlay === 'Compressors') {
                 console.log('checked compressor stations')
-                // Example point style
-                const defaultStyle = {
-                    radius: 2,
-                    fillColor: "#ff7800",
-                    color: "#000",
-                    weight: 1,
-                    opacity: 1,
-                    fillOpacity: 0.8
-                };
-                const highlightStyle = {
-                    radius: 5  // what you want on hover
-                };
                 if (!points_compressorstations) 
-                // Add the GeoJSON layer to the map
                 points_compressorstations = L.geoJSON(d, {
-                    // filter: function (feature) {
-                    //     return feature.properties.ft_category === 'Production Well';
-                    // },
                     pointToLayer: function (feature, latlng) {
                         newcolor = '00253B'
                         const marker = createTriangleMarker(latlng,newcolor);
@@ -1117,12 +837,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1161,11 +877,16 @@ function createPointLayer(ptlay) {
                             `;
                             }
                           });
-                        layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
-                            feature.properties.naics_desc + "<br><b>Operator: </b>" + 
-                            feature.properties.operator + "<br><b>Longitude:</b> " + 
-                            feature.properties.x + "<br><b>Latitude: </b>" +
-                            feature.properties.y
+                          layer.bindPopup( 
+                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
+                            `<span style="color: black; font-weight: bold;">NAICS Desc: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.naics_desc}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Operator: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.operator}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.x}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.y}</span>`
                         );
                     }
             
@@ -1196,12 +917,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1240,13 +957,18 @@ function createPointLayer(ptlay) {
                             `;
                             }
                           });
-
-                        layer.bindPopup( "<br><b>Owner: </b>" + feature.properties.owner
-                             + "<br><b>Linename: </b>" + 
-                            feature.properties.linename + "<br><b>Longitude:</b> " + 
-                            parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
-                            parseFloat(feature.properties.y).toFixed(6)
+                        layer.bindPopup( 
+                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
+                            `<span style="color: black; font-weight: bold;">Owner: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.owner}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Linename: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.linename}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
                         );
+
                     }
             
                 }).addTo(map);
@@ -1277,12 +999,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1320,13 +1038,18 @@ function createPointLayer(ptlay) {
                             `;
                             }
                           });
-
-                        layer.bindPopup( "<br><b>Owner: </b>" + feature.properties.owner
-                             + "<br><b>Pipeline: </b>" + 
-                            feature.properties.pipeline  + "<br><b>Longitude:</b> " + 
-                            parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
-                            parseFloat(feature.properties.y).toFixed(6)
+                        layer.bindPopup( 
+                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
+                            `<span style="color: black; font-weight: bold;">Owner: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.owner}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Pipeline: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.pipeline}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
                         );
+
                     }
             
                 }).addTo(map);
@@ -1356,12 +1079,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1400,12 +1119,18 @@ function createPointLayer(ptlay) {
                             `;
                             }
                           });
-                          layer.bindPopup( "<br><b>Owner: </b>" + feature.properties.owner
-                          + "<br><b>Pipeline: </b>" + 
-                         feature.properties.pipeline  + "<br><b>Longitude:</b> " + 
-                         parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
-                         parseFloat(feature.properties.y).toFixed(6)
-                     );
+                        layer.bindPopup( 
+                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
+                            `<span style="color: black; font-weight: bold;">Owner: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.owner}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Pipeline: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.pipeline}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                        );
+
                     }
             
                 }).addTo(map);
@@ -1434,12 +1159,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1478,12 +1199,15 @@ function createPointLayer(ptlay) {
                             `;
                             }
                           });
-
-                    layer.bindPopup( "<br><b>Facility: </b>" + 
-                         feature.properties.facility  + "<br><b>Longitude:</b> " + 
-                         parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
-                         parseFloat(feature.properties.y).toFixed(6)
-                     );
+                    layer.bindPopup( 
+                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
+                            `<span style="color: black; font-weight: bold;">Facility: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.facility}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                        );
                     }
             
                 }).addTo(map);
@@ -1512,12 +1236,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1556,12 +1276,16 @@ function createPointLayer(ptlay) {
                             `;
                             }
                           });
+                    layer.bindPopup( 
+                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
+                            `<span style="color: black; font-weight: bold;">Hub Name: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.hubname}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                        );
 
-                    layer.bindPopup( "<br><b>Hub Name: </b>" + 
-                          feature.properties.hubname  + "<br><b>Longitude:</b> " + 
-                          parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
-                          parseFloat(feature.properties.y).toFixed(6)
-                      );
                      }
             
                 }).addTo(map);
@@ -1590,12 +1314,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1634,14 +1354,19 @@ function createPointLayer(ptlay) {
                             `;
                             }
                           });
+                    layer.bindPopup( 
+                        `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
+                        `<span style="color: black; font-weight: bold;">Port Name: </span>` +
+                        `<span style="color: grey; font-weight: normal;">${feature.properties.name}</span><br>` +
+                        `<span style="color: black; font-weight: bold;">Port Code: </span>` +
+                        `<span style="color: grey; font-weight: normal;">${feature.properties.portcode}</span><br>` +
+                        `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                        `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
+                        `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                        `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                    );
 
-                    layer.bindPopup( "<br><b>Port Name: </b>" + 
-                          feature.properties.name + "<br><b>Port Code: </b>" + 
-                          feature.properties.portcode  + "<br><b>Longitude:</b> " + 
-                          parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
-                          parseFloat(feature.properties.y).toFixed(6)
-                      );
-                     }
+                    }
             
                 }).addTo(map);
             } else if (ptlay === 'Powerplants_Batterystorage') {
@@ -1669,12 +1394,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1748,12 +1469,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1827,12 +1544,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1906,12 +1619,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -1985,12 +1694,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2064,12 +1769,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2143,12 +1844,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2222,12 +1919,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2302,12 +1995,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2381,12 +2070,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2460,12 +2145,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2539,12 +2220,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2618,12 +2295,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2697,12 +2370,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2776,12 +2445,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2855,12 +2520,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -2934,12 +2595,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -3013,12 +2670,8 @@ function createPointLayer(ptlay) {
                     onEachFeature: function (feature, layer) {
                         // Bind a popup to each circle marker based on the properties in the GeoJSON data
                         layer.on({
-                            mouseover: function (e) {
-                                e.target.setStyle(highlightStyle);
-                            },
-                            mouseout: function (e) {
-                                e.target.setStyle(defaultStyle);
-                            }
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
@@ -3142,71 +2795,6 @@ function findClosestFeature(clickedLatLng) {
 
 
 
-function applyCategoryFilter2() {
-    // Fetch GeoJSON data from the server
-    fetch('/petrochem/generate_geojson_comps2')
-        .then(response => response.json())
-        .then(data => {
-            // console.log(data)
-            d=JSON.parse(data)
-            // console.log(d)
-
-            // Example point style
-            const defaultStyle = {
-                radius: 2,
-                fillColor: "#ff7800",
-                color: "#000",
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8
-            };
-            const highlightStyle = {
-                radius: 5  // what you want on hover
-            };
-
-            // Add the GeoJSON layer to the map
-            others = L.geoJSON(d, {
-                // filter: function (feature) {
-                //     return feature.properties.ft_category === 'Production Well';
-                // },
-                pointToLayer: function (feature, latlng) {
-                    const marker = createTriangleMarker(latlng);
-                
-                    marker.on('mouseover', () => {
-                      const el = marker.getElement().querySelector('.triangle-marker');
-                      el.style.transform = 'scale(2)';
-                    });
-                
-                    marker.on('mouseout', () => {
-                      const el = marker.getElement().querySelector('.triangle-marker');
-                      el.style.transform = 'scale(1)';
-                    });
-                
-                    return marker;
-                  },
-                onEachFeature: function (feature, layer) {
-                    // Bind a popup to each circle marker based on the properties in the GeoJSON data
-                    // layer.on({
-                    //     mouseover: function (e) {
-                    //         e.target.setStyle(highlightStyle);
-                    //     },
-                    //     mouseout: function (e) {
-                    //         e.target.setStyle(defaultStyle);
-                    //     }
-                    // });
-                    layer.bindPopup( "<br><b>NAICS Desc: </b>" + 
-                        feature.properties.naics_desc + "<br><b>Operator: </b>" + 
-                        feature.properties.operator + "<br><b>Longitude:</b> " + 
-                        feature.properties.x + "<br><b>Latitude: </b>" +
-                        feature.properties.y
-                    );
-                }
-        
-            }).addTo(map);
-            createTable(d);
-        })
-        .catch(error => console.log(error));
-    }
 var myRenderer = L.canvas({ padding: 0.5, tolerance: 4 });
 
 function createLineLayer(lay) {
@@ -3775,6 +3363,8 @@ function updateTable(geojson) {
     // Initial render
     displayRows(currentPage);
 }
+
+
 // Function to download CSV of table data
 function downloadTableData(tabledata) {
     console.log('starting the download')
@@ -3784,19 +3374,13 @@ function downloadTableData(tabledata) {
         return;
     }
 
-    // console.log(filteredData)
-    // Parse filtered data
-    // var data = JSON.parse(filteredData);
-
     var data = tabledata
-    // console.log(data)
-    // Function to properly encode special characters for CSV
+
     function encodeForCSV(str) {
         // If the string contains comma, double quote, or newline characters,
         // wrap it in double quotes and escape any double quotes within the string
         if (/[,"\n#]/.test(str)) {
             return '"' + str.replace(/"/g, '""').replace(/#/g, '') + '"';
-            
         }
         return str;
     }
@@ -3804,22 +3388,15 @@ function downloadTableData(tabledata) {
     // Convert data to CSV format
     var csvContent = "data:text/csv;charset=utf-8,";
 
-    // Get the headers from the first data item
-    // var headers = ['api_num','county','ft_category','fta_uid','id','latitude','longitude','municipality','operator','other_id','plug_date','spud_date','stusps','well_configuration','well_name','well_status','well_type'];
-    // csvContent += headers.map(encodeForCSV).join(",") + "\n"; 
-
     var headers = Object.keys(data.features[0].properties);
     csvContent += headers.join(',') + '\n';
 
-    // console.log(headers)
-    
     // Convert each data item to CSV format
     data.features.forEach(function(dataItem) {
         // console.log(dataItem)
         var row = headers.map(function(header) {
             return encodeForCSV(dataItem.properties[header]);
         }).join(",");
-        // console.log(row);
         csvContent += row + "\n";
     });
 
@@ -3827,7 +3404,7 @@ function downloadTableData(tabledata) {
     var encodedUri = encodeURI(csvContent);
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "filtered_well_data.csv");
+    link.setAttribute("download", "filtered_data.csv");
 
     // Initiate download
     document.body.appendChild(link); // Required for Firefox
@@ -3836,6 +3413,7 @@ function downloadTableData(tabledata) {
     // Remove the link element
     document.body.removeChild(link);
 }
+
 
 // Toggle legend content
 document.getElementById('legend-toggle').addEventListener('click', function() {
@@ -3851,68 +3429,9 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
     }
 });
 
-const statesarray = [
-    "Border Crossing: Electric", 
-    "Border Crossing: Liquids", 
-    "Border Crossing: Natural Gas", 
-    "Market Hub: HGL", 
-    "Market Hub: Natural Gas", 
-    "Port: Petroleum", 
-    "Reserves: Petroleum", 
-    "Underground Storage: Natural Gas", 
-    "Terminal: Crude Oil", 
-    "Terminal: LNG", 
-    "Terminal: Petroleum", 
-    "Compressor Stations", 
-    "Plants: Biodiesel", 
-    "Plants: Ethanol", 
-    "Plants: Ethylene Cracker", 
-    "Power Plants: Battery Storage", 
-    "Plants: Coal", 
-    "Plants: Geothermal", 
-    "Plants: Hydroelectric", 
-    "Plants: Hydro Pumped Storage",  
-    "Power Plants: Natural Gas", 
-    "Power Plants: Nuclear", 
-    "Power Plants: Petroleum", 
-    "Processing Plants: Natural Gas", 
-    "Refinery: Petroleum"
-    ];
 
-// Iterate through the statesarray array and create a button for each st
-statesarray.forEach(st => {
-    const sbutton = document.createElement('button');
-    sbutton.className = 'filterbutton';
-    sbutton.id = st+'btn';
-    sbutton.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
-    sbutton.onclick = () => toggleselection('state',st);
-    // Append the button to the button-container div
-    document.getElementById('state-container').appendChild(sbutton);
-});
 
-const ftacats = ['Injection / Storage / Service', 'Not Drilled','Orphaned / Abandoned / Unverified','Other / Unknown','Plugged','Production Well']
 
-ftacats.forEach(st => {
-    const fbutton = document.createElement('button');
-    fbutton.className = 'filterbutton';
-    fbutton.id = st+'btn';
-    fbutton.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
-    fbutton.onclick = () => toggleselection('ftacat',st);
-    // Append the button to the button-container div
-    document.getElementById('ftacat-container').appendChild(fbutton);
-});
-
-function getButtonValues() {
-    // Select all buttons inside the container
-    const buttonchk = document.getElementById('statePicks').querySelectorAll('*');
-    starray = ''
-    // Loop through the buttons and log their values
-    buttonchk.forEach(b => {
-    //   console.log(b.id);
-      starray+=b.id.slice(6)+','
-    });
-    return starray
-  }
 
 function getSelValues(s) {
     // Select all buttons inside the container
@@ -3927,20 +3446,6 @@ function getSelValues(s) {
 }
 
 
-function openlist(bo) {
-    // console.log(bo)
-    statelist = getButtonValues()
-    // console.log(document.getElementById(bo+'-container').value)
-    if (bo==="county" && statelist != null) {
-        // console.log(statelist),
-        addCtyOptions(statelist)
-    } else if (bo === "wellstatus" && statelist != null) {
-        addStatus(statelist)
-    } else if (bo === "welltype" && statelist != null) {
-        addType(statelist)
-    }
-    
-};
 
 stcontainer = document.getElementById('state-container')
 stbutton = document.getElementById('statebutton')
@@ -3971,225 +3476,20 @@ stbutton.addEventListener('mouseleave', () => {
 
 
 
-
-ctycontainer = document.getElementById('county-container')
-ctybutton = document.getElementById('countybutton')
-
-// Show dropdown when button is clicked
-ctybutton.addEventListener('click', () => {
-    if (ctycontainer.style.display === 'none' || ctycontainer.style.display === '' ) {
-        // if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '**REQUIRED**') {
-        if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '') {
-            statetextbox.style.display='flex';
-            ctycontainer.style.display = 'block';
-        } else {
-            ctycontainer.style.display = 'none';
-        }
-    } else if (ctycontainer.style.display = 'block') {
-        ctycontainer.style.display = 'none';
-    }
-});
-
-// Close dropdown if cursor leaves the button or the dropdown container
-ctycontainer.addEventListener('mouseleave', () => {
-    ctycontainer.style.display = 'none';
-});
-
-// Prevent dropdown from closing if cursor is inside the dropdown content
-ctycontainer.addEventListener('mouseenter', () => {
-    ctycontainer.style.display = 'block';
-});
-
-// Keep dropdown open if the cursor is inside the button or dropdown
-ctybutton.addEventListener('mouseleave', () => {
-    ctycontainer.style.display = 'none';
-});
-
-
-statuscontainer = document.getElementById('status-container')
-statusbutton = document.getElementById('statusbutton')
-
-// Show dropdown when button is clicked
-statusbutton.addEventListener('click', () => {
-    if (statuscontainer.style.display === 'none' || statuscontainer.style.display === '' ) {
-        // if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '**REQUIRED**') {
-        if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '') {
-            statuscontainer.style.display = 'block';
-            statetextbox.style.display='flex';
-        } else {
-            statuscontainer.style.display = 'none';
-        }
-    } else if (statuscontainer.style.display = 'block') {
-        statuscontainer.style.display = 'none';
-    }
-});
-
-// Close dropdown if cursor leaves the button or the dropdown container
-statuscontainer.addEventListener('mouseleave', () => {
-    statuscontainer.style.display = 'none';
-});
-
-// Prevent dropdown from closing if cursor is inside the dropdown content
-statuscontainer.addEventListener('mouseenter', () => {
-    statuscontainer.style.display = 'block';
-});
-
-// Keep dropdown open if the cursor is inside the button or dropdown
-statusbutton.addEventListener('mouseleave', () => {
-    statuscontainer.style.display = 'none';
-});
-
-typecontainer = document.getElementById('type-container')
-typebutton = document.getElementById('typebutton')
-
-// Show dropdown when button is clicked
-typebutton.addEventListener('click', () => {
-    if (typecontainer.style.display === 'none' || typecontainer.style.display === '' ) {
-        // if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '**REQUIRED**') {
-        if (statetextbox.innerHTML != '' && statetextbox.innerHTML != '') {
-            typecontainer.style.display = 'block';
-            statetextbox.style.display='flex';
-        } else {
-            typecontainer.style.display = 'none';
-        }
-    } else if (typecontainer.style.display = 'block') {
-        typecontainer.style.display = 'none';
-    }
-});
-
-// Close dropdown if cursor leaves the button or the dropdown container
-typecontainer.addEventListener('mouseleave', () => {
-    typecontainer.style.display = 'none';
-});
-
-// Prevent dropdown from closing if cursor is inside the dropdown content
-typecontainer.addEventListener('mouseenter', () => {
-    typecontainer.style.display = 'block';
-});
-
-// Keep dropdown open if the cursor is inside the button or dropdown
-typebutton.addEventListener('mouseleave', () => {
-    typecontainer.style.display = 'none';
-});
-
-
-
-fcontainer = document.getElementById('ftacat-container')
-fbutton = document.getElementById('ftacatbutton')
-
-// Show dropdown when button is clicked
-fbutton.addEventListener('click', () => {
-    if (fcontainer.style.display === 'none' || fcontainer.style.display === '' ) {
-        fcontainer.style.display = 'block';
-    } else if (fcontainer.style.display = 'block') {
-        fcontainer.style.display = 'none';
-    }
-});
-
-// Close dropdown if cursor leaves the button or the dropdown container
-fcontainer.addEventListener('mouseleave', () => {
-    fcontainer.style.display = 'none';
-});
-
-// Prevent dropdown from closing if cursor is inside the dropdown content
-fcontainer.addEventListener('mouseenter', () => {
-    fcontainer.style.display = 'block';
-});
-
-// Keep dropdown open if the cursor is inside the button or dropdown
-fbutton.addEventListener('mouseleave', () => {
-    fcontainer.style.display = 'none';
-});
-
-
-
-
-
 function toggleselection(c,v) {
-    var earray = statetextbox.querySelectorAll("*");
+    var buttonDataset = document.createElement('button-state');
 
-    if (document.getElementById('input-'+v) != null) {
-
-        if (c==='state') {
-            document.getElementById(v+'btn').classList = 'filterbutton'
-        } ;
-        document.getElementById('input-'+v).remove();
-        if (statetextbox.innerHTML === '') {
-            statetextbox.style.display = 'none';
-        } else {
-            statetextbox.style.display='flex';
-        };
-    }
-    // if (c === 'state') {
-    //     document.getElementById(v+'btn').classList = 'highlightbutton'
-    // } 
-    var buttonState = document.createElement('button-state');
-
-    buttonState.classList.add('selbutton');
+    buttonDataset.classList.add('selbutton');
     statetextbox.style.display='flex';
-    buttonState.onclick = function() {
-        document.getElementById(buttonState.id.slice(6) + 'btn').classList = 'filterbutton';
-        buttonState.remove(); 
+    buttonDataset.onclick = function() {
+        document.getElementById(buttonDataset.id.slice(6) + 'btn').classList = 'filterbutton';
+        buttonDataset.remove(); 
     };
     
     // Create a span for the original text
     const textSpan = document.createElement('span');
-    if (c === 'state') {
-        console.log(v)
-        if (v === "Border Crossing: Electric") {
-            textSpan.textContent = 'Border Crossing: Electric';  // Set the text inside the span
-        } else if (v === "Border Crossing: Liquids") {
-            textSpan.textContent = 'Border Crossing: Liquids';  // Set the text inside the span
-        } else if (v === "Border Crossing: Natural Gas") {
-            textSpan.textContent = 'Border Crossing: Natural Gas';  // Set the text inside the span
-        } else if (v === "Market Hub: HGL") {
-            textSpan.textContent = 'Market Hub: HGL';  // Set the text inside the span
-        } else if (v === "Market Hub: Natural Gas") {
-            textSpan.textContent = 'Market Hub: Natural Gas';  // Set the text inside the span
-        } else if (v === "Ports: Petroleum") {
-            textSpan.textContent = 'Ports: Petroleum';  // Set the text inside the span
-        } else if (v === "Reserves: Petroleum") {
-            textSpan.textContent = 'Reserves: Petroleum';  // Set the text inside the span
-        } else if (v === "Underground Storage: Natural Gas") {
-            textSpan.textContent = 'Underground Storage: Natural Gas';  // Set the text inside the span
-        } else if (v === "Terminal: Crude Oil") {
-            textSpan.textContent = 'Terminal: Crude Oil';  // Set the text inside the span
-        } else if (v === "Terminal: LNG") {
-            textSpan.textContent = 'Terminal: LNG';  // Set the text inside the span
-        } else if (v === "Terminal: Petroleum") {
-            textSpan.textContent = 'Terminal: Petroleum';  // Set the text inside the span
-        } else if (v === "Compressor Stations") {
-            textSpan.textContent = 'Compressor Stations';  // Set the text inside the span
-        } else if (v === "Plants: Biodiesel") {
-            textSpan.textContent = 'Plants: Biodiesel';  // Set the text inside the span
-        } else if (v === "Plants: Ethanol") {
-            textSpan.textContent = 'Plants: Ethanol';  // Set the text inside the span
-        } else if (v === "Plants: Ethylene Cracker") {
-            textSpan.textContent = 'Plants: Ethylene Cracker';  // Set the text inside the span
-        } else if (v === "Power Plants: Battery Storage") {
-            textSpan.textContent = 'Power Plants: Battery Storage';  // Set the text inside the span
-        } else if (v === "Plants: Coal") {
-            textSpan.textContent = 'Plants: Coal';  // Set the text inside the span
-        } else if (v === "Plants: Geothermal") {
-            textSpan.textContent = 'Plants: Geothermal';  // Set the text inside the span
-        } else if (v === "Plants: Hydroelectric") {
-            textSpan.textContent = 'Plants: Hydroelectric';  // Set the text inside the span
-        } else if (v === "Plants: Hydro Pumped Storage") {
-            textSpan.textContent = 'Plants: Hydro Pumped Storage';  // Set the text inside the span
-        } else if (v === "Power Plants: Natural Gas") {
-            textSpan.textContent = 'Power Plants: Natural Gas';  // Set the text inside the span
-        } else if (v === "Power Plants: Nuclear") {
-            textSpan.textContent = 'Power Plants: Nuclear';  // Set the text inside the span
-        } else if (v === "Power Plants: Petroleum") {
-            textSpan.textContent = 'Power Plants: Petroleum';  // Set the text inside the span
-        } else if (v === "Processing Plants: Natural Gas") {
-            textSpan.textContent = 'Processing Plants: Natural Gas';  // Set the text inside the span
-        } else if (v === "Refinery: Petroleum") {
-            textSpan.textContent = 'Refinery: Petroleum';  // Set the text inside the span
-        } 
-    } else {
-        console.log('check textSpan input')
-    };
+    textSpan.textContent = v
+    
     // Create a span for the 'X' that will appear on hover
     const closeSpan = document.createElement('span');
     closeSpan.textContent = ' X';
@@ -4197,25 +3497,24 @@ function toggleselection(c,v) {
     closeSpan.style.color = "red";
 
     // Append the spans inside the button
-    buttonState.appendChild(textSpan);
-    buttonState.appendChild(closeSpan);
+    buttonDataset.appendChild(textSpan);
+    buttonDataset.appendChild(closeSpan);
 
     // Add hover effect to display 'X'
-    buttonState.addEventListener('mouseenter', () => {
+    buttonDataset.addEventListener('mouseenter', () => {
         closeSpan.style.display = 'inline';  // Show the 'X' when hovered
     });
-    buttonState.addEventListener('mouseleave', () => {
+    buttonDataset.addEventListener('mouseleave', () => {
         closeSpan.style.display = 'none';  // Hide the 'X' when not hovered
     });
 
-    // buttonState.textContent = v;
-    buttonState.id = "input-" + v;
-    buttonState.style.fontWeight = 'bold';
+    // buttonDataset.textContent = v;
+    buttonDataset.id = "input-" + v;
+    buttonDataset.style.fontWeight = 'bold';
 
     statetextbox.innerHTML='';
-    if (c === 'state') {
-        statetextbox.appendChild(buttonState);
-    }  
+    statetextbox.appendChild(buttonDataset);
+    
 
     applyCategoryFilter()
     getcolumns(v)
@@ -4657,21 +3956,7 @@ if (layer instanceof L.Circle) {
 }
 });
 
-// function refinefilter() {
-//     console.log('refine filter')
-//     console.log(tabledata)
-//     f = document.getElementById('sort-field2').value;
-//     s = document.getElementById('srch-input').value;
-//     const refinedsrch = {
-//         "type": "FeatureCollection",
-//         "features": tabledata.features.filter(function(feature) {
-//           return feature.properties[f] === s; // Change the value as needed
-//         })
-//       };
-//       console.log('here')
-//       console.log(refinedsrch.features)
-//       updateTable(refinedsrch.features)
-// }
+
 
 
 function refinefilter() {
@@ -5325,4 +4610,58 @@ function getmodname(v) {
     } else if (v === "Refinery: Petroleum") {
         return 'Plants_Refinery_Petroleum';  // Set the text inside the span
     } else {textSpan.textContent = 'error - unknown'}
+}
+
+function getdisplayname(v) {
+    if (v === "Bordercrossing_Electric") {
+        return 'Border Crossing: Electric';  // Set the text inside the span
+    } else if (v === "Bordercrossing_Liquids") {
+        return 'Border Crossing: Liquids';  // Set the text inside the span
+    } else if (v === "Bordercrossing_Naturalgas") {
+        return 'Border Crossing: Natural Gas';  // Set the text inside the span
+    } else if (v === "Markethubs_hgl") {
+        return 'Market Hub: HGL';  // Set the text inside the span
+    } else if (v === "Markethubs_Naturalgas") {
+        return 'Market Hub: Natural Gas';  // Set the text inside the span
+    } else if (v === "Ports_Petroleum") {
+        return 'Ports: Petroleum';  // Set the text inside the span
+    } else if (v === "Reserve_Petroleum") {
+        return 'Reserves: Petroleum';  // Set the text inside the span
+    } else if (v === "Storage_Naturalgas") {
+        return 'Underground Storage: Natural Gas';  // Set the text inside the span
+    } else if (v === "Terminal_Crudeoil") {
+        return 'Terminal: Crude Oil';  // Set the text inside the span
+    } else if (v === "Terminal_Lng") {
+        return 'Terminal: LNG';  // Set the text inside the span
+    } else if (v === "Terminal_Petroleum") {
+        return 'Terminal: Petroleum';  // Set the text inside the span
+    } else if (v === "Compressors") {
+        return 'Compressor Stations';  // Set the text inside the span
+    } else if (v === "Plants_Biodiesel") {
+        return 'Plants: Biodiesel';  // Set the text inside the span
+    } else if (v === "Plants_Ethanol") {
+        return 'Plants: Ethanol';  // Set the text inside the span
+    } else if (v === "Plants_Ethylene_Cracker") {
+        return 'Plants: Ethylene Cracker';  // Set the text inside the span
+    } else if (v === "Powerplants_Batterystorage") {
+        return 'Power Plants: Battery Storage';  // Set the text inside the span
+    } else if (v === "Plants_Coal") {
+        return 'Plants: Coal';  // Set the text inside the span
+    } else if (v === "Plants_Geothermal") {
+        return 'Plants: Geothermal';  // Set the text inside the span
+    } else if (v === "Plants_Hydroelectric") {
+        return 'Plants: Hydroelectric';  // Set the text inside the span
+    } else if (v === "Plants_Hydropumped") {
+        return 'Plants: Hydro Pumped Storage';  // Set the text inside the span
+    } else if (v === "Plants_Naturalgas") {
+        return 'Power Plants: Natural Gas';  // Set the text inside the span
+    } else if (v === "Plants_Nuclear") {
+        return 'Power Plants: Nuclear';  // Set the text inside the span
+    } else if (v === "Plants_Petroleum") {
+        return 'Power Plants: Petroleum';  // Set the text inside the span
+    } else if (v === "Plants_Processing_Naturalgas") {
+        return 'Processing Plants: Natural Gas';  // Set the text inside the span
+    } else if (v === "Plants_Refinery_Petroleum") {
+        return 'Refinery: Petroleum';  // Set the text inside the span
+    } else {return 'error - unknown'}
 }
