@@ -1,5 +1,3 @@
-
-//create layer variables
 var lines_pipeline_crudeoil;
 var lines_pipeline_fractracker;
 var lines_pipeline_hgl;
@@ -18,7 +16,6 @@ var points_eia_electric_generator;
 var points_eia_plants_biodiesel;
 var points_eia_plants_ethanol;
 var points_eia_plants_ethylene_cracker;
-//var points_eia_plants_batterystorage;
 var points_eia_plants_coal;
 var points_eia_plants_geothermal;
 var points_eia_plants_hydroelectric;
@@ -34,15 +31,10 @@ var points_eia_terminal_crudeoil;
 var points_eia_terminal_lng;
 var points_eia_terminal_petroleum;
 
-
 var buffs;
 
 // Create constants for the filter items
-const statetextbox = document.getElementById('statePicks');
-
-
-
-
+const statetextbox = document.getElementById('datasetSelection');
 
 // Main portion centered around the map container
 // Initialize Leaflet map
@@ -350,384 +342,20 @@ function tableJson(i) {
 
 function applyCategoryFilter() {
     // Fetch GeoJSON data from the server
-    var datalayer = getSelValues('statePicks').replace(",,,","");  // Assuming this returns a comma-delimited string
+    var dataLayer = getSelValues('datasetSelection').replace(",,,","");  // Assuming this returns a comma-delimited string
 
-    if (datalayer === 'Border Crossing: Electric') {
-        // document.getElementById('eia_bordercrossing_electric').checked = true;
-        // document.getElementById('tabledataset').innerText = `Border Crossing: Electric`;
-        if (!points_eia_bordercrossing_electric) {
-            // createPointLayer('Bordercrossing_Electric');
-            console.log('not points yet')
-        } else {
-            points_eia_bordercrossing_electric.addTo(map);
-            // document.getElementById('tabledataset').innerText = `Border Crossing: Electric`;
-            tableJson('Bordercrossing_Electric')
-        };
-        // document.getElementById('eia_bordercrossing_electric').checked = true;
-
-    } else if (datalayer === 'Compressor Stations') {
-        // document.getElementById('points_compressorstations').checked = true;
-        // document.getElementById('tabledataset').innerText = `Compressor Stations`;
-
-        if (!points_compressorstations) {
-            // createPointLayer('Compressors')
-            console.log('no compressor stations yet')
-        } else {
-            console.log('update table with border crossing electric')
-            tableJson('Compressors')
-            document.getElementById('tabledataset').innerText = `Compressor Stations`;
-            console.log('just needed to recreate the table')
-        }
-        // document.getElementById('points_compressorstations').checked = true;
-
-    } else if (datalayer === 'Border Crossing: Liquids') {
-        // document.getElementById('eia_bordercrossing_liquids').checked = true;
-        // document.getElementById('tabledataset').innerText = `Border Crossing: Liquids`;
-        if (!points_eia_bordercrossing_liquids) {
-            // console.log('compressors - needs to load')
-            // createPointLayer('Bordercrossing_Liquids')
-            console.log('no liquid points yet')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Bordercrossing_Liquids')
-            document.getElementById('tabledataset').innerText = `Border Crossing: Liquids`;
-
-            console.log('just needed to recreate the table')
-        }
-        // document.getElementById('eia_bordercrossing_liquids').checked = true;
-
-
-    } else if (datalayer === 'Border Crossing: Natural Gas') {
-        // document.getElementById('eia_bordercrossing_naturalgas').checked = true;
-        // document.getElementById('tabledataset').innerText = `Border Crossing: Natural Gas`;
-        if (!points_eia_bordercrossing_naturalgas) {
-            // console.log('compressors - needs to load')
-            // createPointLayer('Bordercrossing_Naturalgas')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Bordercrossing_Naturalgas')
-            document.getElementById('tabledataset').innerText = `Border Crossing: Natural Gas`;
-
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Market Hub: Natural Gas') {
-        // document.getElementById('eia_markethub_naturalgas').checked = true;
-        if (!points_eia_markethub_naturalgas) {
-            // console.log('compressors - needs to load')
-            // createPointLayer('Markethubs_Naturalgas')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Markethubs_Naturalgas')
-            document.getElementById('tabledataset').innerText = `Market Hub: Natural Gas`;
-
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Market Hub: HGL') {
-        // document.getElementById('eia_markethub_hgl').checked = true;
-        if (!points_eia_markethub_hgl) {
-            // console.log('compressors - needs to load')
-            // createPointLayer('Markethubs_hgl')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            document.getElementById('tabledataset').innerText = `Market Hub: HGL`;
-
-            tableJson('Markethubs_hgl')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Ports: Petroleum') {
-        document.getElementById('eia_ports_petroleum').checked = true;
-        document.getElementById('tabledataset').innerText = `Ports: Petroleum`;
-        if (!points_eia_ports_petroleum) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Ports_Petroleum')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Ports_Petroleum')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Plants: Battery Storage') {
-        document.getElementById('eia_powerplants_batterystorage').checked = true;
-        document.getElementById('tabledataset').innerText = `Plants: Battery Storage`;
-        if (!points_eia_powerplants_batterystorage) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Powerplants_Batterystorage')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Powerplants_Batterystorage')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Plants: Biodiesel') {
-        document.getElementById('eia_plants_biodiesel').checked = true;
-        document.getElementById('tabledataset').innerText = `Plants: Biodiesel`;
-        if (!points_eia_plants_biodiesel) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Biodiesel')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Biodiesel')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Plants: Ethanol') {
-        document.getElementById('eia_plants_ethanol').checked = true;
-        document.getElementById('tabledataset').innerText = `Plants: Ethanol`;
-        if (!points_eia_plants_ethanol) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Ethanol')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Ethanol')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Plants: Ethylene Cracker') {
-        document.getElementById('eia_plants_ethylene_cracker').checked = true;
-        document.getElementById('tabledataset').innerText = `Plants: Ethylene Cracker`;
-        if (!points_eia_plants_ethylene_cracker) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Ethylene_Cracker')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Ethylene_Cracker')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }  else if (datalayer === 'Plants: Coal') {
-        document.getElementById('eia_plants_coal').checked = true;
-        document.getElementById('tabledataset').innerText = `Plants: Coal`;
-        if (!points_eia_plants_coal) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Coal')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Coal')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }  else if (datalayer === 'Plants: Geothermal') {
-        document.getElementById('eia_plants_geothermal').checked = true;
-        document.getElementById('tabledataset').innerText = `Plants: Geothermal`;
-        if (!points_eia_plants_geothermal) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Geothermal')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Geothermal')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }  else if (datalayer === 'Plants: Hydro Pumped Storage') {
-        document.getElementById('eia_plants_hydropumped').checked = true;
-        document.getElementById('tabledataset').innerText = `Plants: Hydro Pumped Storage`;
-        if (!points_eia_plants_hydropumped) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Hydropumped')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Hydropumped')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }  else if (datalayer === 'Power Plants: Natural Gas') {
-        document.getElementById('eia_plants_power_naturalgas').checked = true;
-        document.getElementById('tabledataset').innerText = `Power Plants: Natural Gas`;
-        if (!points_eia_plants_power_naturalgas) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Naturalgas')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Naturalgas')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }  else if (datalayer === 'Plants: Hydroelectric') {
-        document.getElementById('eia_plants_hydroelectric').checked = true;
-        document.getElementById('tabledataset').innerText = `Plants: Hydroelectric`;
-        if (!points_eia_plants_hydroelectric) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Hydroelectric')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Hydroelectric')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }  else if (datalayer === 'Power Plants: Nuclear') {
-        document.getElementById('eia_plants_nuclear').checked = true;
-        document.getElementById('tabledataset').innerText = `Power Plants: Nuclear`;
-        if (!points_eia_plants_nuclear) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Nuclear')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Nuclear')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }   else if (datalayer === 'Power Plants: Petroleum') {
-        document.getElementById('eia_plants_petroleum').checked = true;
-        document.getElementById('tabledataset').innerText = `Power Plants: Petroleum`;
-        if (!points_eia_plants_petroleum) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Petroleum')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Petroleum')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }   else if (datalayer === 'Processing Plants: Natural Gas') {
-        document.getElementById('eia_plants_processing_naturalgas').checked = true;
-        document.getElementById('tabledataset').innerText = `Processing Plants: Natural Gas`;
-        if (!points_eia_plants_processing_naturalgas) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Processing_Naturalgas')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Processing_Naturalgas')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }   else if (datalayer === 'Refinery: Petroleum') {
-        document.getElementById('eia_plants_refinery_petroleum').checked = true;
-        document.getElementById('tabledataset').innerText = `Refinery: Petroleum`;
-        if (!points_eia_plants_refinery_petroleum) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Plants_Refinery_Petroleum')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Plants_Refinery_Petroleum')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }   else if (datalayer === 'Reserves: Petroleum') {
-        document.getElementById('eia_reserve_petroleum').checked = true;
-        document.getElementById('tabledataset').innerText = `Reserves: Petroleum`;
-        if (!points_eia_reserve_petroleum) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Reserve_Petroleum')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Reserve_Petroleum')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }   else if (datalayer === 'Underground Storage: Natural Gas') {
-        document.getElementById('eia_storage_naturalgas').checked = true;
-        document.getElementById('tabledataset').innerText = `Underground Storage: Natural Gas`;
-        if (!points_eia_storage_naturalgas) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Storage_Naturalgas')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Storage_Naturalgas')
-            console.log('just needed to recreate the table')
-        }
-
-
-    }  else if (datalayer === 'Terminal: Crude Oil') {
-        document.getElementById('eia_terminal_crudeoil').checked = true;
-        document.getElementById('tabledataset').innerText = `Terminal: Crude Oil`;
-        if (!points_eia_terminal_crudeoil) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Terminal_Crudeoil')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Terminal_Crudeoil')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Terminal: LNG') {
-        document.getElementById('eia_terminal_lng').checked = true;
-        document.getElementById('tabledataset').innerText = `Terminal: LNG`;
-        if (!points_eia_terminal_lng) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Terminal_Lng')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Terminal_Lng')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Terminal: Petroleum') {
-        document.getElementById('eia_terminal_petroleum').checked = true;
-        document.getElementById('tabledataset').innerText = `Terminal: Petroleum`;
-        if (!points_eia_terminal_petroleum) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Terminal_Petroleum')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Terminal_Petroleum')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else if (datalayer === 'Reserves: Petroleum') {
-        document.getElementById('eia_reserve_petroleum').checked = true;
-        document.getElementById('tabledataset').innerText = `Reserves: Petroleum`;
-        if (!points_eia_reserve_petroleum) {
-            // console.log('compressors - needs to load')
-            createPointLayer('Reserve_Petroleum')
-        } else {
-            console.log('update table with border crossing electric')
-            // points_eia_bordercrossing_electric.addTo(map);
-            tableJson('Reserve_Petroleum')
-            console.log('just needed to recreate the table')
-        }
-
-
-    } else  {console.log('nope')
-    }
-
-
+    displayName = getdisplayname(dataLayer)
+    mapLayer = getmaplayer(dataLayer)
+    legendItem = getlegenditem(dataLayer)
+    if (!mapLayer) {
+        addLayerSafely(dataLayer);
+    } else {
+        mapLayer.addTo(map);
+        document.getElementById(legendItem).checked = true;
+        document.getElementById('tabledataset').innerText = displayName;
+        tableJson(dataLayer)
+    };
+    
     };
 
      
@@ -807,7 +435,20 @@ const defaultStyle = {
     fillOpacity: 0.8
 };
 
+
+var layerStore = {};
+
+function addLayerSafely(layerId, layerObj) {
+    if (!layerStore[layerId]) {
+        layerStore[layerId] = layerObj;
+        createPointLayer(layerId)
+    } else {
+        console.log("Layer already created:", layerId);
+    }
+}
+
 function createPointLayer(ptlay) {
+    layerStore[ptlay] = getmaplayername(ptlay);
     console.log(`create the ${ptlay} layer`)
     displayname = getdisplayname(ptlay)
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(ptlay)}`)
@@ -816,7 +457,6 @@ function createPointLayer(ptlay) {
             d=JSON.parse(data)
             if (ptlay === 'Compressors') {
                 console.log('checked compressor stations')
-                if (!points_compressorstations) 
                 points_compressorstations = L.geoJSON(d, {
                     pointToLayer: function (feature, latlng) {
                         newcolor = '00253B'
@@ -890,7 +530,10 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
+                if (!map.hasLayer(points_compressorstations)) {
+                    map.addLayer(points_compressorstations);
+                }
             } else if (ptlay === 'Bordercrossing_Electric') {
                 // Example point style
                 newcolor = '5d792f'
@@ -971,7 +614,11 @@ function createPointLayer(ptlay) {
 
                     }
             
-                }).addTo(map);
+                });
+                if (!map.hasLayer(points_eia_bordercrossing_electric)) {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_bordercrossing_electric);
+                }
             } else if (ptlay === 'Bordercrossing_Liquids') {
                 // Example point style
                 newcolor = '00253B'
@@ -3431,7 +3078,56 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 
 
 
+const layersArray = [
+    "Border Crossing: Electric", 
+    "Border Crossing: Liquids", 
+    "Border Crossing: Natural Gas", 
+    "Market Hub: HGL", 
+    "Market Hub: Natural Gas", 
+    "Ports: Petroleum", 
+    "Reserves: Petroleum", 
+    "Underground Storage: Natural Gas", 
+    "Terminal: Crude Oil", 
+    "Terminal: LNG", 
+    "Terminal: Petroleum", 
+    "Compressor Stations", 
+    "Plants: Biodiesel", 
+    "Plants: Ethanol", 
+    "Plants: Ethylene Cracker", 
+    "Power Plants: Battery Storage", 
+    "Plants: Coal", 
+    "Plants: Geothermal", 
+    "Plants: Hydroelectric", 
+    "Plants: Hydro Pumped Storage",  
+    "Power Plants: Natural Gas", 
+    "Power Plants: Nuclear", 
+    "Power Plants: Petroleum", 
+    "Processing Plants: Natural Gas", 
+    "Refinery: Petroleum"
+    ];
 
+// Iterate through the layersArray array and create a button for each st
+layersArray.forEach(st => {
+    const sbutton = document.createElement('button');
+    sbutton.className = 'filterbutton';
+    sbutton.id = st+'btn';
+    sbutton.innerText = st.charAt(0).toUpperCase() + st.slice(1); // Capitalize the first letter of color
+    sbutton.onclick = () => toggleselection('state',st);
+    // Append the button to the button-container div
+    document.getElementById('state-container').appendChild(sbutton);
+});
+
+function getButtonValues() {
+    // Select all buttons inside the container
+    const buttonchk = document.getElementById('datasetSelection').querySelectorAll('*');
+    starray = ''
+    // Loop through the buttons and log their values
+    buttonchk.forEach(b => {
+    //   console.log(b.id);
+      starray+=b.id.slice(6)+','
+    });
+    return starray
+  }
 
 function getSelValues(s) {
     // Select all buttons inside the container
@@ -3444,6 +3140,14 @@ function getSelValues(s) {
     });
     return starray
 }
+
+
+function openlist(bo) {
+    statelist = getButtonValues()
+};
+
+
+
 
 
 
@@ -4153,7 +3857,6 @@ document.getElementById('eia_compressorstations').addEventListener('change', fun
 // Toggle line visibility based on checkbox
 document.getElementById('eia_bordercrossing_electric').addEventListener('change', function() {
     if (this.checked) {
-        toggleselection('state','Border Crossing: Electric')
         if (!points_eia_bordercrossing_electric) {
             console.log('toggled on via checkbox after creating points')
             createPointLayer('Bordercrossing_Electric')
@@ -4162,6 +3865,8 @@ document.getElementById('eia_bordercrossing_electric').addEventListener('change'
             console.log('toggled on and added')
             points_eia_bordercrossing_electric.addTo(map);
         }
+        toggleselection('state','Border Crossing: Electric')
+
     } else if (points_eia_bordercrossing_electric) {
         console.log('toggled off and removing')
         map.removeLayer(points_eia_bordercrossing_electric);
@@ -4663,5 +4368,170 @@ function getdisplayname(v) {
         return 'Processing Plants: Natural Gas';  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return 'Refinery: Petroleum';  // Set the text inside the span
+    } else {return 'error - unknown'}
+}
+
+
+function getmaplayername(v) {
+    if (v === "Bordercrossing_Electric") {
+        return 'points_eia_bordercrossing_electric';  // Set the text inside the span
+    } else if (v === "Bordercrossing_Liquids") {
+        return 'points_eia_bordercrossing_liquids';  // Set the text inside the span
+    } else if (v === "Bordercrossing_Naturalgas") {
+        return 'points_eia_bordercrossing_naturalgas';  // Set the text inside the span
+    } else if (v === "Markethubs_hgl") {
+        return 'points_eia_markethub_hgl';  // Set the text inside the span
+    } else if (v === "Markethubs_Naturalgas") {
+        return 'points_eia_markethub_naturalgas';  // Set the text inside the span
+    } else if (v === "Ports_Petroleum") {
+        return 'points_eia_ports_petroleum';  // Set the text inside the span
+    } else if (v === "Reserve_Petroleum") {
+        return 'points_eia_reserve_petroleum';  // Set the text inside the span
+    } else if (v === "Storage_Naturalgas") {
+        return 'points_eia_storage_naturalgas';  // Set the text inside the span
+    } else if (v === "Terminal_Crudeoil") {
+        return 'points_eia_terminal_crudeoil';  // Set the text inside the span
+    } else if (v === "Terminal_Lng") {
+        return 'points_eia_terminal_lng';  // Set the text inside the span
+    } else if (v === "Terminal_Petroleum") {
+        return 'points_eia_terminal_petroleum';  // Set the text inside the span
+    } else if (v === "Compressors") {
+        return 'points_compressorstations';  // Set the text inside the span
+    } else if (v === "Plants_Biodiesel") {
+        return 'points_eia_plants_biodiesel';  // Set the text inside the span
+    } else if (v === "Plants_Ethanol") {
+        return 'points_eia_plants_ethanol';  // Set the text inside the span
+    } else if (v === "Plants_Ethylene_Cracker") {
+        return 'points_eia_plants_ethylene_cracker';  // Set the text inside the span
+    } else if (v === "Powerplants_Batterystorage") {
+        return 'points_eia_powerplants_batterystorage';  // Set the text inside the span
+    } else if (v === "Plants_Coal") {
+        return 'points_eia_plants_coal';  // Set the text inside the span
+    } else if (v === "Plants_Geothermal") {
+        return 'points_eia_plants_geothermal';  // Set the text inside the span
+    } else if (v === "Plants_Hydroelectric") {
+        return 'points_eia_plants_hydroelectric';  // Set the text inside the span
+    } else if (v === "Plants_Hydropumped") {
+        return 'points_eia_plants_hydropumped';  // Set the text inside the span
+    } else if (v === "Plants_Naturalgas") {
+        return 'points_eia_plants_power_naturalgas';  // Set the text inside the span
+    } else if (v === "Plants_Nuclear") {
+        return 'points_eia_plants_nuclear';  // Set the text inside the span
+    } else if (v === "Plants_Petroleum") {
+        return 'points_eia_plants_petroleum';  // Set the text inside the span
+    } else if (v === "Plants_Processing_Naturalgas") {
+        return 'points_eia_plants_processing_naturalgas';  // Set the text inside the span
+    } else if (v === "Plants_Refinery_Petroleum") {
+        return 'points_eia_plants_refinery_petroleum';  // Set the text inside the span
+    } else {return 'error - unknown'}
+}
+
+
+
+function getmaplayer(v) {
+    if (v === "Bordercrossing_Electric") {
+        return points_eia_bordercrossing_electric;  // Set the text inside the span
+    } else if (v === "Bordercrossing_Liquids") {
+        return points_eia_bordercrossing_liquids;  // Set the text inside the span
+    } else if (v === "Bordercrossing_Naturalgas") {
+        return points_eia_bordercrossing_naturalgas;  // Set the text inside the span
+    } else if (v === "Markethubs_hgl") {
+        return points_eia_markethub_hgl;  // Set the text inside the span
+    } else if (v === "Markethubs_Naturalgas") {
+        return points_eia_markethub_naturalgas;  // Set the text inside the span
+    } else if (v === "Ports_Petroleum") {
+        return points_eia_ports_petroleum;  // Set the text inside the span
+    } else if (v === "Reserve_Petroleum") {
+        return points_eia_reserve_petroleum;  // Set the text inside the span
+    } else if (v === "Storage_Naturalgas") {
+        return points_eia_storage_naturalgas;  // Set the text inside the span
+    } else if (v === "Terminal_Crudeoil") {
+        return points_eia_terminal_crudeoil;  // Set the text inside the span
+    } else if (v === "Terminal_Lng") {
+        return points_eia_terminal_lng;  // Set the text inside the span
+    } else if (v === "Terminal_Petroleum") {
+        return points_eia_terminal_petroleum;  // Set the text inside the span
+    } else if (v === "Compressors") {
+        return points_compressorstations;  // Set the text inside the span
+    } else if (v === "Plants_Biodiesel") {
+        return points_eia_plants_biodiesel;  // Set the text inside the span
+    } else if (v === "Plants_Ethanol") {
+        return points_eia_plants_ethanol;  // Set the text inside the span
+    } else if (v === "Plants_Ethylene_Cracker") {
+        return points_eia_plants_ethylene_cracker;  // Set the text inside the span
+    } else if (v === "Powerplants_Batterystorage") {
+        return points_eia_powerplants_batterystorage;  // Set the text inside the span
+    } else if (v === "Plants_Coal") {
+        return points_eia_plants_coal;  // Set the text inside the span
+    } else if (v === "Plants_Geothermal") {
+        return points_eia_plants_geothermal;  // Set the text inside the span
+    } else if (v === "Plants_Hydroelectric") {
+        return points_eia_plants_hydroelectric;  // Set the text inside the span
+    } else if (v === "Plants_Hydropumped") {
+        return points_eia_plants_hydropumped;  // Set the text inside the span
+    } else if (v === "Plants_Naturalgas") {
+        return points_eia_plants_power_naturalgas;  // Set the text inside the span
+    } else if (v === "Plants_Nuclear") {
+        return points_eia_plants_nuclear;  // Set the text inside the span
+    } else if (v === "Plants_Petroleum") {
+        return points_eia_plants_petroleum;  // Set the text inside the span
+    } else if (v === "Plants_Processing_Naturalgas") {
+        return points_eia_plants_processing_naturalgas;  // Set the text inside the span
+    } else if (v === "Plants_Refinery_Petroleum") {
+        return points_eia_plants_refinery_petroleum;  // Set the text inside the span
+    } else {console.log('error getting map layer')}
+}
+
+function getlegenditem(v) {
+    if (v === "Bordercrossing_Electric") {
+        return 'eia_bordercrossing_electric';  // Set the text inside the span
+    } else if (v === "Bordercrossing_Liquids") {
+        return 'eia_bordercrossing_liquids';  // Set the text inside the span
+    } else if (v === "Bordercrossing_Naturalgas") {
+        return 'eia_bordercrossing_naturalgas';  // Set the text inside the span
+    } else if (v === "Markethubs_hgl") {
+        return 'eia_markethub_hgl';  // Set the text inside the span
+    } else if (v === "Markethubs_Naturalgas") {
+        return 'eia_markethub_naturalgas';  // Set the text inside the span
+    } else if (v === "Ports_Petroleum") {
+        return 'eia_ports_petroleum';  // Set the text inside the span
+    } else if (v === "Reserve_Petroleum") {
+        return 'eia_reserve_petroleum';  // Set the text inside the span
+    } else if (v === "Storage_Naturalgas") {
+        return 'eia_storage_naturalgas';  // Set the text inside the span
+    } else if (v === "Terminal_Crudeoil") {
+        return 'eia_terminal_crudeoil';  // Set the text inside the span
+    } else if (v === "Terminal_Lng") {
+        return 'eia_terminal_lng';  // Set the text inside the span
+    } else if (v === "Terminal_Petroleum") {
+        return 'eia_terminal_petroleum';  // Set the text inside the span
+    } else if (v === "Compressors") {
+        return 'eia_compressorstations';  // Set the text inside the span
+    } else if (v === "Plants_Biodiesel") {
+        return 'eia_plants_biodiesel';  // Set the text inside the span
+    } else if (v === "Plants_Ethanol") {
+        return 'eia_plants_ethanol';  // Set the text inside the span
+    } else if (v === "Plants_Ethylene_Cracker") {
+        return 'eia_plants_ethylene_cracker';  // Set the text inside the span
+    } else if (v === "Powerplants_Batterystorage") {
+        return 'eia_powerplants_batterystorage';  // Set the text inside the span
+    } else if (v === "Plants_Coal") {
+        return 'eia_plants_coal';  // Set the text inside the span
+    } else if (v === "Plants_Geothermal") {
+        return 'eia_plants_geothermal';  // Set the text inside the span
+    } else if (v === "Plants_Hydroelectric") {
+        return 'eia_plants_hydroelectric';  // Set the text inside the span
+    } else if (v === "Plants_Hydropumped") {
+        return 'eia_plants_hydropumped';  // Set the text inside the span
+    } else if (v === "Plants_Naturalgas") {
+        return 'eia_plants_power_naturalgas';  // Set the text inside the span
+    } else if (v === "Plants_Nuclear") {
+        return 'eia_plants_nuclear';  // Set the text inside the span
+    } else if (v === "Plants_Petroleum") {
+        return 'eia_plants_petroleum';  // Set the text inside the span
+    } else if (v === "Plants_Processing_Naturalgas") {
+        return 'eia_plants_processing_naturalgas';  // Set the text inside the span
+    } else if (v === "Plants_Refinery_Petroleum") {
+        return 'eia_plants_refinery_petroleum';  // Set the text inside the span
     } else {return 'error - unknown'}
 }
