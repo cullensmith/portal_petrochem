@@ -3824,14 +3824,12 @@ if (layer instanceof L.Circle) {
 
 
 
-
 function refinefilter() {
     console.log('Refining filter...');
     console.log(tabledata);
 
     const f = document.getElementById('sort-field2').value;
     const s = document.getElementById('srch-input1').value;
-    // const s2 = document.getElementById('srch-input2').value;
 
     const refinedFeatures = tabledata.features.filter(feature => {
         if (!feature || !feature.properties || feature.properties[f] == null) return false;
@@ -3846,66 +3844,28 @@ function refinefilter() {
     };
 
     console.log('Filtered GeoJSON:', JSON.stringify(refinedsrch, null, 2));
-    
-    // Optional: Validate GeoJSON
+
     if (!Array.isArray(refinedsrch.features)) {
         console.error('Invalid GeoJSON: "features" is not an array');
         return;
     }
-    
-    console.log('adding filtered points')
+
+    console.log('adding filtered points');
+
     filteredPoints = L.geoJSON(refinedsrch, {
         pointToLayer: function (feature, latlng) {
-        // size of the square (in degrees) — adjust for zoom level
-        const size = .3;
-    
-        // Create a rectangle (square) centered at latlng
-        return L.rectangle([
-            [latlng.lat - size, latlng.lng - size],
-            [latlng.lat + size, latlng.lng + size]
-        ], {
-            color: 'red',
-            weight: 4,
-            fillOpacity: 0,
-            pane: 'overlayPane'
-        });
-        
-        // // Coordinates for the main square
-        // const bounds = [
-        //     [latlng.lat - size, latlng.lng - size],
-        //     [latlng.lat + size, latlng.lng + size]
-        // ];
-    
-        // // Slightly larger bounds for the outer outline
-        // const outerSize = size + 0.2;
-        // const outerBounds = [
-        //     [latlng.lat - outerSize, latlng.lng - outerSize],
-        //     [latlng.lat + outerSize, latlng.lng + outerSize]
-        // ];
-    
-        // // Outer darker outline (behind)
-        // const outerRect = L.rectangle(outerBounds, {
-        //     color: 'red',
-        //     weight: 2,
-        //     fillOpacity: 0,
-        //     pane: 'overlayPane'
-        // });
-    
-        // // Inner yellow outline (on top)
-        // const innerRect = L.rectangle(bounds, {
-        //     color: 'red',
-        //     weight: 2,
-        //     fillOpacity: 0,
-        //     pane: 'overlayPane'
-        // });
-    
-        // // Create a layer group with both
-        // return L.layerGroup([outerRect, innerRect]);
+            // Create a div icon that looks like a red-outlined square
+            const icon = L.divIcon({
+                className: 'custom-square-marker',
+                iconSize: [18, 18]
+            });
+            return L.marker(latlng, { icon: icon });
         }
     }).addTo(map);
-    console.log('added the filtered pints')
 
-    updateTable(refinedsrch,'refined');
+    console.log('added the filtered points');
+
+    updateTable(refinedsrch, 'refined');
 }
 
 function clearFilter() {
