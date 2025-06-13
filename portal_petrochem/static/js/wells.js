@@ -36,6 +36,24 @@ var buffs;
 // Create constants for the filter items
 const statetextbox = document.getElementById('datasetSelection');
 
+const tooltip = document.getElementById('custom-tooltip');
+const tooltipTargets = document.querySelectorAll('.tooltip-target');
+
+// Loop through all matching elements
+tooltipTargets.forEach(target => {
+    target.addEventListener('mousemove', (e) => {
+        tooltip.textContent = target.getAttribute('data-tooltip') || "Coming Soon!";
+        tooltip.style.left = e.clientX + 10 + 'px';
+        tooltip.style.top = e.clientY + 10 + 'px';
+        tooltip.style.opacity = 1;
+    });
+
+    target.addEventListener('mouseleave', () => {
+        tooltip.style.opacity = 0;
+    });
+});
+
+
 // Main portion centered around the map container
 // Initialize Leaflet map
 const divider = document.getElementById('dividerContainer');
@@ -324,39 +342,47 @@ map.on('zoomend', function () {
 
 
 function tableJson(i) {
-    const grab = i
+    console.log('tableJson: '+i)
+    const grab = getmodname(i)
     console.log('tableJson activated')
+
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
-            // console.log(data)
+            console.log('table data out')
             tabledata=JSON.parse(data)
-            console.log(tabledata)
+            // console.log(tabledata)
             createTable(tabledata); 
+            document.getElementById('tabledataset').innerText = i;
 })}
-
-
-
-
 
 
 function applyCategoryFilter() {
     // Fetch GeoJSON data from the server
     var dataLayer = getSelValues('datasetSelection').replace(",,,","");  // Assuming this returns a comma-delimited string
+    console.log('dataLayer: '+dataLayer)
+    modname = getmodname(dataLayer)
+    console.log('display name: '+modname)
+    mapLayer = getmaplayer(modname)
+    // console.log('map layer: '+maplayer)
+    legendItem = getlegenditem(modname)
+    console.log('legend item: '+legendItem)
 
-    displayName = getdisplayname(dataLayer)
-    mapLayer = getmaplayer(dataLayer)
-    legendItem = getlegenditem(dataLayer)
     if (!mapLayer) {
+        console.log('checking on adding the layer')
         addLayerSafely(dataLayer);
     } else {
+        console.log('already exists - adding')
         mapLayer.addTo(map);
         document.getElementById(legendItem).checked = true;
-        document.getElementById('tabledataset').innerText = displayName;
+        console.log('table json')
         tableJson(dataLayer)
+        console.log('table json added')
     };
-    
+    document.getElementById('tabledataset').innerText = dataLayer;
+
     };
+
 
      
 
@@ -441,20 +467,42 @@ var layerStore = {};
 function addLayerSafely(layerId, layerObj) {
     if (!layerStore[layerId]) {
         layerStore[layerId] = layerObj;
+        console.log('has not been created yet')
+        if (layerId.includes('_')) {
+            console.log("Underscore found - 1");
+        } else {
+            console.log("No underscore - 1");
+        }
         createPointLayer(layerId)
     } else {
+        tableJson(layerId)
         console.log("Layer already created:", layerId);
     }
 }
 
 function createPointLayer(ptlay) {
-    layerStore[ptlay] = getmaplayername(ptlay);
+    
+    if (ptlay.includes('_')) {
+        console.log("Underscore found - 2");
+        displayName = getdisplayname(ptlay)
+        modname = ptlay
+    } else {
+        console.log("No underscore - 2");
+        displayname = ptlay
+        modname = getmodname(ptlay)
+    }
+    console.log('ptlay: '+ptlay)
+    
+    // displayname = ptlay
+    layerStore[ptlay] = getmaplayername(modname);
     console.log(`create the ${ptlay} layer`)
-    displayname = getdisplayname(ptlay)
-    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(ptlay)}`)
-        .then(response => response.json())
-        .then(data => {
-            d=JSON.parse(data)
+    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(modname)}`)
+        .then(response1 => response1.json())
+        .then(data1 => {
+            console.log('got the data')
+            d=JSON.parse(data1)
+            console.log('right after')
+            
             if (ptlay === 'Compressors') {
                 console.log('checked compressor stations')
                 points_compressorstations = L.geoJSON(d, {
@@ -618,6 +666,91 @@ function createPointLayer(ptlay) {
                 if (!map.hasLayer(points_eia_bordercrossing_electric)) {
                     console.log('needed to add the layer')
                     map.addLayer(points_eia_bordercrossing_electric);
+                }
+            } else if (ptlay === 'Electric_Generator') {
+                // Example point style
+                newcolor = 'de02d3'
+                // Add the GeoJSON layer to the map
+                points_eia_electric_generator = L.geoJSON(d, {
+                        // filter: function (feature) {
+                        //     return feature.properties.ft_category === 'Production Well';
+                        // },
+                        pointToLayer: function (feature, latlng) {
+                            const marker = createHexagonMarker(latlng,newcolor);
+                            
+                            marker.on('mouseover', () => {
+                              const el = marker.getElement().querySelector('.hexagon-marker');
+                              el.style.transform = 'scale(2)';
+                            });
+                        
+                            marker.on('mouseout', () => {
+                              const el = marker.getElement().querySelector('.hexagon-marker');
+                              el.style.transform = 'scale(1)';
+                            });
+                        
+                            return marker;
+                          },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each circle marker based on the properties in the GeoJSON data
+                        layer.on({
+                            mouseover: highlightStyle,
+                            mouseout: defaultStyle
+                        });
+                        layer.on('click', function(e) {
+                            const clickedLatLng = e.latlng;
+                            const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('clicked a compressor')
+                            if (closestFeature) {
+                                console.log('closest feat')
+                                console.log(closestFeature)
+                                // Display the attributes in the box
+                                const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
+                                attributesBox.innerHTML = `
+                                <br>
+                                <h3 style="text-decoration: underline;">Within 1KM of</h3>
+                                <p><b>longitude:</b><br> ${closestFeature.properties.longitude}</p>
+                                <p><b>latitude:</b><br> ${closestFeature.properties.latitude}</p>
+                                <br>
+                                <p><b>Population:</b> ${Math.round(closestFeature.properties.j_tpop)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Racial Profile</h4>
+                                <p><b>White:</b> ${Math.round(closestFeature.properties.j_wht)}</p>
+                                <p><b>Black or AA:</b> ${Math.round(closestFeature.properties.j_b_aa)}</p>
+                                <p><b>American Indian:</b> ${Math.round(closestFeature.properties.j_ai_an)}</p>
+                                <p><b>Asian:</b> ${Math.round(closestFeature.properties.j_asn)}</p>
+                                <p><b>Native Hawaiian:</b> ${Math.round(closestFeature.properties.j_nh_opi)}</p>
+                                <p><b>Other race:</b> ${Math.round(closestFeature.properties.j_oth)}</p>
+                                <p><b>Two or more races:</b> ${Math.round(closestFeature.properties.j_2r)}</p>
+                                <p><b>Hispanic or Latino:</b> ${Math.round(closestFeature.properties.j_hl)}</p>
+                                <p><b>Nonwhite:</b> ${Math.round(closestFeature.properties.j_nw)}</p>
+                                <br>
+                                <h4 style="text-decoration: underline;">Age</h4>
+                                <p><b>over 18:</b> ${Math.round(closestFeature.properties.j_18)}</p>
+                                <p><b>under 18:</b> ${Math.round(closestFeature.properties.j_u18)}</p>
+                                <!--<p><b>Attribute 2:</b> ${Math.round(closestFeature.properties.attribute2)}</p>-->
+                                <!--<p><b>Attribute 3:</b> ${Math.round(closestFeature.properties.attribute3)}</p>-->
+                                <!-- Add other attributes as needed -->
+                            `;
+                            }
+                          });
+                        layer.bindPopup( 
+                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
+                            `<span style="color: black; font-weight: bold;">Owner: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.owner}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Linename: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.linename}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                        );
+
+                    }
+            
+                });
+                if (!map.hasLayer(points_eia_electric_generator)) {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_electric_generator);
                 }
             } else if (ptlay === 'Bordercrossing_Liquids') {
                 // Example point style
@@ -2371,7 +2504,7 @@ function createPointLayer(ptlay) {
             ;
             createTable(d);
         })
-        .catch(error => console.log(error));
+        .catch(error => console.log('creating point error'+error));
 
     }
 
@@ -2879,7 +3012,7 @@ function populateSortDropdown(geojson) {
 }
 
 function sortTable() {
-    console.log('tabledata:', tabledata);
+    // console.log('tabledata:', tabledata);
 
     if (!tabledata || !tabledata.features) {
         console.warn('No data to sort.');
@@ -3051,7 +3184,7 @@ function downloadTableData(tabledata) {
     var encodedUri = encodeURI(csvContent);
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "filtered_data.csv");
+    link.setAttribute("download", "filtered_fractracker_table.csv");
 
     // Initiate download
     document.body.appendChild(link); // Required for Firefox
@@ -3103,7 +3236,8 @@ const layersArray = [
     "Power Plants: Nuclear", 
     "Power Plants: Petroleum", 
     "Processing Plants: Natural Gas", 
-    "Refinery: Petroleum"
+    "Refinery: Petroleum",
+    "Power Plants: Electric Generators"
     ];
 
 // Iterate through the layersArray array and create a button for each st
@@ -3227,31 +3361,57 @@ function toggleselection(c,v) {
 
 
 function getcolumns(ptlay) {
-    // Fetch GeoJSON data from the server
-    // const grab = ptlay
-    console.log('getting columns for:')
-    console.log(ptlay)
-    const grab = getmodname(ptlay)
-    console.log(grab)
-    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
-    .then(response => response.json())
-    .then(data => {
-        // console.log(data);
-        console.log('d feats:');
-        d=JSON.parse(data)
+    console.log('getting columns for: ' + ptlay);
+    grab1 = getmodname(ptlay);
+    console.log('grab1: ' + grab1);
+    document.getElementById('srch-input1').value = '';
+    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab1)}`)
+        .then(response => response.json())
+        .then(data => {
+            d = JSON.parse(data);
 
-        const dropdown = document.getElementById("sort-field2");
-        dropdown.innerHTML = '<option value="" style="color:#8a8a8a" selected>Refine your search</option>';
+            const dropdown = document.getElementById("sort-field2");
 
-        const keys = Object.keys(d.features[0].properties);
-        keys.forEach(key => {
-            const option = document.createElement("option");
-            option.value = key;
-            option.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            dropdown.appendChild(option);
+            // Clear existing options
+            dropdown.innerHTML = ''; // Remove all existing <option>s
+
+            // Optional: Add a placeholder/default option
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = "Choose a field";
+            placeholder.style.color = "#8a8a8a";
+            dropdown.appendChild(placeholder);
+
+            const keys = Object.keys(d.features[0].properties);
+            keys.forEach(key => {
+                const option = document.createElement("option");
+                option.value = key;
+                option.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                dropdown.appendChild(option);
+            });
+
+            // const dropdown3 = document.getElementById("sort-field3");
+
+            // Clear existing options
+            // dropdown3.innerHTML = ''; // Remove all existing <option>s
+
+            // // Optional: Add a placeholder/default option
+            // const placeholder3 = document.createElement("option");
+            // placeholder3.value = "";
+            // placeholder3.textContent = "Refine your search";
+            // placeholder3.style.color = "#8a8a8a";
+            // dropdown3.appendChild(placeholder3);
+
+            // const keys3 = Object.keys(d.features[0].properties);
+            // keys3.forEach(key3 => {
+            //     const option = document.createElement("option");
+            //     option.value = key3;
+            //     option.textContent = key3.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            //     dropdown3.appendChild(option);
+            // });
         });
-    });
 }
+
 
 
 
@@ -3668,7 +3828,8 @@ function refinefilter() {
     console.log(tabledata);
 
     const f = document.getElementById('sort-field2').value;
-    const s = document.getElementById('srch-input').value;
+    const s = document.getElementById('srch-input1').value;
+    // const s2 = document.getElementById('srch-input2').value;
 
     const refinedFeatures = tabledata.features.filter(feature => {
         if (!feature || !feature.properties || feature.properties[f] == null) return false;
@@ -3698,6 +3859,7 @@ function refinefilter() {
 
 window.onload = function() {
     //document.getElementById('pipeline_fractracker').checked = false;
+    document.getElementById('srch-input1').value = '';
     document.getElementById('pipeline_crudeoil').checked = false;
     document.getElementById('pipeline_hgl').checked = false;
     document.getElementById('pipeline_naturalgas').checked = false;
@@ -3718,7 +3880,7 @@ window.onload = function() {
     document.getElementById('eia_plants_ethanol').checked = false;
     document.getElementById('eia_plants_ethylene_cracker').checked = false;
     document.getElementById('eia_powerplants_batterystorage').checked = false;
-    // document.getElementById('eia_electric_generator').checked = false;
+    document.getElementById('eia_electric_generator').checked = false;
     document.getElementById('eia_plants_coal').checked = false;
     document.getElementById('eia_plants_geothermal').checked = false;
     document.getElementById('eia_plants_hydroelectric').checked = false;
@@ -3974,22 +4136,21 @@ document.getElementById('eia_powerplants_batterystorage').addEventListener('chan
 
 
 
-// // Toggle line visibility based on checkbox
-// document.getElementById('eia_electric_generator').addEventListener('change', function() {
-//     if (this.checked) {
-//         console.log('compressors - checked')
-//         if (!points_eia_electric_generator) {
-//             console.log('compressors - needs to load')
-//             createPointLayer('Electric_Generator')
-//         } else {
-//             console.log('compressors - just adding')
-//             points_eia_electric_generator.addTo(map);
-//         }
-//     } else if (points_eia_electric_generator) {
-//         console.log('compressors - removing')
-//         map.removeLayer(points_eia_electric_generator);
-//     }
-// });
+// Toggle line visibility based on checkbox
+document.getElementById('eia_electric_generator').addEventListener('change', function() {
+    if (this.checked) {
+        toggleselection('state','Power Plants: Electric Generators')
+
+        if (!points_eia_electric_generator) {
+            createPointLayer('Electric_Generator')
+            document.getElementById('tabledataset').innerHTML = 'Power Plants: Electric Generators'
+        } else {
+            points_eia_electric_generator.addTo(map);
+        }
+    } else if (points_eia_electric_generator) {
+        map.removeLayer(points_eia_electric_generator);
+    }
+});
 
 
 
@@ -4261,7 +4422,21 @@ document.getElementById('eia_terminal_petroleum').addEventListener('change', fun
 //     });
 //   });
 
+document.getElementById("filterbtn").addEventListener("click", function() {
+    console.log('clicked filterpanel')
+    document.getElementById("filterbtn").classList.add("sel")
+    document.getElementById("resultsbtn").classList.remove("sel")
+    document.getElementById("filterpanel").classList.remove("hide")
+    document.getElementById("resultspanel").classList.add("hide")
+});
 
+document.getElementById("resultsbtn").addEventListener("click", function() {
+    console.log('clicked resultspanel')
+    document.getElementById("filterbtn").classList.remove("sel")
+    document.getElementById("resultsbtn").classList.add("sel")
+    document.getElementById("resultspanel").classList.remove("hide")
+    document.getElementById("filterpanel").classList.add("hide")
+});
 
 function getmodname(v) {
     if (v === "Border Crossing: Electric") {
@@ -4314,7 +4489,9 @@ function getmodname(v) {
         return 'Plants_Processing_Naturalgas';  // Set the text inside the span
     } else if (v === "Refinery: Petroleum") {
         return 'Plants_Refinery_Petroleum';  // Set the text inside the span
-    } else {textSpan.textContent = 'error - unknown'}
+    } else if (v === "Power Plants: Electric Generators") {
+        return 'Electric_Generator';  // Set the text inside the span
+    } else {console.log('error - getmodname: '+v)}
 }
 
 function getdisplayname(v) {
@@ -4368,7 +4545,9 @@ function getdisplayname(v) {
         return 'Processing Plants: Natural Gas';  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return 'Refinery: Petroleum';  // Set the text inside the span
-    } else {return 'error - unknown'}
+    } else if (v === "Electric_Generator") {
+        return 'Power Plants: Electric Generators';  // Set the text inside the span
+    } else {console.log('error - getdisplayname: '+v)}
 }
 
 
@@ -4423,7 +4602,9 @@ function getmaplayername(v) {
         return 'points_eia_plants_processing_naturalgas';  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return 'points_eia_plants_refinery_petroleum';  // Set the text inside the span
-    } else {return 'error - unknown'}
+    } else if (v === "Electric_Generator") {
+        return 'points_eia_electric_generator';  // Set the text inside the span
+    }  else {console.log('error - getmaplayername: '+v)}
 }
 
 
@@ -4479,7 +4660,9 @@ function getmaplayer(v) {
         return points_eia_plants_processing_naturalgas;  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return points_eia_plants_refinery_petroleum;  // Set the text inside the span
-    } else {console.log('error getting map layer')}
+    } else if (v === "Electric_Generator") {
+        return points_eia_electric_generator;  // Set the text inside the span
+    }  else {console.log('error - getmaplayer: '+v)}
 }
 
 function getlegenditem(v) {
@@ -4533,5 +4716,7 @@ function getlegenditem(v) {
         return 'eia_plants_processing_naturalgas';  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return 'eia_plants_refinery_petroleum';  // Set the text inside the span
-    } else {return 'error - unknown'}
+    } else if (v === "Electric_Generator") {
+        return 'eia_electric_generator';  // Set the text inside the span
+    }  else {console.log('error - getlegenditem: '+v)}
 }

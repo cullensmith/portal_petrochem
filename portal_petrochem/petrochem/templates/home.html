@@ -595,6 +595,17 @@
             );
             transition: transform 0.2s ease;
           }
+          .tooltip {
+            position: fixed;
+            background: #333;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.1s ease;
+          }
         {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
     </style>
 </head>
@@ -617,12 +628,12 @@
             </div>
 
             <div class=" tabpanel hide" id="filterpanel" > {% comment %} class was class="catgrid tabpanel" {% endcomment %}
-                <div id="attributes-box" style="position: relative; padding: 10px; border-radius: 5px;">
+                <div id="attributes-box" style="position: relative; padding: 10px; margin-top: 40px; border-radius: 5px;">
                     {% comment %} <h3>Demographics of the population within </h3> {% endcomment %}
                     <p>Click a point feature in the map to see the population demographics within 1km of your facility.</p>
                 </div>
             </div>
-            <div class="tabpanel " id="filterpanel"  style="display:none">
+            <div class="tabpanel " id="filterpanel2"  style="display:none">
 
                 <div class="filter toggle-wellstatus hide" style="display:none">
                     <h4 class="fh4" id="wellstatush4" onclick="toggleFilter('wellstatus')">WELL STATUS</h4>
@@ -663,7 +674,7 @@
                 <div id="postapply"  style="margin-top:30px">
                     <div class="refine" id="refineblock">
                         <div class="filter">  {% comment %} toggle-states show"> {% endcomment %} 
-                            <h4 class="fh4 show" style="" id="statesh4" onclick="toggleFilter('states')">Dataset</h4>
+                            <h4 class="fh4 show" style="" id="statesh4" onclick="toggleFilter('states')">Dataset:</h4>
                             <div class="filter-content states-content show" id="filterState">
                                 {% comment %} <label for="stateinputbox" style="display:block;padding-bottom: 5px;"></label> {% endcomment %}
                                 <div class="selectionContainer" style="display:none;justify-content:center" id="datasetSelection"></div>
@@ -681,16 +692,23 @@
                         </div>
 
                         <div id="search" style="margin-top:15px">
-                            {% comment %} <label>Refine your search</label> {% endcomment %}
+                            <label><b>Refine your table:</b></label>
                             <select id="sort-field2" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
-                                <option value=""style="color:#8a8a8a" selected>Refine your search</option> <!-- Placeholder option -->
-
+                                <option value=""style="color:#8a8a8a" selected>Choose a field</option> <!-- Placeholder option -->
                             </select>
                             <div style="display:grid;grid-template-columns:84% 16%;width:100%">
-                                <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
+                                <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input1" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
                                 {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
                                 <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
                             </div>    
+                            {% comment %} <select id="sort-field3" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
+                                <option value=""style="color:#8a8a8a" selected>Secondary Filter</option> <!-- Placeholder option -->
+                            </select>
+                            <div style="display:grid;grid-template-columns:84% 16%;width:100%">
+                                <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input2" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
+                                <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> 
+                                <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
+                            </div>    {% endcomment %}
                         </div>
                         {% comment %} <div class="hide" id="drawradius" style="display:grid;grid-auto-flow: column;margin-top:10px">
                             <div id="drawtext" style="margin-top:4px;"><h4>DRAW A RADIUS</h4></div>
@@ -713,11 +731,11 @@
                         <div class="hide">
                             <button class="dropdownapplybutton" style="margin-top:16px;padding:7px" onclick="updateTable(filteredData.features)">Clear Selection</button>
                         </div> {% endcomment %}
-                        <div >
+                        {% comment %} <div >
                             <button style="padding:20px;margin-top:10px;" class="dropdownapplybutton hide" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
-                        </div>
+                        </div> {% endcomment %}
                         <div class="dlbtn" style="padding-top:15px;">
-                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(tabledata)">Download Dataset (CSV)</button>
+                            <button class="divbtns"  id="dlbutton" style="margin-top:4px;display:block" onclick="downloadTableData(tabledata)">Download Table (CSV)</button>
                         </div>
                     </div>
                 </div>
@@ -738,6 +756,8 @@
                         </div>
                     </div>
                     <div class="legend-content" style="display:block">
+                        <div id="custom-tooltip" class="tooltip">Coming Soon!</div>
+
                         <p style="margin-bottom:5px"><strong>Border Crossings</strong></p>
                         <div class="legenditem " id="legenditemid_31"><label class="category1 " id="legenditemid_41"><span class="legend-triangle" style="border-bottom-color: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_electric" class="legenditemchk"  unchecked> Electric</label></div>
                         <div class="legenditem " id="legenditemid_32"><label class="category1 " id="legenditemid_42"><span class="legend-triangle" style="border-bottom-color: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_liquids" class="legenditemchk"  unchecked> Liquid</label></div>
@@ -761,7 +781,7 @@
                         <div class="legenditem " id="legenditemid_76"><label class="category1 " id="legenditemid_86"><span class="legend-pentagon" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_refinery_petroleum" class=""  unchecked> Petroleum (Refinery)</label></div>
                         <p style="margin-bottom:5px"><strong>Power Plants</strong></p>
                         <div class="legenditem " id="legenditemid_51"><label class="category1 " id="legenditemid_61"><span class="legend-hexagon" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_powerplants_batterystorage" class="legenditemchk"  unchecked> Battery Storage</label></div>
-                        {% comment %} <div class="legenditem " id="legenditemid_37"><label class="category1 " id="legenditemid_47"><input type="checkbox" id="eia_electric_generator" class="legenditemchk"  unchecked> Electric Generator</label></div> {% endcomment %}
+                        <div class="legenditem " id="legenditemid_37"><label class="category1 " id="legenditemid_47"><span class="legend-hexagon" style="background: #de02d3; margin-right:5px;"></span><input type="checkbox" id="eia_electric_generator" class="legenditemchk"  unchecked> Electric Generator</label></div>
                         <div class="legenditem " id="legenditemid_52"><label class="category1 " id="legenditemid_62"><span class="legend-hexagon" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_coal" class="legenditemchk"  unchecked> Coal</label></div>
                         <div class="legenditem " id="legenditemid_53"><label class="category1 " id="legenditemid_63"><span class="legend-hexagon" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_plants_geothermal" class="legenditemchk"  unchecked> Geothermal</label></div>
                         <div class="legenditem " id="legenditemid_54"><label class="category1 " id="legenditemid_64"><span class="legend-hexagon" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydroelectric" class="legenditemchk"  unchecked> Hydroelectric</label></div>
@@ -777,7 +797,7 @@
                         <div class="legenditem " id="legenditemid15"><label class="category1 dim" id="legenditemid25"><input type="checkbox" id="category5" class="dim" unchecked><img src="../static/images/cat5.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Plugged</label></div>
                         <div class="legenditem " id="legenditemid16"><label class="category1 dim" id="legenditemid26"><input type="checkbox" id="category6" class="dim"  unchecked><img src="../static/images/cat6.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Production Well</label></div> {% endcomment %}
                         <p style="margin-bottom:5px"><strong>Pipelines</strong></p>
-                        {% comment %} <div class="legenditem " id="legenditemid_11"><label class="category1 dim" id="legenditemid_21"><input type="checkbox" id="pipeline_fractracker" class="dim"  unchecked> FracTracker Digitized</label></div> {% endcomment %}
+                        <div class="legenditem tooltip-target" id="legenditemid_11"><label class="category1 dim " id="legenditemid_21"><span style ="color:#de02d3;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_fractracker" class="dim"  unchecked> FracTracker Digitized</label></div>
                         <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#00253B;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_crudeoil" class=""  unchecked> Crude Oil</label></div>
                         <div class="legenditem " id="legenditemid_13"><label class="category1 " id="legenditemid_23"><span style ="color:#0287D4;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_hgl" class=""  unchecked> HGL</label></div>
                         <div class="legenditem " id="legenditemid_14"><label class="category1 " id="legenditemid_24"><span style ="color:#de541e;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_naturalgas" class=""  unchecked> Natural Gas</label></div>
