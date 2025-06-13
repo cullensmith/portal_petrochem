@@ -750,7 +750,7 @@ function createPointLayer(ptlay) {
                 });
                 if (!map.hasLayer(points_eia_electric_generator)) {
                     console.log('needed to add the layer')
-                    map.addLayer(points_eia_electric_generator);
+                    // map.addLayer(points_eia_electric_generator);
                 }
             } else if (ptlay === 'Bordercrossing_Liquids') {
                 // Example point style
@@ -2975,7 +2975,7 @@ function createTable(geojson) {
         });
         tableBody.appendChild(tr);
     });
-    updateTable(geojson)
+    updateTable(geojson,'create')
 }
 
 function populateSortDropdown(geojson) {
@@ -3050,11 +3050,12 @@ function sortTable() {
 
 
 let tabledata=null;
-function updateTable(geojson) {
+function updateTable(geojson,src) {
     populateSortDropdown(geojson);
     // console.log(geojson);
-
-    tabledata = geojson
+    if (src === 'create') {
+        tabledata = geojson
+    }
     // document.getElementById('tabledataset').innerText = `looking here`;
     if (!geojson || !Array.isArray(geojson.features)) {
         console.error('Invalid GeoJSON data');
@@ -3809,7 +3810,7 @@ if (layer instanceof L.Circle) {
         // Convert data to GeoJSON
         const refinedrad = convertToGeoJSON(pointsInsideJSON);
         
-        updateTable(refinedrad.features)
+        updateTable(refinedrad.features,'refined')
         // Log the result
         // console.log(JSON.stringify(geoJSON, null, 2));
 
@@ -3853,7 +3854,7 @@ function refinefilter() {
     
 
 
-    updateTable(refinedsrch);
+    updateTable(refinedsrch,'refined');
 }
 
 
