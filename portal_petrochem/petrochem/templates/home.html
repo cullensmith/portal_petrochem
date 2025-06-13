@@ -606,6 +606,10 @@
             opacity: 0;
             transition: opacity 0.1s ease;
           }
+          input::placeholder {
+            color: #999; /* lighter gray */
+            opacity: 1;  /* optional, for full visibility in some browsers */
+          }
         {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
     </style>
 </head>
@@ -696,11 +700,20 @@
                             <select id="sort-field2" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
                                 <option value=""style="color:#8a8a8a" selected>Choose a field</option> <!-- Placeholder option -->
                             </select>
-                            <div style="display:grid;grid-template-columns:84% 16%;width:100%">
-                                <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input1" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
+                            {% comment %} <div style="display:grid;grid-template-columns:84% 16%;width:100%"> {% endcomment %}
+                            <div>
+                                <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input1" placeholder="Enter value here..." style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
                                 {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
-                                <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
+                                {% comment %} <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div> {% endcomment %}
                             </div>    
+                            <div style="display: flex; gap: 5px; align-items: center;margin-top:5px">
+                                <div style="text-align: center; border: none; height: 25px; background-color: white; border-radius: 7px;width:50%">
+                                    <button id="sortbtn2" class="divbtns" onclick="refinefilter()">Apply</button>
+                                </div>
+                                <div style="text-align: center; border: none; height: 25px; background-color: white; border-radius: 7px;width:50%">
+                                    <button class="divbtns" onclick="clearFilter()">Reset</button>
+                                </div>
+                            </div>
                             {% comment %} <select id="sort-field3" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
                                 <option value=""style="color:#8a8a8a" selected>Secondary Filter</option> <!-- Placeholder option -->
                             </select>
@@ -816,6 +829,7 @@
                                 <input style="border:none;width:148px;text-align:center;height:25px;background-color:white;border-radius:7px" type="number" id="page-input" placeholder="Jump to page #" min="1">
                                 <button class="divbtns" onclick="goToPage()">Go</button>
                             </div>
+
                             {% comment %} <div class="pagenav-container" style="justify-self:center">
                                 <span id="pagination" style="justify-self: center"></span>
                             </div> {% endcomment %}

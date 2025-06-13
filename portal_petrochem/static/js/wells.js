@@ -32,6 +32,7 @@ var points_eia_terminal_lng;
 var points_eia_terminal_petroleum;
 
 var buffs;
+var filteredPoints;
 
 // Create constants for the filter items
 const statetextbox = document.getElementById('datasetSelection');
@@ -3852,9 +3853,64 @@ function refinefilter() {
         return;
     }
     
-
+    console.log('adding filtered points')
+    filteredPoints = L.geoJSON(refinedsrch, {
+        pointToLayer: function (feature, latlng) {
+        // size of the square (in degrees) — adjust for zoom level
+        const size = .3;
+    
+        // Create a rectangle (square) centered at latlng
+        return L.rectangle([
+            [latlng.lat - size, latlng.lng - size],
+            [latlng.lat + size, latlng.lng + size]
+        ], {
+            color: 'red',
+            weight: 4,
+            fillOpacity: 0,
+            pane: 'overlayPane'
+        });
+        
+        // // Coordinates for the main square
+        // const bounds = [
+        //     [latlng.lat - size, latlng.lng - size],
+        //     [latlng.lat + size, latlng.lng + size]
+        // ];
+    
+        // // Slightly larger bounds for the outer outline
+        // const outerSize = size + 0.2;
+        // const outerBounds = [
+        //     [latlng.lat - outerSize, latlng.lng - outerSize],
+        //     [latlng.lat + outerSize, latlng.lng + outerSize]
+        // ];
+    
+        // // Outer darker outline (behind)
+        // const outerRect = L.rectangle(outerBounds, {
+        //     color: 'red',
+        //     weight: 2,
+        //     fillOpacity: 0,
+        //     pane: 'overlayPane'
+        // });
+    
+        // // Inner yellow outline (on top)
+        // const innerRect = L.rectangle(bounds, {
+        //     color: 'red',
+        //     weight: 2,
+        //     fillOpacity: 0,
+        //     pane: 'overlayPane'
+        // });
+    
+        // // Create a layer group with both
+        // return L.layerGroup([outerRect, innerRect]);
+        }
+    }).addTo(map);
+    console.log('added the filtered pints')
 
     updateTable(refinedsrch,'refined');
+}
+
+function clearFilter() {
+    updateTable(tabledata)
+    map.removeLayer(filteredPoints)
 }
 
 
