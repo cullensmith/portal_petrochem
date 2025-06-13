@@ -3051,12 +3051,16 @@ function sortTable() {
 
 
 let tabledata=null;
+let thetabledata=null;
 function updateTable(geojson,src) {
+    thetabledata = geojson
     populateSortDropdown(geojson);
+    console.log('here are the features')
+    console.log(geojson.features)
     // console.log(geojson);
     if (src === 'create') {
-        tabledata = geojson
-    }
+        tabledata = geojson;
+    } 
     // document.getElementById('tabledataset').innerText = `looking here`;
     if (!geojson || !Array.isArray(geojson.features)) {
         console.error('Invalid GeoJSON data');
@@ -3148,15 +3152,15 @@ function updateTable(geojson,src) {
 
 
 // Function to download CSV of table data
-function downloadTableData(tabledata) {
+function downloadTableData(thetabledata) {
     console.log('starting the download')
     // Check if filtered data is available
-    if (!tabledata) {
+    if (!thetabledata) {
         console.error("Filtered data is not available.");
         return;
     }
 
-    var data = tabledata
+    var data = thetabledata
 
     function encodeForCSV(str) {
         // If the string contains comma, double quote, or newline characters,
@@ -3870,6 +3874,8 @@ function refinefilter() {
 
 function clearFilter() {
     updateTable(tabledata)
+    document.getElementById('srch-input1').value = '';
+
     map.removeLayer(filteredPoints)
 }
 
