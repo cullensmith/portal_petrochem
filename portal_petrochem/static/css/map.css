@@ -3,7 +3,7 @@
   /* Style for the map container */
   #map {
     flex-grow: 1;
-    height: 75%;
+    height: 94%;
     padding: 20px;
     overflow: hidden;
   }

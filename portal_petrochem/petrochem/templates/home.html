@@ -40,6 +40,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0"></script>
 
+    <link href="https://fonts.googleapis.com/css2?family=Archivo&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
 
     <style>
         /*
@@ -134,6 +136,7 @@
                 border-color: #02253a;
                 border-radius:20px;
                 margin:6px;
+                position: relative;
         }
 
 
@@ -670,15 +673,41 @@
           .normal-part {
             font-weight: normal;
           }
+
+          .legend {
+            display: flex;
+            flex-direction: column;
+            max-height: 100%;
+            width: 300px; /* or whatever your desired width is */
+            background: white;
+            border: 1px solid #ccc;
+        }
+        
+        .legend-header {
+            display: grid;
+            grid-auto-flow: dense;
+            background: #f9f9f9;
+            padding: 5px;
+            flex-shrink: 0;
+        }
+        
+        .legend-scrollable {
+            overflow-y: auto;
+            max-height: calc(100% - 30px); /* Adjust 30px if your header is taller/shorter */
+        }
+        
+        .legend-content {
+            padding: 10px;
+        }
         {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" >
         <header>
             <div>
-                <img class="header-image" style="margin-top:10px;height: 80px;width:90px;position: absolute; left: 10px;z-index: 5100;" src="/static/images/dataportallogo.png">
-                <h1 style="margin-top:6px;color:#02253a;line-height:0.95;font-size:45px">Petrochemical<br>Data Portal</h1>
+                <img class="header-image" style="font-family:Archivo Black;margin-top:10px;height: 80px;width:90px;position: absolute; left: 10px;z-index: 5100;" src="/static/images/dataportallogo.png">
+                <h1 style="font-family:Archivo Black;margin-top:4px;color:#02253a;line-height:1;font-size:45px">Petrochemical<br>Data Portal</h1>
             </div>
             {% comment %} <div style="justify-self:center">
                 <h4 style="color:#0287D4;font-weight:normal">Refreshed June 30, 2025<h4>
@@ -686,10 +715,10 @@
         </header>
 
         <div class="main-content">
-            <div class="left">
-                <div id="tabbtns" style="display:grid;grid-template-columns: 50% 50%;height: 5vh">
-                    <button class="tabbtn sel" id="resultsbtn" style="border-top-left-radius:20px;margin-left:-12px">Facility<br>Data</button>
-                    <button class="tabbtn " id="filterbtn" style="border-top-right-radius:20px;margin-right:-12px">Summary of<br>Demographics</button>
+            <div class="left" style="margin-top:0">
+                <div id="tabbtns" style="display:grid;grid-template-columns: 40% 60%;height: 5vh">
+                    <button class="tabbtn sel" id="resultsbtn" style="border-top-left-radius:20px;margin-left:-12px;font-family:arial">Facility<br>Data</button>
+                    <button class="tabbtn " id="filterbtn" style="border-top-right-radius:20px;margin-right:-12px;font-family:arial">Summary of<br>Demographics</button>
                 </div>
 
                 <div class=" tabpanel hide" id="filterpanel" style="color:white"> {% comment %} class was class="catgrid tabpanel" {% endcomment %}
@@ -738,8 +767,8 @@
                 <div class="tabpanel " id="resultspanel">
                     <div id="postapply"  style="margin-top:30px">
                         <div class="refine" id="refineblock">
-                            <div class="filter">  {% comment %} toggle-states show"> {% endcomment %} 
-                                <h4 class="fh4 show" style="color:white;background-color:#02253a" id="statesh4" onclick="toggleFilter('states')">Select Data</h4>
+                            <div class="filter" style="cursor: default;">  {% comment %} toggle-states show"> {% endcomment %} 
+                                <h4 class="fh4 show" style="cursor: default;font-family:Archivo;color:white;background-color:#02253a;padding-left:12px;padding-bottom:0px" id="statesh4" onclick="toggleFilter('states')">Select Data</h4>
                                 <div class="filter-content states-content show" id="filterState" style="background-color:#02253a">
                                     {% comment %} <label for="stateinputbox" style="display:block;padding-bottom: 5px;"></label> {% endcomment %}
                                     <div class="selectionContainer" style="display:none;justify-content:center" id="datasetSelection"></div>
@@ -761,7 +790,7 @@
                             </div>
 
                             <div id="search" style="margin-top:15px;color:white">
-                                <label><b>Filter:</b></label>
+                                <label style="font-family:Archivo;"><b>Filter</b></label>
                                 <select id="sort-field2" style="border-radius:6px;cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
                                     <option value=""style="color:#8a8a8a" selected>Select</option> <!-- Placeholder option -->
                                 </select>
@@ -784,117 +813,91 @@
                                     </div>
 
                                 </div>
-                                {% comment %} <select id="sort-field3" style="cursor:pointer;text-align:center;padding: 5px;margin-top:10px;margin-bottom:14px" class="dropdownbutton">
-                                    <option value=""style="color:#8a8a8a" selected>Secondary Filter</option> <!-- Placeholder option -->
-                                </select>
-                                <div style="display:grid;grid-template-columns:84% 16%;width:100%">
-                                    <div style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input2" style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
-                                    <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> 
-                                    <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div>
-                                </div>    {% endcomment %}
+
                             </div>
-                            {% comment %} <div class="hide" id="drawradius" style="display:grid;grid-auto-flow: column;margin-top:10px">
-                                <div id="drawtext" style="margin-top:4px;"><h4>DRAW A RADIUS</h4></div>
-                                <div id="controls" style="width:fit-content;justify-self:right">
-                                    <div id="draw-controls"></div> <!-- Draw control outside the map -->
-                                </div>
-                            </div>
-                            <div class="hide" id="drawbox" style="display:grid;grid-auto-flow: column;margin-top:10px">
-                                <div id="drawtext-b" style="margin-top:4px;"><h4>DRAW A BOX</h4></div>
-                                <div id="controls-b" style="width:fit-content;justify-self:right">
-                                    <div id="draw-controls-b"></div> <!-- Draw control outside the map -->
-                                </div>
-                            </div>
-                            <div class="hide" id="drawfree" style="display:grid;grid-auto-flow: column;margin-top:10px">
-                                <div id="drawtext-f" style="margin-top:4px;"><h4>DRAW FREEHAND</h4></div>
-                                <div id="controls-f" style="width:fit-content;justify-self:right">
-                                    <div id="draw-controls-f"></div> <!-- Draw control outside the map -->
-                                </div>
-                            </div>
-                            <div class="hide">
-                                <button class="dropdownapplybutton" style="margin-top:16px;padding:7px" onclick="updateTable(filteredData.features)">Clear Selection</button>
-                            </div> {% endcomment %}
-                            {% comment %} <div >
-                                <button style="padding:20px;margin-top:10px;" class="dropdownapplybutton hide" onclick="applyCategoryFilter()"><strong>Apply Filter</strong></button>
-                            </div> {% endcomment %}
-                            <div class="dlbtn" style="padding-top:15px;">
-                                <button class="divbtns"  id="dlbutton" style="height:60px;margin-top:4px;display:block;background-color:#ffc857" onclick="downloadTableData(thetabledata)">Download (CSV)</button>
+
+                            <div class="dlbtn" style="position: absolute; bottom: 10px; left: 10px; right: 10px;">
+                                <button class="divbtns" id="dlbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="downloadTableData(thetabledata)">
+                                    Download
+                                    <span style="font-size: 20px; display: inline-block; transform: rotate(270deg); margin-left: 8px;">&#8676;</span>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="right" id="container">
+            <div class="right" id="container" style="min-width:650px">
                 <!-- Top content of the right side -->
-                <div id="map">
+                <div id="map" style="border-top-left-radius: 20px;">
                     {% comment %} <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/fta.png"> {% endcomment %}
 
-                    <div class="legend" id="legend" style="overflow:auto;max-height:calc(100% - 30px)">
-                        <div class="legend-header" style="display:grid;grid-auto-flow: dense;" id="legend-toggle">
+                    <div class="legend" id="legend" style="width:auto;overflow:auto;max-height:calc(100% - 30px)">
+                        <div class="legend-header" id="legend-toggle">
                             <div  style="justify-self:left">
                                 <span id="legend_arrow">x</span>
                             </div>
                             <div style="justify-self:center">
-                                <span>Legend</span>
+                                <span>Map Layers</span>
                             </div>
-
                         </div>
-                        <div class="legend-content" style="display:block">
-                            <div id="custom-tooltip" class="tooltip">Coming Soon!</div>
+                        <div class="legend-scrollable">
+                            <div class="legend-content">
+                                <div id="custom-tooltip" class="tooltip">Coming Soon!</div>
 
-                            <p style="margin-bottom:5px;margin-top:10px"><strong>Market Hubs, Ports, Terminals</strong></p>
-                            <div class="legenditem " id="legenditemid_35"><label class="category1 " id="legenditemid_45"><span class="legend-diamond" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_hgl" class="legenditemchk"  unchecked> HGL (Market Hub)</label></div>
-                            <div class="legenditem " id="legenditemid_36"><label class="category1 " id="legenditemid_46"><span class="legend-diamond" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_naturalgas" class="legenditemchk"  unchecked> Natural Gas (Market Hub)</label></div>
-                            <div class="legenditem " id="legenditemid_55"><label class="category1 " id="legenditemid_65"><span class="legend-diamond" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_ports_petroleum" class="legenditemchk"  unchecked> Petroleum (Port)</label></div>
-                            <div class="legenditem " id="legenditemid_56"><label class="category1 " id="legenditemid_66"><span class="legend-diamond" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_reserve_petroleum" class=""  unchecked> Petroleum (Reserve)</label></div>
-                            <div class="legenditem " id="legenditemid_57"><label class="category1 " id="legenditemid_67"><span class="legend-diamond" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_storage_naturalgas" class=""  unchecked> Natural Gas (Underground Storage)</label></div>
-                            <div class="legenditem " id="legenditemid_58"><label class="category1 " id="legenditemid_68"><span class="legend-diamond" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_crudeoil" class=""  unchecked> Crude Oil (Terminal)</label></div>
-                            <div class="legenditem " id="legenditemid_59"><label class="category1 " id="legenditemid_69"><span class="legend-diamond" style="background: #FFC857; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_lng" class=""  unchecked> LNG (Terminal)</label></div>
-                            <div class="legenditem " id="legenditemid_70"><label class="category1 " id="legenditemid_80"><span class="legend-diamond" style="background: red; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_petroleum" class=""  unchecked> Petroleum (Terminal)</label></div>
-                            <p style="margin-bottom:5px"><strong>Compressor Stations</strong></p>
-                            <div class="legenditem " id="legenditemid_34"><label class="category1 " id="legenditemid_44"><span class="legend-triangle" style="transform: rotate(180deg);border-bottom-color: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_compressorstations" class=""  unchecked> Compressor Station</label></div>
-                            <p style="margin-bottom:5px"><strong>Plants</strong></p>
-                            <div class="legenditem " id="legenditemid_38"><label class="category1 " id="legenditemid_48"><span class="legend-pentagon" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_plants_biodiesel" class="legenditemchk"  unchecked> Biodiesel</label></div>
-                            <div class="legenditem " id="legenditemid_39"><label class="category1 " id="legenditemid_49"><span class="legend-pentagon" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethanol" class="legenditemchk"  unchecked> Ethanol</label></div>
-                            <div class="legenditem " id="legenditemid_50"><label class="category1 " id="legenditemid_60"><span class="legend-pentagon" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethylene_cracker" class="legenditemchk"  unchecked> Ethylene Cracker</label></div>
-                            <div class="legenditem " id="legenditemid_75"><label class="category1 " id="legenditemid_85"><span class="legend-pentagon" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_plants_processing_naturalgas" class=""  unchecked> Natural Gas (Processing)</label></div>
-                            <div class="legenditem " id="legenditemid_76"><label class="category1 " id="legenditemid_86"><span class="legend-pentagon" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_refinery_petroleum" class=""  unchecked> Petroleum (Refinery)</label></div>
-                            <p style="margin-bottom:5px"><strong>Power Plants</strong></p>
-                            <div class="legenditem " id="legenditemid_51"><label class="category1 " id="legenditemid_61"><span class="legend-plus" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_powerplants_batterystorage" class="legenditemchk"  unchecked> Battery Storage</label></div>
-                            <div class="legenditem tooltip-target" id="legenditemid_37"><label class="category1 dim" id="legenditemid_47"><span class="legend-plus" style="background: #de02d3; margin-right:5px;"></span><input type="checkbox" id="eia_electric_generator" class="legenditemchk"  unchecked> Electric Generator</label></div>
-                            <div class="legenditem " id="legenditemid_52"><label class="category1 " id="legenditemid_62"><span class="legend-plus" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_coal" class="legenditemchk"  unchecked> Coal</label></div>
-                            <div class="legenditem " id="legenditemid_53"><label class="category1 " id="legenditemid_63"><span class="legend-plus" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_plants_geothermal" class="legenditemchk"  unchecked> Geothermal</label></div>
-                            <div class="legenditem " id="legenditemid_54"><label class="category1 " id="legenditemid_64"><span class="legend-plus" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydroelectric" class="legenditemchk"  unchecked> Hydroelectric</label></div>
-                            <div class="legenditem " id="legenditemid_71"><label class="category1 " id="legenditemid_81"><span class="legend-plus" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydropumped" class="legenditemchk"  unchecked> Hydro Pumped Storage</label></div>
-                            <div class="legenditem " id="legenditemid_72"><label class="category1 " id="legenditemid_82"><span class="legend-plus" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_plants_power_naturalgas" class="legenditemchk"  unchecked> Natural Gas</label></div>
-                            <div class="legenditem " id="legenditemid_73"><label class="category1 " id="legenditemid_83"><span class="legend-plus" style="background: #FFC857; margin-right:5px;"></span><input type="checkbox" id="eia_plants_nuclear" class="legenditemchk"  unchecked> Nuclear</label></div>
-                            <div class="legenditem " id="legenditemid_74"><label class="category1 " id="legenditemid_84"><span class="legend-plus" style="background: #ff0000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_petroleum" class=""  unchecked> Petroleum</label></div>
+                                <p style="margin-bottom:5px;margin-top:10px"><strong>Market Hubs, Ports, Terminals</strong></p>
+                                <div class="legenditem " id="legenditemid_35"><label class="category1 " id="legenditemid_45"><span class="legend-diamond" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_hgl" class="legenditemchk"  unchecked> HGL (Market Hub)</label></div>
+                                <div class="legenditem " id="legenditemid_36"><label class="category1 " id="legenditemid_46"><span class="legend-diamond" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_naturalgas" class="legenditemchk"  unchecked> Natural Gas (Market Hub)</label></div>
+                                <div class="legenditem " id="legenditemid_55"><label class="category1 " id="legenditemid_65"><span class="legend-diamond" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_ports_petroleum" class="legenditemchk"  unchecked> Petroleum (Port)</label></div>
+                                <div class="legenditem " id="legenditemid_56"><label class="category1 " id="legenditemid_66"><span class="legend-diamond" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_reserve_petroleum" class=""  unchecked> Petroleum (Reserve)</label></div>
+                                <div class="legenditem " id="legenditemid_57"><label class="category1 " id="legenditemid_67"><span class="legend-diamond" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_storage_naturalgas" class=""  unchecked> Natural Gas (Underground Storage)</label></div>
+                                <div class="legenditem " id="legenditemid_58"><label class="category1 " id="legenditemid_68"><span class="legend-diamond" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_crudeoil" class=""  unchecked> Crude Oil (Terminal)</label></div>
+                                <div class="legenditem " id="legenditemid_59"><label class="category1 " id="legenditemid_69"><span class="legend-diamond" style="background: #FFC857; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_lng" class=""  unchecked> LNG (Terminal)</label></div>
+                                <div class="legenditem " id="legenditemid_70"><label class="category1 " id="legenditemid_80"><span class="legend-diamond" style="background: red; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_petroleum" class=""  unchecked> Petroleum (Terminal)</label></div>
+                                <p style="margin-bottom:5px"><strong>Compressor Stations</strong></p>
+                                <div class="legenditem " id="legenditemid_34"><label class="category1 " id="legenditemid_44"><span class="legend-triangle" style="transform: rotate(180deg);border-bottom-color: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_compressorstations" class=""  unchecked> Compressor Station</label></div>
+                                <p style="margin-bottom:5px"><strong>Plants</strong></p>
+                                <div class="legenditem " id="legenditemid_38"><label class="category1 " id="legenditemid_48"><span class="legend-pentagon" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_plants_biodiesel" class="legenditemchk"  unchecked> Biodiesel</label></div>
+                                <div class="legenditem " id="legenditemid_39"><label class="category1 " id="legenditemid_49"><span class="legend-pentagon" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethanol" class="legenditemchk"  unchecked> Ethanol</label></div>
+                                <div class="legenditem " id="legenditemid_50"><label class="category1 " id="legenditemid_60"><span class="legend-pentagon" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethylene_cracker" class="legenditemchk"  unchecked> Ethylene Cracker</label></div>
+                                <div class="legenditem " id="legenditemid_75"><label class="category1 " id="legenditemid_85"><span class="legend-pentagon" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_plants_processing_naturalgas" class=""  unchecked> Natural Gas (Processing)</label></div>
+                                <div class="legenditem " id="legenditemid_76"><label class="category1 " id="legenditemid_86"><span class="legend-pentagon" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_refinery_petroleum" class=""  unchecked> Petroleum (Refinery)</label></div>
+                                <p style="margin-bottom:5px"><strong>Power Plants</strong></p>
+                                <div class="legenditem " id="legenditemid_51"><label class="category1 " id="legenditemid_61"><span class="legend-plus" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_powerplants_batterystorage" class="legenditemchk"  unchecked> Battery Storage</label></div>
+                                <div class="legenditem tooltip-target" id="legenditemid_37"><label class="category1 dim" id="legenditemid_47"><span class="legend-plus" style="background: #de02d3; margin-right:5px;"></span><input type="checkbox" id="eia_electric_generator" class="legenditemchk"  unchecked> Electric Generator</label></div>
+                                <div class="legenditem " id="legenditemid_52"><label class="category1 " id="legenditemid_62"><span class="legend-plus" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_coal" class="legenditemchk"  unchecked> Coal</label></div>
+                                <div class="legenditem " id="legenditemid_53"><label class="category1 " id="legenditemid_63"><span class="legend-plus" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_plants_geothermal" class="legenditemchk"  unchecked> Geothermal</label></div>
+                                <div class="legenditem " id="legenditemid_54"><label class="category1 " id="legenditemid_64"><span class="legend-plus" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydroelectric" class="legenditemchk"  unchecked> Hydroelectric</label></div>
+                                <div class="legenditem " id="legenditemid_71"><label class="category1 " id="legenditemid_81"><span class="legend-plus" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydropumped" class="legenditemchk"  unchecked> Hydro Pumped Storage</label></div>
+                                <div class="legenditem " id="legenditemid_72"><label class="category1 " id="legenditemid_82"><span class="legend-plus" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_plants_power_naturalgas" class="legenditemchk"  unchecked> Natural Gas</label></div>
+                                <div class="legenditem " id="legenditemid_73"><label class="category1 " id="legenditemid_83"><span class="legend-plus" style="background: #FFC857; margin-right:5px;"></span><input type="checkbox" id="eia_plants_nuclear" class="legenditemchk"  unchecked> Nuclear</label></div>
+                                <div class="legenditem " id="legenditemid_74"><label class="category1 " id="legenditemid_84"><span class="legend-plus" style="background: #ff0000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_petroleum" class=""  unchecked> Petroleum</label></div>
 
-                            {% comment %} <div class="legenditem " id="legenditemid11"><label class="category1 dim" id="legenditemid21"><input type="checkbox" id="category1" class="dim" unchecked><img src="../static/images/cat1.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'>Injection / Storage / Service</label></div>
-                            <div class="legenditem " id="legenditemid12"><label class="category1 dim" id="legenditemid22"><input type="checkbox" id="category2" class="dim" unchecked><img src="../static/images/cat2.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Not Drilled</label></div>
-                            <div class="legenditem " id="legenditemid13"><label class="category1 dim" id="legenditemid23"><input type="checkbox" id="category3" class="dim" unchecked><img src="../static/images/cat3.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Orphaned / Abandoned / Unverified Plug</label></div>
-                            <div class="legenditem " id="legenditemid14"><label class="category1 dim" id="legenditemid24"><input type="checkbox" id="category4" class="dim" unchecked><img src="../static/images/cat4.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Other / Unknown</label></div>
-                            <div class="legenditem " id="legenditemid15"><label class="category1 dim" id="legenditemid25"><input type="checkbox" id="category5" class="dim" unchecked><img src="../static/images/cat5.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Plugged</label></div>
-                            <div class="legenditem " id="legenditemid16"><label class="category1 dim" id="legenditemid26"><input type="checkbox" id="category6" class="dim"  unchecked><img src="../static/images/cat6.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Production Well</label></div> {% endcomment %}
-                            <p style="margin-bottom:5px"><strong>Border Crossings</strong></p>
-                            <div class="legenditem " id="legenditemid_31"><label class="category1 " id="legenditemid_41"><span class="legend-triangle" style="border-bottom-color: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_electric" class="legenditemchk"  unchecked> Electric Transmission Lines</label></div>
-                            <div class="legenditem " id="legenditemid_32"><label class="category1 " id="legenditemid_42"><span class="legend-triangle" style="border-bottom-color: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_liquids" class="legenditemchk"  unchecked> Liquid Pipelines</label></div>
-                            <div class="legenditem " id="legenditemid_33"><label class="category1 " id="legenditemid_43"><span class="legend-triangle" style="border-bottom-color: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_naturalgas" class="legenditemchk"  unchecked> Natural Gas Pipelines</label></div>
-                            <p style="margin-bottom:5px"><strong>Pipelines</strong></p>
-                            <div class="legenditem tooltip-target" id="legenditemid_11"><label class="category1 dim " id="legenditemid_21"><span style ="color:#de02d3;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_fractracker" class="dim"  unchecked> FracTracker Digitized</label></div>
-                            <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#00253B;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_crudeoil" class=""  unchecked> Crude Oil</label></div>
-                            <div class="legenditem " id="legenditemid_13"><label class="category1 " id="legenditemid_23"><span style ="color:#0287D4;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_hgl" class=""  unchecked> HGL</label></div>
-                            <div class="legenditem " id="legenditemid_14"><label class="category1 " id="legenditemid_24"><span style ="color:#de541e;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_naturalgas" class=""  unchecked> Natural Gas</label></div>
-                            <div class="legenditem " id="legenditemid_15"><label class="category1 " id="legenditemid_25"><span style ="color:#A3CF5F;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_petroleum" class=""  unchecked> Petroleum</label></div>
-                            {% comment %} <div class="legenditem " id="legenditemid17"><label class="category1 dim" id="legenditemid27"><input type="checkbox" id="countylayer" class="dim"  unchecked> County Borders</label></div>
-                            <div class="legenditem " id="legenditemid18"><label class="category1 dim" id="legenditemid28"><input type="checkbox" id="countycount" class="dim"  unchecked> County Counts</label></div>
-                            <div class="legenditem " id="legenditemid19"><label class="category1 dim" id="legenditemid29"><input type="checkbox" id="countychoropleth" class="dim"  unchecked> County Choropleth</label></div> {% endcomment %}
+                                {% comment %} <div class="legenditem " id="legenditemid11"><label class="category1 dim" id="legenditemid21"><input type="checkbox" id="category1" class="dim" unchecked><img src="../static/images/cat1.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'>Injection / Storage / Service</label></div>
+                                <div class="legenditem " id="legenditemid12"><label class="category1 dim" id="legenditemid22"><input type="checkbox" id="category2" class="dim" unchecked><img src="../static/images/cat2.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Not Drilled</label></div>
+                                <div class="legenditem " id="legenditemid13"><label class="category1 dim" id="legenditemid23"><input type="checkbox" id="category3" class="dim" unchecked><img src="../static/images/cat3.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Orphaned / Abandoned / Unverified Plug</label></div>
+                                <div class="legenditem " id="legenditemid14"><label class="category1 dim" id="legenditemid24"><input type="checkbox" id="category4" class="dim" unchecked><img src="../static/images/cat4.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Other / Unknown</label></div>
+                                <div class="legenditem " id="legenditemid15"><label class="category1 dim" id="legenditemid25"><input type="checkbox" id="category5" class="dim" unchecked><img src="../static/images/cat5.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Plugged</label></div>
+                                <div class="legenditem " id="legenditemid16"><label class="category1 dim" id="legenditemid26"><input type="checkbox" id="category6" class="dim"  unchecked><img src="../static/images/cat6.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Production Well</label></div> {% endcomment %}
+                                <p style="margin-bottom:5px"><strong>Border Crossings</strong></p>
+                                <div class="legenditem " id="legenditemid_31"><label class="category1 " id="legenditemid_41"><span class="legend-triangle" style="border-bottom-color: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_electric" class="legenditemchk"  unchecked> Electric Transmission Lines</label></div>
+                                <div class="legenditem " id="legenditemid_32"><label class="category1 " id="legenditemid_42"><span class="legend-triangle" style="border-bottom-color: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_liquids" class="legenditemchk"  unchecked> Liquid Pipelines</label></div>
+                                <div class="legenditem " id="legenditemid_33"><label class="category1 " id="legenditemid_43"><span class="legend-triangle" style="border-bottom-color: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_naturalgas" class="legenditemchk"  unchecked> Natural Gas Pipelines</label></div>
+                                <p style="margin-bottom:5px"><strong>Pipelines</strong></p>
+                                <div class="legenditem tooltip-target" id="legenditemid_11"><label class="category1 dim " id="legenditemid_21"><span style ="color:#de02d3;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_fractracker" class="dim"  unchecked> FracTracker Digitized</label></div>
+                                <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#00253B;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_crudeoil" class=""  unchecked> Crude Oil</label></div>
+                                <div class="legenditem " id="legenditemid_13"><label class="category1 " id="legenditemid_23"><span style ="color:#0287D4;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_hgl" class=""  unchecked> HGL</label></div>
+                                <div class="legenditem " id="legenditemid_14"><label class="category1 " id="legenditemid_24"><span style ="color:#de541e;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_naturalgas" class=""  unchecked> Natural Gas</label></div>
+                                <div class="legenditem " id="legenditemid_15"><label class="category1 " id="legenditemid_25"><span style ="color:#A3CF5F;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_petroleum" class=""  unchecked> Petroleum</label></div>
+                                {% comment %} <div class="legenditem " id="legenditemid17"><label class="category1 dim" id="legenditemid27"><input type="checkbox" id="countylayer" class="dim"  unchecked> County Borders</label></div>
+                                <div class="legenditem " id="legenditemid18"><label class="category1 dim" id="legenditemid28"><input type="checkbox" id="countycount" class="dim"  unchecked> County Counts</label></div>
+                                <div class="legenditem " id="legenditemid19"><label class="category1 dim" id="legenditemid29"><input type="checkbox" id="countychoropleth" class="dim"  unchecked> County Choropleth</label></div> {% endcomment %}
+                            </div>
                         </div>
                     </div>
                 </div>
                 <div class="divider" id="dividerContainer" style="z-index: 1000;margin-top:-12px">
                     <div>
-                        <div style="padding:9px;display:grid;grid-auto-flow:column">
+                        <div style="padding:9px;display:grid;grid-auto-flow:column;">
                             <div>
                                 <div>
                                     <input style="border:none;width:148px;text-align:center;height:25px;background-color:white;border-radius:7px" type="number" id="page-input" placeholder="Jump to page #" min="1">
@@ -918,7 +921,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="bottom" id="bottomContainer" style="margin-bottom:5px;border-bottom-left-radius:10px;border-bottom-right-radius:10px;">
+                <div class="bottom" id="bottomContainer" style="margin-top:-4px;background-color:#02253a;border:4px solid #02253a;margin-bottom:5px;border-bottom-left-radius:18px;border-bottom-right-radius:18px;">
                 <!-- Bottom content of the right side -->
                 <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                     <!-- Left-aligned -->
@@ -927,7 +930,7 @@
                     </div>
                 
                     <!-- Centered -->
-                    <div style="flex: 1; text-align: center; color: #02253a; margin-top: 2px;">
+                    <div style="flex: 1; text-align: center; color: white; margin-top: 2px;">
                         <span id="records"></span>
                     </div>
                     <!-- Optional: Right-aligned space filler -->

@@ -358,7 +358,7 @@ function tableJson(i) {
 })}
 
 
-function applyCategoryFilter() {
+function applyCategoryFilter(orders) {
     // Fetch GeoJSON data from the server
     var dataLayer = getSelValues('datasetSelection').replace(",,,","");  // Assuming this returns a comma-delimited string
     console.log('dataLayer: '+dataLayer)
@@ -371,12 +371,15 @@ function applyCategoryFilter() {
 
     if (!mapLayer) {
         console.log('checking on adding the layer')
-        addLayerSafely(dataLayer);
+        console.log(`should we add this thing --> ${orders}`)
+        addLayerSafely(dataLayer, orders);
     } else {
         console.log('already exists - adding')
-        mapLayer.addTo(map);
-        document.getElementById(legendItem).checked = true;
-        console.log('table json')
+        if (orders === 'add it') {
+            mapLayer.addTo(map);
+            document.getElementById(legendItem).checked = true;
+            console.log('table json')
+        } 
         tableJson(dataLayer)
         console.log('table json added')
     };
@@ -410,7 +413,7 @@ function getColor(stype) {
 
 function createUpsideDownTriangleMarker(latlng, newcolor) {
     const zoomLevel = map.getZoom();
-    const size = 8 + zoomLevel * 2;
+    const size = 3 + zoomLevel * 1.5;
     const half = size / 2;
 
     const marker = L.marker(latlng, {
@@ -439,7 +442,7 @@ function createUpsideDownTriangleMarker(latlng, newcolor) {
 
 function createDiamondMarker(latlng, newcolor) {
     const zoomLevel = map.getZoom();
-    const size = 8 + zoomLevel * 2;
+    const size = 3 + zoomLevel * 1.5;
 
     const marker = L.marker(latlng, {
         icon: L.divIcon({
@@ -449,7 +452,6 @@ function createDiamondMarker(latlng, newcolor) {
                     width: ${size}px;
                     height: ${size}px;
                     background: #${newcolor};
-                    transform: rotate(45deg);
                 "></div>
             `,
             iconSize: [size, size],
@@ -465,7 +467,7 @@ function createDiamondMarker(latlng, newcolor) {
 }
 function createPentagonMarker(latlng, newcolor) {
     const zoomLevel = map.getZoom();
-    const size = 8 + zoomLevel * 2;
+    const size = 3 + zoomLevel * 1.5;
 
     const marker = L.marker(latlng, {
         icon: L.divIcon({
@@ -505,7 +507,7 @@ function createHexagonMarker(latlng) {
 
 function createTriangleMarker(latlng, newcolor) {
     const zoomLevel = map.getZoom();
-    const size = 8 + zoomLevel * 2;
+    const size = 3 + zoomLevel * 1.5;
     const half = size / 2;
 
     const marker = L.marker(latlng, {
@@ -535,10 +537,10 @@ function createPlusMarker(latlng) {
     var zoomLevel = map.getZoom();
 
     // Define the size based on the zoom level
-    var iconSize = [8 + zoomLevel * 2, 8 + zoomLevel * 2];  // Adjust the scaling factor as necessary
+    var iconSize = [8 + zoomLevel * 1.5, 8 + zoomLevel * 1.5];  // Adjust the scaling factor as necessary
     // console.log('icon size')
     // console.log(iconSize)
-    var altsize = 8 + zoomLevel * 2
+    var altsize = 3 + zoomLevel * 1.5
     const marker = L.marker(latlng, {
         icon: L.divIcon({
         className: 'custom-marker-icon',
@@ -565,23 +567,25 @@ const defaultStyle = {
 
 var layerStore = {};
 
-function addLayerSafely(layerId, layerObj) {
+function addLayerSafely(layerId, orders) {
     console.log('and here is the layer store')
     console.log(layerStore)
+    console.log(`layer stores orders --> ${orders}`)
+    // console.log(`layer stores objects --> ${layerObj}`)
     if (!layerId.includes('_')) {
         thisone = getmodname(layerId)
     } else {
         thisone = layerId
     };
     if (!layerStore[thisone]) {
-        layerStore[thisone] = layerObj;
+        // layerStore[thisone] = layerObj;
         console.log('has not been created yet')
         if (layerId.includes('_')) {
             console.log("Underscore found - 1");
         } else {
             console.log("No underscore - 1");
         }
-        createPointLayer(thisone)
+        createPointLayer(thisone,orders)
     } else {
         tableJson(layerId)
         console.log("Layer already created:", layerId);
@@ -591,7 +595,7 @@ function addLayerSafely(layerId, layerObj) {
 
 const mapLayers = [];
 
-function createPointLayer(ptlay) {
+function createPointLayer(ptlay,orders) {
     
     if (ptlay.includes('_')) {
         console.log("Underscore found - 2");
@@ -692,9 +696,10 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
+
                 mapLayers.push(points_compressorstations);
-                if (!map.hasLayer(points_compressorstations)) {
+                if (!map.hasLayer(points_compressorstations) && orders != 'just the table') {
                     map.addLayer(points_compressorstations);
                 }
             } else if (ptlay === 'Bordercrossing_Electric') {
@@ -779,9 +784,9 @@ function createPointLayer(ptlay) {
 
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_bordercrossing_electric);
-                if (!map.hasLayer(points_eia_bordercrossing_electric)) {
+                if (!map.hasLayer(points_eia_bordercrossing_electric) && orders != 'just the table') {
                     console.log('needed to add the layer')
                     map.addLayer(points_eia_bordercrossing_electric);
                 };
@@ -873,7 +878,11 @@ function createPointLayer(ptlay) {
                     console.log('needed to add the layer')
                     // map.addLayer(points_eia_electric_generator);
                 }
-
+                // mapLayers.push(points_eia_bordercrossing_liquids);
+                // if (!map.hasLayer(points_eia_bordercrossing_liquids) && orders != 'just the table') {
+                //     console.log('needed to add the layer')
+                //     map.addLayer(points_eia_bordercrossing_liquids);
+                // };
                 
             } else if (ptlay === 'Bordercrossing_Liquids') {
                 // Example point style
@@ -957,9 +966,9 @@ function createPointLayer(ptlay) {
 
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_bordercrossing_liquids);
-                if (!map.hasLayer(points_eia_bordercrossing_liquids)) {
+                if (!map.hasLayer(points_eia_bordercrossing_liquids) && orders != 'just the table') {
                     console.log('needed to add the layer')
                     map.addLayer(points_eia_bordercrossing_liquids);
                 };
@@ -1049,9 +1058,12 @@ function createPointLayer(ptlay) {
 
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_bordercrossing_naturalgas);
-
+                if (!map.hasLayer(points_eia_bordercrossing_naturalgas) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_bordercrossing_naturalgas);
+                };
             } else if (ptlay === 'Markethubs_hgl') {
                 // Example point style
                 newcolor = '0287D4'
@@ -1128,9 +1140,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_markethub_hgl);
-
+                if (!map.hasLayer(points_eia_markethub_hgl) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_markethub_hgl);
+                };
             } else if (ptlay === 'Markethubs_Naturalgas') {
                 // Example point style
                 newcolor = '00253B'
@@ -1144,11 +1159,11 @@ function createPointLayer(ptlay) {
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2)  rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1)  rotate(45deg)';
                               });
                         
                             return marker;
@@ -1208,9 +1223,12 @@ function createPointLayer(ptlay) {
 
                      }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_markethub_naturalgas);
-
+                if (!map.hasLayer(points_eia_markethub_naturalgas) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_markethub_naturalgas);
+                };
             } else if (ptlay === 'Ports_Petroleum') {
                 // Example point style
                 newcolor = 'A3CF5F'
@@ -1224,11 +1242,11 @@ function createPointLayer(ptlay) {
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2)  rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1)  rotate(45deg)';
                               });
                         
                             return marker;
@@ -1290,9 +1308,12 @@ function createPointLayer(ptlay) {
 
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_ports_petroleum);
-
+                if (!map.hasLayer(points_eia_ports_petroleum) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_ports_petroleum);
+                };
             } else if (ptlay === 'Powerplants_Batterystorage') {
                 // Example point style
                 newcolor = '00253B'
@@ -1307,11 +1328,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'plus-marker';                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1368,9 +1389,12 @@ function createPointLayer(ptlay) {
                       );
                     }
                     
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_powerplants_batterystorage);
-
+                if (!map.hasLayer(points_eia_powerplants_batterystorage) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_powerplants_batterystorage);
+                };
             } else if (ptlay === 'Plants_Biodiesel') {
                 // Example point style
                 newcolor = '00253B'
@@ -1385,11 +1409,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'pentagon-marker';   
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1446,9 +1470,12 @@ function createPointLayer(ptlay) {
                       );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_biodiesel);
-
+                if (!map.hasLayer(points_eia_plants_biodiesel) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_biodiesel);
+                };
             } else if (ptlay === 'Plants_Ethanol') {
                 // Example point style
                 newcolor = '0287D4'
@@ -1463,11 +1490,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'pentagon-marker';                          
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1524,9 +1551,12 @@ function createPointLayer(ptlay) {
                       );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_ethanol);
-
+                if (!map.hasLayer(points_eia_plants_ethanol) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_ethanol);
+                };
             } else if (ptlay === 'Plants_Ethylene_Cracker') {
                 // Example point style
                 newcolor = 'A3CF5F'
@@ -1541,11 +1571,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'pentagon-marker';                          
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1602,9 +1632,12 @@ function createPointLayer(ptlay) {
                       );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_ethylene_cracker);
-
+                if (!map.hasLayer(points_eia_plants_ethylene_cracker) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_ethylene_cracker);
+                };
             } else if (ptlay === 'Plants_Coal') {
                 // Example point style
                 newcolor='000000'
@@ -1619,11 +1652,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'plus-marker';                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1680,9 +1713,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_coal);
-
+                if (!map.hasLayer(points_eia_plants_coal) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_coal);
+                };
             } else if (ptlay === 'Plants_Geothermal') {
                 // Example point style
                 newcolor='5d792f'
@@ -1697,11 +1733,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'plus-marker';                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1758,9 +1794,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_geothermal);
-
+                if (!map.hasLayer(points_eia_plants_geothermal) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_geothermal);
+                };
             } else if (ptlay === 'Plants_Hydroelectric') {
                 // Example point style
                 newcolor='0287D4'
@@ -1776,11 +1815,11 @@ function createPointLayer(ptlay) {
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1837,9 +1876,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_hydroelectric);
-
+                if (!map.hasLayer(points_eia_plants_hydroelectric) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_hydroelectric);
+                };
             } else if (ptlay === 'Plants_Hydropumped') {
                 // Example point style
                 newcolor='A3CF5F'
@@ -1854,11 +1896,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'plus-marker';                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1915,9 +1957,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_hydropumped);
-
+                if (!map.hasLayer(points_eia_plants_hydropumped) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_hydropumped);
+                };
             } else if (ptlay === 'Plants_Naturalgas') {
                 // Example point style
                 newcolor = 'de541e'
@@ -1933,11 +1978,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'plus-marker';                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -1994,9 +2039,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_power_naturalgas);
-
+                if (!map.hasLayer(points_eia_plants_power_naturalgas) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_power_naturalgas);
+                };
             } else if (ptlay === 'Plants_Nuclear') {
                 // Example point style
                 newcolor='FFC857'
@@ -2012,11 +2060,11 @@ function createPointLayer(ptlay) {
 
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -2073,9 +2121,12 @@ function createPointLayer(ptlay) {
                         );
                     }
                     
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_nuclear);
-
+                if (!map.hasLayer(points_eia_plants_nuclear) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_nuclear);
+                };
             } else if (ptlay === 'Plants_Petroleum') {
                 // Example point style
                 newcolor='ff0000'
@@ -2090,11 +2141,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'plus-marker';                           
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.plus-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -2151,9 +2202,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_petroleum);
-
+                if (!map.hasLayer(points_eia_plants_petroleum) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_petroleum);
+                };
             } else if (ptlay === 'Plants_Processing_Naturalgas') {
                 // Example point style
                 newcolor = 'de541e'
@@ -2168,11 +2222,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'pentagon-marker';                          
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -2229,9 +2283,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_processing_naturalgas);
-
+                if (!map.hasLayer(points_eia_plants_processing_naturalgas) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_processing_naturalgas);
+                };
             } else if (ptlay === 'Plants_Refinery_Petroleum') {
                 // Example point style
                 newcolor = '000000'
@@ -2246,11 +2303,11 @@ function createPointLayer(ptlay) {
                             marker.options.markerClass = 'pentagon-marker';                          
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2) ';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.pentagon-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) ';
                               });
                         
                             return marker;
@@ -2307,9 +2364,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_plants_refinery_petroleum);
-
+                if (!map.hasLayer(points_eia_plants_refinery_petroleum) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_plants_refinery_petroleum);
+                };
             } else if (ptlay === 'Reserve_Petroleum') {
                 // Example point style
                 newcolor = '5d792f'
@@ -2323,11 +2383,11 @@ function createPointLayer(ptlay) {
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2)  rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1)  rotate(45deg)';
                               });
                         
                             return marker;
@@ -2384,9 +2444,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_reserve_petroleum);
-
+                if (!map.hasLayer(points_eia_reserve_petroleum) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_reserve_petroleum);
+                };
             } else if (ptlay === 'Storage_Naturalgas') {
                 // Example point style
                 newcolor='de541e'
@@ -2400,11 +2463,11 @@ function createPointLayer(ptlay) {
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2)  rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1) rotate(45deg) ';
                               });
                         
                             return marker;
@@ -2461,9 +2524,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_storage_naturalgas);
-
+                if (!map.hasLayer(points_eia_storage_naturalgas) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_storage_naturalgas);
+                };
             } else if (ptlay === 'Terminal_Crudeoil') {
                 // Example point style
                 newcolor='000000'
@@ -2477,11 +2543,11 @@ function createPointLayer(ptlay) {
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2)  rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1)  rotate(45deg)';
                               });
                         
                             return marker;
@@ -2538,9 +2604,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_terminal_crudeoil);
-
+                if (!map.hasLayer(points_eia_terminal_crudeoil) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_terminal_crudeoil);
+                };
             } else if (ptlay === 'Terminal_Lng') {
                 // Example point style
                 newcolor='FFC857'
@@ -2554,11 +2623,11 @@ function createPointLayer(ptlay) {
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2)  rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1)  rotate(45deg)';
                               });
                         
                             return marker;
@@ -2615,9 +2684,12 @@ function createPointLayer(ptlay) {
                         );
                     }
             
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_terminal_lng);
-
+                if (!map.hasLayer(points_eia_terminal_lng) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_terminal_lng);
+                };
             } else if (ptlay === 'Terminal_Petroleum') {
                 // Example point style
                 newcolor = 'ff0000'
@@ -2631,11 +2703,11 @@ function createPointLayer(ptlay) {
                         
                             marker.on('mouseover', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(2) rotate(45deg)';
+                                el.style.transform = 'scale(2)  rotate(45deg)';
                               });
                               marker.on('mouseout', () => {
                                 const el = marker.getElement().querySelector('.diamond-marker');
-                                el.style.transform = 'scale(1) rotate(45deg)';
+                                el.style.transform = 'scale(1)  rotate(45deg)';
                               });
                         
                             return marker;
@@ -2692,9 +2764,12 @@ function createPointLayer(ptlay) {
                         );
                     }
                     
-                }).addTo(map);
+                });
                 mapLayers.push(points_eia_terminal_petroleum);
-
+                if (!map.hasLayer(points_eia_terminal_petroleum) && orders != 'just the table') {
+                    console.log('needed to add the layer')
+                    map.addLayer(points_eia_terminal_petroleum);
+                };
             }
             ;
             createTable(d);
@@ -2705,7 +2780,7 @@ function createPointLayer(ptlay) {
 
 map.on('zoom', function () {
     const zoom = map.getZoom();
-    const size = 8 + zoom * 2;
+    const size = 3 + zoom * 1.5;
     const half = size / 2;
 
     mapLayers.forEach(layer => {
@@ -2736,7 +2811,6 @@ map.on('zoom', function () {
                         width: ${size}px;
                         height: ${size}px;
                         background: #${color};
-                        transform: rotate(45deg);
                     "></div>`;
                 iconAnchor = [half, half]; // center
 
@@ -3470,17 +3544,24 @@ function downloadTableData(thetabledata) {
     document.body.removeChild(link);
 }
 
-
+var setuplegend = 'y'
 // Toggle legend content
 document.getElementById('legend-toggle').addEventListener('click', function() {
     var content = document.querySelector('.legend-content');
     var icon = document.getElementById('legend-toggle');
+    if ( setuplegend === 'y') {
+        content.style.display = 'none';
+        setuplegend = 'n';
 
-    if (content.style.display === 'none' || content.style.display === '') {
+        console.log('middle hit')
+        document.getElementById('legend_arrow').innerText = '';
+    } else if (content.style.display === 'none' || content.style.display === '' ) {
+        console.log(`first hit ${setuplegend}`)
         content.style.display = 'block';
         document.getElementById('legend_arrow').innerText = 'x';
-    } else {
+    } else  {
         content.style.display = 'none';
+        console.log('bottom hit')
         document.getElementById('legend_arrow').innerText = '';
     }
 });
@@ -3650,13 +3731,15 @@ function toggleselection(c,v) {
     
     if (document.getElementById('addtomap').checked) {
         document.getElementById(toggleit).checked = true;
-        applyCategoryFilter(v)
+        applyCategoryFilter('add it')
+    } else {
+        applyCategoryFilter('just the table')
     }
 
     console.log(`the button part ${v}`)
     console.log(`the button part ${toggleit}`)
     
-    // applyCategoryFilter()
+    
     getcolumns(v)
     
 }
@@ -4152,6 +4235,12 @@ function refinefilter() {
 
     console.log('adding filtered points');
 
+    if (filteredPoints && map.hasLayer(filteredPoints)) {
+        console.log('need to get it out of there');
+        map.removeLayer(filteredPoints);
+    } else {
+        console.log('already clear or layer is undefined');
+    }
     filteredPoints = L.geoJSON(refinedsrch, {
         pointToLayer: function (feature, latlng) {
             // Create a div icon that looks like a red-outlined square
@@ -4171,7 +4260,8 @@ function refinefilter() {
 function clearFilter() {
     updateTable(tabledata)
     document.getElementById('srch-input1').value = '';
-
+    document.getElementById('sort-field2').value = '';
+    console.log('----> hit that clear button!!')
     map.removeLayer(filteredPoints)
 }
 
@@ -4714,11 +4804,11 @@ document.getElementById('eia_terminal_crudeoil').addEventListener('change', func
     if (this.checked) {
         if (!points_eia_terminal_crudeoil) {
             createPointLayer('Terminal_Crudeoil')
-            document.getElementById('tabledataset').innerHTML = 'Terminals: Crude Oil'
+            document.getElementById('tabledataset').innerHTML = 'Terminal: Crude Oil'
         } else {
             points_eia_terminal_crudeoil.addTo(map);
         }
-        toggleselection('state','Terminals: Crude Oil')
+        toggleselection('state','Terminal: Crude Oil')
 
     } else if (points_eia_terminal_crudeoil) {
         map.removeLayer(points_eia_terminal_crudeoil);
@@ -4730,11 +4820,11 @@ document.getElementById('eia_terminal_lng').addEventListener('change', function(
     if (this.checked) {
         if (!points_eia_terminal_lng) {
             createPointLayer('Terminal_Lng')
-            document.getElementById('tabledataset').innerHTML = 'Terminals: LNG'
+            document.getElementById('tabledataset').innerHTML = 'Terminal: LNG'
         } else {
             points_eia_terminal_lng.addTo(map);
         }
-        toggleselection('state','Terminals: LNG')
+        toggleselection('state','Terminal: LNG')
 
     } else if (points_eia_terminal_lng) {
         map.removeLayer(points_eia_terminal_lng);
@@ -4746,7 +4836,7 @@ document.getElementById('eia_terminal_petroleum').addEventListener('change', fun
     if (this.checked) {
         if (!points_eia_terminal_petroleum) {
             createPointLayer('Terminal_Petroleum')
-            document.getElementById('tabledataset').innerHTML = 'Terminals: Petroleum'
+            document.getElementById('tabledataset').innerHTML = 'Terminal: Petroleum'
         } else {
             points_eia_terminal_petroleum.addTo(map);
         }
