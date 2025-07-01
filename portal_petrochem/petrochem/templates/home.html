@@ -671,6 +671,7 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.1s ease;
+            z-index: 50000000;
           }
           input::placeholder {
             color: #999; /* lighter gray */
@@ -917,7 +918,7 @@
                                 </select>
                                 {% comment %} <div style="display:grid;grid-template-columns:84% 16%;width:100%"> {% endcomment %}
                                 <div>
-                                    <div class="tool2tip-target" style="text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input1" placeholder="Refine by keyword..." style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
+                                    <div class="tool2tip-target" style="z-index:50000;text-align:center;border:none;height:25px;background-color:#0287D4;border-radius:4px"><input id="srch-input1" placeholder="Refine by keyword..." style="text-indent:5px;border:none;border-radius:4px;height:25px;width:100%"></input></div>
                                     {% comment %} <input style="width:120px;text-align: right;" type="number" id="sort-input" placeholder="Jump to page #" min="1"> {% endcomment %}
                                     {% comment %} <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div> {% endcomment %}
                                 </div>    
@@ -964,7 +965,7 @@
                         <div class="legend-scrollable">
                             <div class="legend-content">
                                 <div id="custom-tooltip" class="tooltip">Coming Soon!</div>
-                                <div id="custom-tool2tip" class="tool2tip">Try using and astrisk (*) as a wildcard. </div>
+                                <div id="custom-tool2tip" class="tool2tip">Try using &nbsp;&nbsp;*<br> as a wildcard.</div>
 
                                 <p style="margin-bottom:5px;margin-top:10px"><strong>Market Hubs, Ports, Terminals</strong></p>
                                 <div class="legenditem " id="legenditemid_35"><label class="category1 " id="legenditemid_45"><span class="legend-diamond" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_hgl" class="legenditemchk"  unchecked> HGL (Market Hub)</label></div>

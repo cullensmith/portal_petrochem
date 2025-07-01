@@ -59,7 +59,7 @@ const tool2tipTargets = document.querySelectorAll('.tool2tip-target');
 // Loop through all matching elements
 tool2tipTargets.forEach(target => {
     target.addEventListener('mousemove', (e) => {
-        tool2tip.textContent = target.getAttribute('data-tool2tip') || "Try using an astrisk (*) as a wildcard.";
+        tool2tip.innerHTML = target.getAttribute('data-tool2tip') || "Try using &nbsp;&nbsp;*<br> as a wildcard.";
         tool2tip.style.left = e.clientX + 10 + 'px';
         tool2tip.style.top = e.clientY + 10 + 'px';
         tool2tip.style.opacity = 1;
