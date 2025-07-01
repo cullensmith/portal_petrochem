@@ -4052,7 +4052,7 @@ function getcolumns(ptlay) {
 
             // Optional: Add a placeholder/default option
             const placeholder = document.createElement("option");
-            placeholder.value = " ";
+            placeholder.value = "";
             placeholder.textContent = "Select";
             placeholder.style.color = "#8a8a8a";
             dropdown.appendChild(placeholder);
