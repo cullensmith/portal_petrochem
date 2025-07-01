@@ -228,7 +228,7 @@
 
         .selectionContainer {
             background-color: #02253a;
-            color:rgb(104, 104, 104);
+            color: #a3cf5f;
             max-height: 33vh;
             padding: 0px;
             border-radius: 5px;
@@ -278,7 +278,7 @@
             border-image: initial; 
         }
         .filterbutton:hover {
-            background-color: rgb(179, 179, 179);
+            background-color: #a3cf5f;
             cursor: pointer;
         }
         .highlightbutton {
@@ -315,7 +315,11 @@
             {% comment %} border-radius: 5px; {% endcomment %}
             width: 100%;
             border-color: #a3cf5f;
-            padding: 2px;
+            padding: 6px;
+            {% comment %} display: inline-flex; {% endcomment %}
+            align-items: center;
+            {% comment %} justify-content: space-between; {% endcomment %}
+            gap: 10px; /* space between text and arrow */
         }
         .dropdownbutton.notyet:hover {
             cursor: not-allowed;
@@ -416,10 +420,16 @@
             display: none;
             width: 100%;
         } 
-        .dropdownbutton::after {
-            content: '   \142F'; /* Down arrow Unicode */
-            font-size: 7px; /* Space between text and the arrow */
-        }
+        {% comment %} .dropdownbutton::after {
+            transform: rotate(45deg);
+            content: '\2BFE'; /* Down arrow Unicode */
+            font-size: 16px;       /* Increase size */
+            font-weight: bold;     /* Make bold */
+            position: relative;
+            top: -4px; /* Move arrow up */
+            margin-right:10px;
+            margin-left:10px;
+        } {% endcomment %}
         .refine {
             display:block
         }
@@ -555,8 +565,8 @@
           }
         .legend-diamond {
             display: inline-block;
-            width: 8px;
-            height: 8px;
+            width: 7px;
+            height: 7px;
             background: purple;
             transform: rotate(45deg);
             transition: transform 0.2s ease;
@@ -699,19 +709,116 @@
         .legend-content {
             padding: 10px;
         }
-        {% comment %} .leaflet-control-layers leaflet-control-layers-expanded leaflet-control" {% endcomment %}
+
+        #sort-field2 {
+            background-color: #a3cf5f;  /* green "button" */
+            color: #02253a;
+            border: 1px solid #a3cf5f;
+            padding: 5px;
+            appearance: none; /* removes default OS style in most browsers */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+          }
+        
+          /* Style the dropdown options */
+          #sort-field2 option {
+            background-color: white;  
+            color: #000000;
+
+          }
+          .splash-modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0,0,0,0.6);
+          }
+        
+          .splash-content {
+            width: 80vw;
+            height: 80vh;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* center both horizontally and vertically */
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            font-family: 'Archivo Black', sans-serif;
+            color: #02253a;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* keeps top content and bottom tabs spaced out */
+          }
+        
+          .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+          }
+        
+          .close-button:hover {
+            color: #000;
+          }
+        
+          .tab-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+          }
+        
+          .tab-buttons button {
+            flex: 1;
+            margin: 0 5px;
+            background-color: #02253a;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Archivo Black', sans-serif;
+          }
+        
+          .tab-buttons button:hover {
+            background-color: #035;
+          }
+        
+          .tab-content {
+            min-height: 150px;
+          }
     </style>
 </head>
 <body>
     <div class="container" >
-        <header>
-            <div>
-                <img class="header-image" style="font-family:Archivo Black;margin-top:10px;height: 80px;width:90px;position: absolute; left: 10px;z-index: 5100;" src="/static/images/dataportallogo.png">
-                <h1 style="font-family:Archivo Black;margin-top:4px;color:#02253a;line-height:1;font-size:45px">Petrochemical<br>Data Portal</h1>
+        <header style="display: flex; justify-content: space-between; margin-left: -10px; padding: 10px 20px;">
+            <div style="display: flex; align-items: center;">
+                <img class="header-image" style="font-family:Archivo Black; margin-top:10px; height:80px; width:90px; position: relative; z-index: 5100;" src="/static/images/dataportallogo.png">
+                <h1 style="font-family:Archivo Black; margin-top:4px; margin-left: 20px; color:#02253a; line-height:1; font-size:45px;">
+                    Petrochemical<br>Data Portal
+                </h1>
             </div>
-            {% comment %} <div style="justify-self:center">
-                <h4 style="color:#0287D4;font-weight:normal">Refreshed June 30, 2025<h4>
-            </div> {% endcomment %}
+        
+            <div style="display: flex; gap: 10px;margin: 16px 10px">
+                <button {% comment %} onclick="openSplash()"  {% endcomment %}
+                        style="font-family: 'Archivo Black'; background-color: #02253a; color: white; border: none; padding: 10px 22px; border-radius: 5px; cursor: pointer;">
+                    About&nbsp;&nbsp;❯
+                </button>
+                <a href="https://www.fractracker.org/data/" target="_blank" style="text-decoration: none;">
+                    <button style="font-family: 'Archivo Black'; background-color: #ffc857; color: #02253a; border: none; padding: 16px 22px; border-radius: 5px; cursor: pointer;">
+                      More Data&nbsp;&nbsp;❯
+                    </button>
+                </a>
+            </div>
         </header>
 
         <div class="main-content">
@@ -772,8 +879,8 @@
                                 <div class="filter-content states-content show" id="filterState" style="background-color:#02253a">
                                     {% comment %} <label for="stateinputbox" style="display:block;padding-bottom: 5px;"></label> {% endcomment %}
                                     <div class="selectionContainer" style="display:none;justify-content:center" id="datasetSelection"></div>
-                                    <button class="dropdownbutton" id="statebutton" style="border-radius:6px" onclick="openlist('state')">Select<br></button>
-                                    <div class="button-container" id="state-container"></div>
+                                    <button class="dropdownbutton" id="statebutton" style="border-radius:6px;align-content:center" onclick="openlist('state')">Select</button>
+                                    <div class="button-container" id="state-container" style="border-top-left-radius:10px;border-top-right-radius:10px;border-top-left-radius:10px;border:4px solid #a3cf5f"></div>
                                     <div style="display: flex; align-items: center; justify-content: flex-start; gap: 8px; margin-top: 5px;">
                                         <input type="checkbox" id="addtomap" style="transform: scale(1.04);accent-color:#ffc857;">
                                         <label for="addtomap" style="color:white; position: relative; top: 2px;left:-6px">Add to the map</label>
@@ -847,7 +954,7 @@
                                 <p style="margin-bottom:5px;margin-top:10px"><strong>Market Hubs, Ports, Terminals</strong></p>
                                 <div class="legenditem " id="legenditemid_35"><label class="category1 " id="legenditemid_45"><span class="legend-diamond" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_hgl" class="legenditemchk"  unchecked> HGL (Market Hub)</label></div>
                                 <div class="legenditem " id="legenditemid_36"><label class="category1 " id="legenditemid_46"><span class="legend-diamond" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_naturalgas" class="legenditemchk"  unchecked> Natural Gas (Market Hub)</label></div>
-                                <div class="legenditem " id="legenditemid_55"><label class="category1 " id="legenditemid_65"><span class="legend-diamond" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_ports_petroleum" class="legenditemchk"  unchecked> Petroleum (Port)</label></div>
+                                <div class="legenditem " id="legenditemid_55"><label class="category1 " id="legenditemid_65"><span class="legend-diamond" style="background: #e052e2; margin-right:5px;"></span><input type="checkbox" id="eia_ports_petroleum" class="legenditemchk"  unchecked> Petroleum (Port)</label></div>
                                 <div class="legenditem " id="legenditemid_56"><label class="category1 " id="legenditemid_66"><span class="legend-diamond" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_reserve_petroleum" class=""  unchecked> Petroleum (Reserve)</label></div>
                                 <div class="legenditem " id="legenditemid_57"><label class="category1 " id="legenditemid_67"><span class="legend-diamond" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_storage_naturalgas" class=""  unchecked> Natural Gas (Underground Storage)</label></div>
                                 <div class="legenditem " id="legenditemid_58"><label class="category1 " id="legenditemid_68"><span class="legend-diamond" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_crudeoil" class=""  unchecked> Crude Oil (Terminal)</label></div>
@@ -858,7 +965,7 @@
                                 <p style="margin-bottom:5px"><strong>Plants</strong></p>
                                 <div class="legenditem " id="legenditemid_38"><label class="category1 " id="legenditemid_48"><span class="legend-pentagon" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_plants_biodiesel" class="legenditemchk"  unchecked> Biodiesel</label></div>
                                 <div class="legenditem " id="legenditemid_39"><label class="category1 " id="legenditemid_49"><span class="legend-pentagon" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethanol" class="legenditemchk"  unchecked> Ethanol</label></div>
-                                <div class="legenditem " id="legenditemid_50"><label class="category1 " id="legenditemid_60"><span class="legend-pentagon" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethylene_cracker" class="legenditemchk"  unchecked> Ethylene Cracker</label></div>
+                                <div class="legenditem " id="legenditemid_50"><label class="category1 " id="legenditemid_60"><span class="legend-pentagon" style="background: #e052e2; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethylene_cracker" class="legenditemchk"  unchecked> Ethylene Cracker</label></div>
                                 <div class="legenditem " id="legenditemid_75"><label class="category1 " id="legenditemid_85"><span class="legend-pentagon" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_plants_processing_naturalgas" class=""  unchecked> Natural Gas (Processing)</label></div>
                                 <div class="legenditem " id="legenditemid_76"><label class="category1 " id="legenditemid_86"><span class="legend-pentagon" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_refinery_petroleum" class=""  unchecked> Petroleum (Refinery)</label></div>
                                 <p style="margin-bottom:5px"><strong>Power Plants</strong></p>
@@ -867,7 +974,7 @@
                                 <div class="legenditem " id="legenditemid_52"><label class="category1 " id="legenditemid_62"><span class="legend-plus" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_coal" class="legenditemchk"  unchecked> Coal</label></div>
                                 <div class="legenditem " id="legenditemid_53"><label class="category1 " id="legenditemid_63"><span class="legend-plus" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_plants_geothermal" class="legenditemchk"  unchecked> Geothermal</label></div>
                                 <div class="legenditem " id="legenditemid_54"><label class="category1 " id="legenditemid_64"><span class="legend-plus" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydroelectric" class="legenditemchk"  unchecked> Hydroelectric</label></div>
-                                <div class="legenditem " id="legenditemid_71"><label class="category1 " id="legenditemid_81"><span class="legend-plus" style="background: #A3CF5F; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydropumped" class="legenditemchk"  unchecked> Hydro Pumped Storage</label></div>
+                                <div class="legenditem " id="legenditemid_71"><label class="category1 " id="legenditemid_81"><span class="legend-plus" style="background: #e052e2; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydropumped" class="legenditemchk"  unchecked> Hydro Pumped Storage</label></div>
                                 <div class="legenditem " id="legenditemid_72"><label class="category1 " id="legenditemid_82"><span class="legend-plus" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_plants_power_naturalgas" class="legenditemchk"  unchecked> Natural Gas</label></div>
                                 <div class="legenditem " id="legenditemid_73"><label class="category1 " id="legenditemid_83"><span class="legend-plus" style="background: #FFC857; margin-right:5px;"></span><input type="checkbox" id="eia_plants_nuclear" class="legenditemchk"  unchecked> Nuclear</label></div>
                                 <div class="legenditem " id="legenditemid_74"><label class="category1 " id="legenditemid_84"><span class="legend-plus" style="background: #ff0000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_petroleum" class=""  unchecked> Petroleum</label></div>
@@ -887,7 +994,7 @@
                                 <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#00253B;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_crudeoil" class=""  unchecked> Crude Oil</label></div>
                                 <div class="legenditem " id="legenditemid_13"><label class="category1 " id="legenditemid_23"><span style ="color:#0287D4;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_hgl" class=""  unchecked> HGL</label></div>
                                 <div class="legenditem " id="legenditemid_14"><label class="category1 " id="legenditemid_24"><span style ="color:#de541e;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_naturalgas" class=""  unchecked> Natural Gas</label></div>
-                                <div class="legenditem " id="legenditemid_15"><label class="category1 " id="legenditemid_25"><span style ="color:#A3CF5F;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_petroleum" class=""  unchecked> Petroleum</label></div>
+                                <div class="legenditem " id="legenditemid_15"><label class="category1 " id="legenditemid_25"><span style ="color:#e052e2;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_petroleum" class=""  unchecked> Petroleum</label></div>
                                 {% comment %} <div class="legenditem " id="legenditemid17"><label class="category1 dim" id="legenditemid27"><input type="checkbox" id="countylayer" class="dim"  unchecked> County Borders</label></div>
                                 <div class="legenditem " id="legenditemid18"><label class="category1 dim" id="legenditemid28"><input type="checkbox" id="countycount" class="dim"  unchecked> County Counts</label></div>
                                 <div class="legenditem " id="legenditemid19"><label class="category1 dim" id="legenditemid29"><input type="checkbox" id="countychoropleth" class="dim"  unchecked> County Choropleth</label></div> {% endcomment %}
@@ -949,6 +1056,25 @@
             </div>
         </div>
     </div>
+    <!-- Splash Modal -->
+    <div id="splashScreen" class="splash-modal">
+        <div class="splash-content">
+        <span class="close-button" onclick="closeSplash()">&times;</span>
+    
+        <!-- Main Content Area (changes when tabs are clicked) -->
+        <div id="tabContent" class="tab-content">
+            <h2>Welcome</h2>
+            <p>This is the default content shown in the modal.</p>
+        </div>
+    
+        <!-- Tab Buttons -->
+        <div class="tab-buttons">
+            <button onclick="showTab('tab1')">Splash Screen</button>
+            <button onclick="showTab('tab2')">Quick Guide</button>
+            <button onclick="showTab('tab3')">Details</button>
+        </div>
+        </div>
+    </div>
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
     <script>
@@ -991,6 +1117,42 @@
 
 
         }
+        function openSplash() {
+            document.getElementById("splashScreen").style.display = "block";
+            showTab('tab1'); // Show default tab content
+          }
+        
+          function closeSplash() {
+            document.getElementById("splashScreen").style.display = "none";
+          }
+        
+          function showTab(tabId) {
+            const content = {
+              tab1: {
+                title: 'Overview',
+                text: 'This application provides key insights into petrochemical data across various regions and layers.'
+              },
+              tab2: {
+                title: 'Data Sources',
+                text: 'We use data from verified sources including public APIs, satellite imagery, and field surveys.'
+              },
+              tab3: {
+                title: 'Contact',
+                text: 'For questions, please contact us at info@example.com or visit our support page.'
+              }
+            };
+        
+            const tabContent = document.getElementById("tabContent");
+            tabContent.innerHTML = `<h2>${content[tabId].title}</h2><p>${content[tabId].text}</p>`;
+          }
+        
+          // Optional: Close if user clicks outside modal
+          window.onclick = function(event) {
+            const splash = document.getElementById("splashScreen");
+            if (event.target === splash) {
+              splash.style.display = "none";
+            }
+          }
     </script>
 </body>
 </html>

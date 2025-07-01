@@ -343,14 +343,14 @@ map.on('zoomend', function () {
 
 
 function tableJson(i) {
-    console.log('tableJson: '+i)
+    // console.log('tableJson: '+i)
     const grab = getmodname(i)
-    console.log('tableJson activated')
+    // console.log('tableJson activated')
 
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
-            console.log('table data out')
+            // console.log('table data out')
             tabledata=JSON.parse(data)
             // console.log(tabledata)
             createTable(tabledata); 
@@ -361,27 +361,27 @@ function tableJson(i) {
 function applyCategoryFilter(orders) {
     // Fetch GeoJSON data from the server
     var dataLayer = getSelValues('datasetSelection').replace(",,,","");  // Assuming this returns a comma-delimited string
-    console.log('dataLayer: '+dataLayer)
+    // console.log('dataLayer: '+dataLayer)
     modname = getmodname(dataLayer)
-    console.log('display name: '+modname)
+    // console.log('display name: '+modname)
     mapLayer = getmaplayer(modname)
-    // console.log('map layer: '+maplayer)
+    // // console.log('map layer: '+maplayer)
     legendItem = getlegenditem(modname)
-    console.log('legend item: '+legendItem)
+    // console.log('legend item: '+legendItem)
 
     if (!mapLayer) {
-        console.log('checking on adding the layer')
-        console.log(`should we add this thing --> ${orders}`)
+        // console.log('checking on adding the layer')
+        // console.log(`should we add this thing --> ${orders}`)
         addLayerSafely(dataLayer, orders);
     } else {
-        console.log('already exists - adding')
+        // console.log('already exists - adding')
         if (orders === 'add it') {
             mapLayer.addTo(map);
             document.getElementById(legendItem).checked = true;
-            console.log('table json')
+            // console.log('table json')
         } 
         tableJson(dataLayer)
-        console.log('table json added')
+        // console.log('table json added')
     };
     document.getElementById('tabledataset').innerText = dataLayer;
 
@@ -442,7 +442,7 @@ function createUpsideDownTriangleMarker(latlng, newcolor) {
 
 function createDiamondMarker(latlng, newcolor) {
     const zoomLevel = map.getZoom();
-    const size = 3 + zoomLevel * 1.5;
+    const size = 1 + zoomLevel * 1.5;
 
     const marker = L.marker(latlng, {
         icon: L.divIcon({
@@ -538,8 +538,8 @@ function createPlusMarker(latlng) {
 
     // Define the size based on the zoom level
     var iconSize = [8 + zoomLevel * 1.5, 8 + zoomLevel * 1.5];  // Adjust the scaling factor as necessary
-    // console.log('icon size')
-    // console.log(iconSize)
+    // // console.log('icon size')
+    // // console.log(iconSize)
     var altsize = 3 + zoomLevel * 1.5
     const marker = L.marker(latlng, {
         icon: L.divIcon({
@@ -568,10 +568,10 @@ const defaultStyle = {
 var layerStore = {};
 
 function addLayerSafely(layerId, orders) {
-    console.log('and here is the layer store')
-    console.log(layerStore)
-    console.log(`layer stores orders --> ${orders}`)
-    // console.log(`layer stores objects --> ${layerObj}`)
+    // console.log('and here is the layer store')
+    // console.log(layerStore)
+    // console.log(`layer stores orders --> ${orders}`)
+    // // console.log(`layer stores objects --> ${layerObj}`)
     if (!layerId.includes('_')) {
         thisone = getmodname(layerId)
     } else {
@@ -579,49 +579,62 @@ function addLayerSafely(layerId, orders) {
     };
     if (!layerStore[thisone]) {
         // layerStore[thisone] = layerObj;
-        console.log('has not been created yet')
+        // console.log('has not been created yet')
         if (layerId.includes('_')) {
-            console.log("Underscore found - 1");
+            // console.log("Underscore found - 1");
         } else {
-            console.log("No underscore - 1");
+            // console.log("No underscore - 1");
         }
         createPointLayer(thisone,orders)
     } else {
         tableJson(layerId)
-        console.log("Layer already created:", layerId);
+        // console.log("Layer already created:", layerId);
     }
 }
 
-
+function hidedemos() {
+    // console.log('hide the demos')
+    document.getElementById("filterbtn").classList.remove("sel")
+    document.getElementById("resultsbtn").classList.add("sel")
+    document.getElementById("resultspanel").classList.remove("hide")
+    document.getElementById("filterpanel").classList.add("hide")
+}
+function showdemos() {
+    // console.log('show the demos')
+    document.getElementById("filterbtn").classList.add("sel")
+    document.getElementById("resultsbtn").classList.remove("sel")
+    document.getElementById("filterpanel").classList.remove("hide")
+    document.getElementById("resultspanel").classList.add("hide")
+}
 const mapLayers = [];
 
 function createPointLayer(ptlay,orders) {
     
     if (ptlay.includes('_')) {
-        console.log("Underscore found - 2");
+        // console.log("Underscore found - 2");
         displayName = getdisplayname(ptlay)
         modname = ptlay
     } else if (ptlay === 'Compressors') {
         modname = ptlay
     } else {
-        console.log("No underscore - 2");
+        // console.log("No underscore - 2");
         displayname = ptlay
         modname = getmodname(ptlay)
     }
-    console.log('ptlay: '+ptlay)
+    // console.log('ptlay: '+ptlay)
     
     displayname = ptlay
     layerStore[ptlay] = getmaplayername(modname);
-    console.log(`create the ${ptlay} layer`)
+    // console.log(`create the ${ptlay} layer`)
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(modname)}`)
         .then(response1 => response1.json())
         .then(data1 => {
-            console.log('got the data')
+            // console.log('got the data')
             d=JSON.parse(data1)
-            console.log('right after')
+            // console.log('right after')
             
             if (ptlay === 'Compressors') {
-                console.log('checked compressor stations')
+                // console.log('checked compressor stations')
                 points_compressorstations = L.geoJSON(d, {
                     pointToLayer: function (feature, latlng) {
                         newcolor = 'de541e'
@@ -649,10 +662,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -733,13 +746,14 @@ function createPointLayer(ptlay,orders) {
                             mouseover: highlightStyle,
                             mouseout: defaultStyle
                         });
+
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -779,15 +793,22 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: black; font-weight: bold;">Longitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span><br><br>` +
+                            `<button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
 
                     }
             
                 });
                 mapLayers.push(points_eia_bordercrossing_electric);
                 if (!map.hasLayer(points_eia_bordercrossing_electric) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_bordercrossing_electric);
                 };
 
@@ -825,10 +846,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -868,19 +889,23 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: black; font-weight: bold;">Longitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
-                        );
-
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 if (!map.hasLayer(points_eia_electric_generator)) {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     // map.addLayer(points_eia_electric_generator);
                 }
                 // mapLayers.push(points_eia_bordercrossing_liquids);
                 // if (!map.hasLayer(points_eia_bordercrossing_liquids) && orders != 'just the table') {
-                //     console.log('needed to add the layer')
+                //     // console.log('needed to add the layer')
                 //     map.addLayer(points_eia_bordercrossing_liquids);
                 // };
                 
@@ -920,8 +945,8 @@ function createPointLayer(ptlay,orders) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -961,15 +986,21 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: black; font-weight: bold;">Longitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>` 
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
-
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_bordercrossing_liquids);
                 if (!map.hasLayer(points_eia_bordercrossing_liquids) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_bordercrossing_liquids);
                 };
 
@@ -1010,10 +1041,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1054,14 +1085,21 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
 
                     }
             
                 });
                 mapLayers.push(points_eia_bordercrossing_naturalgas);
                 if (!map.hasLayer(points_eia_bordercrossing_naturalgas) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_bordercrossing_naturalgas);
                 };
             } else if (ptlay === 'Markethubs_hgl') {
@@ -1095,10 +1133,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1137,13 +1175,20 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_markethub_hgl);
                 if (!map.hasLayer(points_eia_markethub_hgl) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_markethub_hgl);
                 };
             } else if (ptlay === 'Markethubs_Naturalgas') {
@@ -1177,10 +1222,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1219,19 +1264,25 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
-
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                      }
             
                 });
                 mapLayers.push(points_eia_markethub_naturalgas);
                 if (!map.hasLayer(points_eia_markethub_naturalgas) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_markethub_naturalgas);
                 };
             } else if (ptlay === 'Ports_Petroleum') {
                 // Example point style
-                newcolor = 'A3CF5F'
+                newcolor = 'e052e2'
                 // Add the GeoJSON layer to the map
                 points_eia_ports_petroleum = L.geoJSON(d, {
                         // filter: function (feature) {
@@ -1260,10 +1311,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1304,14 +1355,20 @@ function createPointLayer(ptlay,orders) {
                         `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.x).toFixed(6)}</span><br>` +
                         `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                         `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.y).toFixed(6)}</span>`
-                    );
-
+                        +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                        );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_ports_petroleum);
                 if (!map.hasLayer(points_eia_ports_petroleum) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_ports_petroleum);
                 };
             } else if (ptlay === 'Powerplants_Batterystorage') {
@@ -1346,10 +1403,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1386,13 +1443,19 @@ function createPointLayer(ptlay,orders) {
                           feature.properties.utility_name  + "<br><b>Longitude:</b> " + 
                           parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
                           parseFloat(feature.properties.y).toFixed(6)
-                      );
-                    }
+                          +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                          );
+                          // Event listener for when the popup is closed
+                          layer.on('popupclose', function () {
+                              // Reset the line style to red (default) when popup is closed
+                              document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                              hidedemos()
+                          });                    }
                     
                 });
                 mapLayers.push(points_eia_powerplants_batterystorage);
                 if (!map.hasLayer(points_eia_powerplants_batterystorage) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_powerplants_batterystorage);
                 };
             } else if (ptlay === 'Plants_Biodiesel') {
@@ -1427,10 +1490,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1467,13 +1530,20 @@ function createPointLayer(ptlay,orders) {
                           feature.properties.site  + "<br><b>Longitude:</b> " + 
                           parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
                           parseFloat(feature.properties.y).toFixed(6)
-                      );
+                          +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                          );
+                          // Event listener for when the popup is closed
+                          layer.on('popupclose', function () {
+                              // Reset the line style to red (default) when popup is closed
+                              document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                              hidedemos()
+                          });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_biodiesel);
                 if (!map.hasLayer(points_eia_plants_biodiesel) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_biodiesel);
                 };
             } else if (ptlay === 'Plants_Ethanol') {
@@ -1508,10 +1578,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1548,18 +1618,25 @@ function createPointLayer(ptlay,orders) {
                           feature.properties.site  + "<br><b>Longitude:</b> " + 
                           parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
                           parseFloat(feature.properties.y).toFixed(6)
-                      );
-                    }
+                          +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                          );
+                          // Event listener for when the popup is closed
+                          layer.on('popupclose', function () {
+                              // Reset the line style to red (default) when popup is closed
+                              document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                              hidedemos()
+                          });
+                        }
             
                 });
                 mapLayers.push(points_eia_plants_ethanol);
                 if (!map.hasLayer(points_eia_plants_ethanol) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_ethanol);
                 };
             } else if (ptlay === 'Plants_Ethylene_Cracker') {
                 // Example point style
-                newcolor = 'A3CF5F'
+                newcolor = 'e052e2'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_ethylene_cracker = L.geoJSON(d, {
                         // filter: function (feature) {
@@ -1589,10 +1666,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1629,13 +1706,20 @@ function createPointLayer(ptlay,orders) {
                           feature.properties.site  + "<br><b>Longitude:</b> " + 
                           parseFloat(feature.properties.x).toFixed(6) + "<br><b>Latitude: </b>" +
                           parseFloat(feature.properties.y).toFixed(6)
-                      );
+                          +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                          );
+                          // Event listener for when the popup is closed
+                          layer.on('popupclose', function () {
+                              // Reset the line style to red (default) when popup is closed
+                              document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                              hidedemos()
+                          });                      
                     }
             
                 });
                 mapLayers.push(points_eia_plants_ethylene_cracker);
                 if (!map.hasLayer(points_eia_plants_ethylene_cracker) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_ethylene_cracker);
                 };
             } else if (ptlay === 'Plants_Coal') {
@@ -1670,10 +1754,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1710,13 +1794,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_coal);
                 if (!map.hasLayer(points_eia_plants_coal) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_coal);
                 };
             } else if (ptlay === 'Plants_Geothermal') {
@@ -1751,10 +1842,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1791,13 +1882,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_geothermal);
                 if (!map.hasLayer(points_eia_plants_geothermal) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_geothermal);
                 };
             } else if (ptlay === 'Plants_Hydroelectric') {
@@ -1833,10 +1931,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1873,18 +1971,25 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_hydroelectric);
                 if (!map.hasLayer(points_eia_plants_hydroelectric) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_hydroelectric);
                 };
             } else if (ptlay === 'Plants_Hydropumped') {
                 // Example point style
-                newcolor='A3CF5F'
+                newcolor='e052e2'
                 // Add the GeoJSON layer to the map
                 points_eia_plants_hydropumped = L.geoJSON(d, {
                         // filter: function (feature) {
@@ -1914,10 +2019,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -1954,19 +2059,26 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_hydropumped);
                 if (!map.hasLayer(points_eia_plants_hydropumped) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_hydropumped);
                 };
             } else if (ptlay === 'Plants_Naturalgas') {
                 // Example point style
                 newcolor = 'de541e'
-                console.log('adding the natural gas power plants')
+                // console.log('adding the natural gas power plants')
                 // Add the GeoJSON layer to the map
                 points_eia_plants_power_naturalgas = L.geoJSON(d, {
                         // filter: function (feature) {
@@ -1996,10 +2108,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2036,13 +2148,20 @@ function createPointLayer(ptlay,orders) {
                             feature.properties.utility_name + "<br><b>Longitude:</b> " + 
                             feature.properties.longitude + "<br><b>Latitude: </b>" +
                             feature.properties.latitude
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_power_naturalgas);
                 if (!map.hasLayer(points_eia_plants_power_naturalgas) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_power_naturalgas);
                 };
             } else if (ptlay === 'Plants_Nuclear') {
@@ -2078,10 +2197,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2118,13 +2237,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
                     
                 });
                 mapLayers.push(points_eia_plants_nuclear);
                 if (!map.hasLayer(points_eia_plants_nuclear) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_nuclear);
                 };
             } else if (ptlay === 'Plants_Petroleum') {
@@ -2159,10 +2285,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2199,13 +2325,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_petroleum);
                 if (!map.hasLayer(points_eia_plants_petroleum) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_petroleum);
                 };
             } else if (ptlay === 'Plants_Processing_Naturalgas') {
@@ -2240,10 +2373,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2280,13 +2413,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_processing_naturalgas);
                 if (!map.hasLayer(points_eia_plants_processing_naturalgas) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_processing_naturalgas);
                 };
             } else if (ptlay === 'Plants_Refinery_Petroleum') {
@@ -2321,10 +2461,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2361,13 +2501,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_plants_refinery_petroleum);
                 if (!map.hasLayer(points_eia_plants_refinery_petroleum) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_plants_refinery_petroleum);
                 };
             } else if (ptlay === 'Reserve_Petroleum') {
@@ -2401,10 +2548,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2441,13 +2588,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_reserve_petroleum);
                 if (!map.hasLayer(points_eia_reserve_petroleum) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_reserve_petroleum);
                 };
             } else if (ptlay === 'Storage_Naturalgas') {
@@ -2481,10 +2635,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2521,13 +2675,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_storage_naturalgas);
                 if (!map.hasLayer(points_eia_storage_naturalgas) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_storage_naturalgas);
                 };
             } else if (ptlay === 'Terminal_Crudeoil') {
@@ -2561,10 +2722,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2601,13 +2762,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_terminal_crudeoil);
                 if (!map.hasLayer(points_eia_terminal_crudeoil) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_terminal_crudeoil);
                 };
             } else if (ptlay === 'Terminal_Lng') {
@@ -2641,10 +2809,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2681,13 +2849,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
             
                 });
                 mapLayers.push(points_eia_terminal_lng);
                 if (!map.hasLayer(points_eia_terminal_lng) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_terminal_lng);
                 };
             } else if (ptlay === 'Terminal_Petroleum') {
@@ -2721,10 +2896,10 @@ function createPointLayer(ptlay,orders) {
                         layer.on('click', function(e) {
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
-                            console.log('clicked a compressor')
+                            // console.log('clicked a compressor')
                             if (closestFeature) {
-                                console.log('closest feat')
-                                console.log(closestFeature)
+                                // console.log('closest feat')
+                                // console.log(closestFeature)
                                 // Display the attributes in the box
                                 const attributesBox = document.getElementById('attributes-box'); // Assumes you have a div with this ID
                                 attributesBox.innerHTML = `
@@ -2761,13 +2936,20 @@ function createPointLayer(ptlay,orders) {
                             // feature.properties.operator + "<br><b>Longitude:</b> " + 
                             // feature.properties.x + "<br><b>Latitude: </b>" +
                             // feature.properties.y
+                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
                         );
+                        // Event listener for when the popup is closed
+                        layer.on('popupclose', function () {
+                            // Reset the line style to red (default) when popup is closed
+                            document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
+                            hidedemos()
+                        });
                     }
                     
                 });
                 mapLayers.push(points_eia_terminal_petroleum);
                 if (!map.hasLayer(points_eia_terminal_petroleum) && orders != 'just the table') {
-                    console.log('needed to add the layer')
+                    // console.log('needed to add the layer')
                     map.addLayer(points_eia_terminal_petroleum);
                 };
             }
@@ -2806,10 +2988,12 @@ map.on('zoom', function () {
                 iconAnchor = [half, size];
 
             } else if (markerClass === 'diamond-marker') {
+                altsize = 1 + zoom * 1.5;
+
                 html = `
                     <div class="diamond-marker" style="
-                        width: ${size}px;
-                        height: ${size}px;
+                        width: ${altsize}px;
+                        height: ${altsize}px;
                         background: #${color};
                     "></div>`;
                 iconAnchor = [half, half]; // center
@@ -2859,7 +3043,7 @@ map.on('zoom', function () {
 
 var demobuffer;
 function generate_buffs() {
-    console.log('generating the buffer layer')
+    // console.log('generating the buffer layer')
     // Fetch GeoJSON data from the server
     fetch(`/petrochem/generate_geojson_buffs2`)
         .then(response => response.json())
@@ -2892,7 +3076,7 @@ function generate_buffs() {
                 onEachFeature: function (feature, layer) {
 
                 }
-            }).addTo(map);
+            });
     })};
 
 generate_buffs(); 
@@ -2928,7 +3112,7 @@ function createLineLayer(lay) {
     fetch(`/petrochem/generate_geojson_lines?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
-            console.log('here are the lines');
+            // console.log('here are the lines');
             data=JSON.parse(data)
             // console.log(data); // The GeoJSON data is already parsed
 
@@ -3365,7 +3549,7 @@ function sortTable() {
     }
 
     const field = document.getElementById('sort-field').value;
-    console.log('Sort field:', field);
+    // console.log('Sort field:', field);
 
     if (!field) {
         alert("Please choose a field.");
@@ -3399,8 +3583,8 @@ let thetabledata=null;
 function updateTable(geojson,src) {
     thetabledata = geojson
     populateSortDropdown(geojson);
-    console.log('here are the features')
-    console.log(geojson.features)
+    // console.log('here are the features')
+    // console.log(geojson.features)
     // console.log(geojson);
     if (src === 'create') {
         tabledata = geojson;
@@ -3497,7 +3681,7 @@ function updateTable(geojson,src) {
 
 // Function to download CSV of table data
 function downloadTableData(thetabledata) {
-    console.log('starting the download')
+    // console.log('starting the download')
     // Check if filtered data is available
     if (!thetabledata) {
         console.error("Filtered data is not available.");
@@ -3553,15 +3737,15 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
         content.style.display = 'none';
         setuplegend = 'n';
 
-        console.log('middle hit')
+        // console.log('middle hit')
         document.getElementById('legend_arrow').innerText = '';
     } else if (content.style.display === 'none' || content.style.display === '' ) {
-        console.log(`first hit ${setuplegend}`)
+        // console.log(`first hit ${setuplegend}`)
         content.style.display = 'block';
         document.getElementById('legend_arrow').innerText = 'x';
     } else  {
         content.style.display = 'none';
-        console.log('bottom hit')
+        // console.log('bottom hit')
         document.getElementById('legend_arrow').innerText = '';
     }
 });
@@ -3736,8 +3920,8 @@ function toggleselection(c,v) {
         applyCategoryFilter('just the table')
     }
 
-    console.log(`the button part ${v}`)
-    console.log(`the button part ${toggleit}`)
+    // console.log(`the button part ${v}`)
+    // console.log(`the button part ${toggleit}`)
     
     
     getcolumns(v)
@@ -3746,9 +3930,9 @@ function toggleselection(c,v) {
 
 
 function getcolumns(ptlay) {
-    console.log('getting columns for: ' + ptlay);
+    // console.log('getting columns for: ' + ptlay);
     grab1 = getmodname(ptlay);
-    console.log('grab1: ' + grab1);
+    // console.log('grab1: ' + grab1);
     document.getElementById('srch-input1').value = '';
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab1)}`)
         .then(response => response.json())
@@ -3762,10 +3946,12 @@ function getcolumns(ptlay) {
 
             // Optional: Add a placeholder/default option
             const placeholder = document.createElement("option");
-            placeholder.value = "";
+            placeholder.value = " ";
             placeholder.textContent = "Select";
             placeholder.style.color = "#8a8a8a";
             dropdown.appendChild(placeholder);
+
+            
 
             const keys = Object.keys(d.features[0].properties);
             keys.forEach(key => {
@@ -3774,26 +3960,6 @@ function getcolumns(ptlay) {
                 option.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 dropdown.appendChild(option);
             });
-
-            // const dropdown3 = document.getElementById("sort-field3");
-
-            // Clear existing options
-            // dropdown3.innerHTML = ''; // Remove all existing <option>s
-
-            // // Optional: Add a placeholder/default option
-            // const placeholder3 = document.createElement("option");
-            // placeholder3.value = "";
-            // placeholder3.textContent = "Refine your search";
-            // placeholder3.style.color = "#8a8a8a";
-            // dropdown3.appendChild(placeholder3);
-
-            // const keys3 = Object.keys(d.features[0].properties);
-            // keys3.forEach(key3 => {
-            //     const option = document.createElement("option");
-            //     option.value = key3;
-            //     option.textContent = key3.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-            //     dropdown3.appendChild(option);
-            // });
         });
 }
 
@@ -4208,8 +4374,8 @@ if (layer instanceof L.Circle) {
 
 
 function refinefilter() {
-    console.log('Refining filter...');
-    console.log(tabledata);
+    // console.log('Refining filter...');
+    // console.log(tabledata);
 
     const f = document.getElementById('sort-field2').value;
     const s = document.getElementById('srch-input1').value;
@@ -4226,20 +4392,20 @@ function refinefilter() {
         features: refinedFeatures
     };
 
-    console.log('Filtered GeoJSON:', JSON.stringify(refinedsrch, null, 2));
+    // console.log('Filtered GeoJSON:', JSON.stringify(refinedsrch, null, 2));
 
     if (!Array.isArray(refinedsrch.features)) {
         console.error('Invalid GeoJSON: "features" is not an array');
         return;
     }
 
-    console.log('adding filtered points');
+    // console.log('adding filtered points');
 
     if (filteredPoints && map.hasLayer(filteredPoints)) {
-        console.log('need to get it out of there');
+        // console.log('need to get it out of there');
         map.removeLayer(filteredPoints);
     } else {
-        console.log('already clear or layer is undefined');
+        // console.log('already clear or layer is undefined');
     }
     filteredPoints = L.geoJSON(refinedsrch, {
         pointToLayer: function (feature, latlng) {
@@ -4252,7 +4418,7 @@ function refinefilter() {
         }
     }).addTo(map);
 
-    console.log('added the filtered points');
+    // console.log('added the filtered points');
 
     updateTable(refinedsrch, 'refined');
 }
@@ -4261,7 +4427,6 @@ function clearFilter() {
     updateTable(tabledata)
     document.getElementById('srch-input1').value = '';
     document.getElementById('sort-field2').value = '';
-    console.log('----> hit that clear button!!')
     map.removeLayer(filteredPoints)
 }
 
@@ -4328,16 +4493,16 @@ function getNearestFeature(clickedLatLng, targetLayerGroup) {
 // Toggle line visibility based on checkbox
 document.getElementById('pipeline_crudeoil').addEventListener('change', function() {
     if (this.checked) {
-        console.log('pipeline_naturalgas - checked')
+        // console.log('pipeline_naturalgas - checked')
         if (!lines_pipeline_crudeoil) {
-            console.log('pipeline_naturalgas - needs to load')
+            // console.log('pipeline_naturalgas - needs to load')
             createLineLayer('Pipeline_Crudeoil')
         } else {
-            console.log('pipeline_naturalgas - just adding')
+            // console.log('pipeline_naturalgas - just adding')
             lines_pipeline_crudeoil.addTo(map);
         }
     } else if (lines_pipeline_crudeoil) {
-        console.log('pipeline_naturalgas - removing')
+        // console.log('pipeline_naturalgas - removing')
         map.removeLayer(lines_pipeline_crudeoil);
     }
 });
@@ -4345,16 +4510,16 @@ document.getElementById('pipeline_crudeoil').addEventListener('change', function
 // Toggle line visibility based on checkbox
 document.getElementById('pipeline_naturalgas').addEventListener('change', function() {
     if (this.checked) {
-        console.log('pipeline_naturalgas - checked')
+        // console.log('pipeline_naturalgas - checked')
         if (!lines_pipeline_naturalgas) {
-            console.log('pipeline_naturalgas - needs to load')
+            // console.log('pipeline_naturalgas - needs to load')
             createLineLayer('Pipeline_Naturalgas')
         } else {
-            console.log('pipeline_naturalgas - just adding')
+            // console.log('pipeline_naturalgas - just adding')
             lines_pipeline_naturalgas.addTo(map);
         }
     } else if (lines_pipeline_naturalgas) {
-        console.log('pipeline_naturalgas - removing')
+        // console.log('pipeline_naturalgas - removing')
         map.removeLayer(lines_pipeline_naturalgas);
     }
 });
@@ -4362,16 +4527,16 @@ document.getElementById('pipeline_naturalgas').addEventListener('change', functi
 // // Toggle line visibility based on checkbox
 // document.getElementById('pipeline_fractracker').addEventListener('change', function() {
 //     if (this.checked) {
-//         // console.log('pipeline_naturalgas - checked')
+//         // // console.log('pipeline_naturalgas - checked')
 //         if (!lines_pipeline_fractracker) {
-//             console.log('pipeline_naturalgas - needs to load')
+//             // console.log('pipeline_naturalgas - needs to load')
 //             // createLineLayer('Pipeline_Fractracker')
 //         } else {
-//             // console.log('pipeline_naturalgas - just adding')
+//             // // console.log('pipeline_naturalgas - just adding')
 //             lines_pipeline_fractracker.addTo(map);
 //         }
 //     } else if (lines_pipeline_fractracker) {
-//         console.log('pipeline_naturalgas - fake removing')
+//         // console.log('pipeline_naturalgas - fake removing')
 //         // map.removeLayer(lines_pipeline_fractracker);
 //     }
 // });
@@ -4379,16 +4544,16 @@ document.getElementById('pipeline_naturalgas').addEventListener('change', functi
 // Toggle line visibility based on checkbox
 document.getElementById('pipeline_hgl').addEventListener('change', function() {
     if (this.checked) {
-        console.log('pipeline_naturalgas - checked')
+        // console.log('pipeline_naturalgas - checked')
         if (!lines_pipeline_hgl) {
-            console.log('pipeline_naturalgas - needs to load')
+            // console.log('pipeline_naturalgas - needs to load')
             createLineLayer('Pipeline_hgl')
         } else {
-            console.log('pipeline_naturalgas - just adding')
+            // console.log('pipeline_naturalgas - just adding')
             lines_pipeline_hgl.addTo(map);
         }
     } else if (lines_pipeline_hgl) {
-        console.log('pipeline_naturalgas - removing')
+        // console.log('pipeline_naturalgas - removing')
         map.removeLayer(lines_pipeline_hgl);
     }
 });
@@ -4396,16 +4561,16 @@ document.getElementById('pipeline_hgl').addEventListener('change', function() {
 // Toggle line visibility based on checkbox
 document.getElementById('pipeline_petroleum').addEventListener('change', function() {
     if (this.checked) {
-        console.log('pipeline_petroleum - checked')
+        // console.log('pipeline_petroleum - checked')
         if (!lines_pipeline_petroleum) {
-            console.log('pipeline_petroleum - needs to load')
+            // console.log('pipeline_petroleum - needs to load')
             createLineLayer('Pipeline_Petroleum')
         } else {
-            console.log('pipeline_petroleum - just adding')
+            // console.log('pipeline_petroleum - just adding')
             lines_pipeline_petroleum.addTo(map);
         }
     } else if (lines_pipeline_petroleum) {
-        console.log('pipeline_petroleum - removing')
+        // console.log('pipeline_petroleum - removing')
         map.removeLayer(lines_pipeline_petroleum);
     }
 });
@@ -4431,17 +4596,17 @@ document.getElementById('eia_compressorstations').addEventListener('change', fun
 document.getElementById('eia_bordercrossing_electric').addEventListener('change', function() {
     if (this.checked) {
         if (!points_eia_bordercrossing_electric) {
-            console.log('toggled on via checkbox after creating points')
+            // console.log('toggled on via checkbox after creating points')
             createPointLayer('Bordercrossing_Electric')
             document.getElementById('tabledataset').innerHTML = 'Border Crossing: Electric'
         } else {
-            console.log('toggled on and added')
+            // console.log('toggled on and added')
             points_eia_bordercrossing_electric.addTo(map);
         }
         toggleselection('state','Border Crossing: Electric')
 
     } else if (points_eia_bordercrossing_electric) {
-        console.log('toggled off and removing')
+        // console.log('toggled off and removing')
         map.removeLayer(points_eia_bordercrossing_electric);
     }
 });
@@ -4453,13 +4618,13 @@ document.getElementById('eia_bordercrossing_liquids').addEventListener('change',
             createPointLayer('Bordercrossing_Liquids')
             document.getElementById('tabledataset').innerHTML = 'Border Crossing: Liquids'
         } else {
-            console.log('toggled on and added')
+            // console.log('toggled on and added')
             points_eia_bordercrossing_liquids.addTo(map);
         }
         toggleselection('state','Border Crossing: Liquids')
 
     } else if (points_eia_bordercrossing_liquids) {
-        console.log('toggled off and removing')
+        // console.log('toggled off and removing')
         map.removeLayer(points_eia_bordercrossing_liquids);
     }
 });
@@ -4853,14 +5018,14 @@ document.getElementById('eia_terminal_petroleum').addEventListener('change', fun
 //     Object.values(interfaces).forEach(ifaceGroup => {
 //       ifaceGroup.forEach(iface => {
 //         if (iface.family === 'IPv4' && !iface.internal) {
-//           console.log('Server running at IP:', iface.address);
+//           // console.log('Server running at IP:', iface.address);
 //         }
 //       });
 //     });
 //   });
 
 document.getElementById("filterbtn").addEventListener("click", function() {
-    console.log('clicked filterpanel')
+    // console.log('clicked filterpanel')
     document.getElementById("filterbtn").classList.add("sel")
     document.getElementById("resultsbtn").classList.remove("sel")
     document.getElementById("filterpanel").classList.remove("hide")
@@ -4868,7 +5033,7 @@ document.getElementById("filterbtn").addEventListener("click", function() {
 });
 
 document.getElementById("resultsbtn").addEventListener("click", function() {
-    console.log('clicked resultspanel')
+    // console.log('clicked resultspanel')
     document.getElementById("filterbtn").classList.remove("sel")
     document.getElementById("resultsbtn").classList.add("sel")
     document.getElementById("resultspanel").classList.remove("hide")
