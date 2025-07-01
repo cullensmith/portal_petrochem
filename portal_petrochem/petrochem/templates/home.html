@@ -824,7 +824,7 @@
             </div>
         
             <div style="display: flex; gap: 10px;margin: 16px 10px">
-                <button {% comment %} onclick="openSplash()"  {% endcomment %}
+                <button onclick="openSplash()"
                         style="font-family: 'Archivo Black'; background-color: #02253a; color: white; border: none; padding: 10px 22px; border-radius: 5px; cursor: pointer;">
                     About&nbsp;&nbsp;❯
                 </button>
@@ -1092,7 +1092,7 @@
         <span class="close-button" onclick="closeSplash()">&times;</span>
     
         <!-- Main Content Area (changes when tabs are clicked) -->
-        <div id="tabContent" class="tab-content">
+        <div id="tabContent" class="tab-content" style="overflow-y:auto">
             <h2>Welcome</h2>
             <p>This is the default content shown in the modal.</p>
         </div>
@@ -1100,8 +1100,8 @@
         <!-- Tab Buttons -->
         <div class="tab-buttons">
             <button onclick="showTab('tab1')">Splash Screen</button>
-            <button onclick="showTab('tab2')">Quick Guide</button>
-            <button onclick="showTab('tab3')">Details</button>
+            {% comment %} <button onclick="showTab('tab2')">Quick Guide</button> {% endcomment %}
+            <button onclick="showTab('tab3')">Data Details</button>
         </div>
         </div>
     </div>
@@ -1159,21 +1159,20 @@
           function showTab(tabId) {
             const content = {
               tab1: {
-                title: 'Overview',
-                text: 'This application provides key insights into petrochemical data across various regions and layers.'
-              },
-              tab2: {
-                title: 'Data Sources',
-                text: 'We use data from verified sources including public APIs, satellite imagery, and field surveys.'
+                title: 'Welcome to our Petrochemical Data Portal',
+                text: `<br>This application was developed to provides key insights into petrochemical data across the United States in a partnership between FracTracker Alliance and Beyond Petrochemicals.<br>
+                       <br>© Copyright 2025 
+                       <a href="https://www.fractracker.org" target="_blank" rel="noopener noreferrer">FracTracker Alliance</a><br>
+                       <a href="https://www.fractracker.org/terms-of-service" target="_blank">FracTracker Alliance Terms of Service</a>`
               },
               tab3: {
-                title: 'Contact',
-                text: 'For questions, please contact us at info@example.com or visit our support page.'
+                title: 'Data Sourcing',
+                text: '<br><br>Compressor stations – facilities that pressurize natural gas to keep it flowing through a pipeline. Data from HIFLD. Updated 6/01/2025.<br><br>Chemical plants - Includes two types of chemical plants - petrochemical production and ammonia manufacturing - that were major sources of greenhouse gas emissions in 2018.  Data from EPA Flight. Data Updated 6/01/2025.<br><br>Crude Oil Rail Terminals – rail terminals that load and unload crude oil, active between 2017-2018. Data from EIA. Updated 6/01/2025.<br><br>Crude Oil Pipelines – major crude oil pipelines, including interstate trunk lines and selected intrastate lines, not including gathering lines. Data from EIA. Updated 6/01/2025.<br><br>Ethylene Crackers – plants that “crack” ethane (a natural gas liquid)  into ethylene. Data from EIA. Updated 6/01/2025.<br><br>HGL Pipelines – hydrocarbon gas liquid pipelines (aka natural gas liquid (NGL) pipelines). Data from EIA. Updated 6/01/2025.<br><br>Liquefied natural gas import/export terminals – Facilities that can a) liquefy natural gas so it is ready to be exported as liquefied natural gas (LNG) and/or b) re-gasify LNG so it can be used as natural gas. Natural gas is transported in a liquid state because it takes up less space as a liquid than as a gas. Data from EIA. Updated 6/01/2025.<br><br>Natural Gas Pipelines – Data from EIA. Updated 10/8/2019.<br><br>Natural Gas Processing Plants – Plants that separate impurities and components of natural gas. Data from EIA. Updated 6/01/2025.<br><br>Natural Gas Underground Storage – Data from the EIA. Updated 6/01/2025.<br><br>Offshore Petroleum and Natural Gas Production- Offshore production that are major sources of greenhouse gases. Data from EPA Flight. Updated 6/01/2025.<br><br>Oil and Gas Wells (all 3 data layers) - See fact sheet for information. Datasets obtained between March and September, 2021.<br><br>Petroleum Port – A port that can import and/or export 200,000 or more short tons of petroleum products a year. Data from the EIA 6/01/2025.<br><br>Petroleum Product Pipelines - Major petroleum product pipelines. Data from EIA. Updated 6/01/2025.<br><br>Petroleum Product Terminals – “All operable bulk petroleum product terminals in the United States with a total bulk shell storage capacity of 50,000 barrels or more, and/or ability to receive volumes from tanker, barge, or pipeline. Survey locations adjusted using public data.” – EIA Updated 6/01/2025.<br><br>Petroleum Refineries – Data from EIA. Updated 6/01/2025.<br><br>Power Plants – Electric generating plants with a capacity of at least 1 MW, by energy source. Data from EIA. Updated 6/01/2025.<br><br>Recent Pipeline Projects – data compiled by FracTracker Alliance from various online sources. Updated 3/29/2025.'
               }
             };
-        
+          
             const tabContent = document.getElementById("tabContent");
-            tabContent.innerHTML = `<h2>${content[tabId].title}</h2><p>${content[tabId].text}</p>`;
+            tabContent.innerHTML = `<h2>${content[tabId].title}</h2><p style="font-family:arial">${content[tabId].text}</p>`;
           }
         
           // Optional: Close if user clicks outside modal
