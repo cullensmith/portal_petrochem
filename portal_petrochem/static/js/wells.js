@@ -4040,6 +4040,7 @@ function getcolumns(ptlay) {
     grab1 = getmodname(ptlay);
     // console.log('grab1: ' + grab1);
     document.getElementById('srch-input1').value = '';
+    // might need to edit the fetch url somehow
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab1)}`)
         .then(response => response.json())
         .then(data => {
