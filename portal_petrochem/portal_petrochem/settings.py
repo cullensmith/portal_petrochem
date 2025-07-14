@@ -88,7 +88,7 @@ DATABASES = {
         'NAME': 'fractracker',
         'USER': 'portal_petrochem',
         'PASSWORD': 'M]7J&U%RL=fuAgBs',
-        'HOST': '34.162.137.6',  # Public IP of your Google Cloud PostgreSQL instance
+        'HOST': '35.173.69.207',  # Public IP of your Google Cloud PostgreSQL instance
         'PORT': '5432',  # Default PostgreSQL port
         'OPTIONS': {
             'options': '-c search_path=public,wells'
