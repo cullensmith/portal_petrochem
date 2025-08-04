@@ -966,15 +966,33 @@
                             <div class="legend-content">
                                 <div id="custom-tooltip" class="tooltip">Coming Soon!</div>
                                 <div id="custom-tool2tip" class="tool2tip">Try using &nbsp;&nbsp;*<br> as a wildcard.</div>
-
+                                <div style="display: flex; justify-content: center; cursor: default;">
+                                    <p style="margin-bottom: 5px; margin-left: 10px; cursor: default;">
+                                      Available Data
+                                      <button 
+                                        onclick="openDD()" 
+                                        id="info-btn" 
+                                        style="
+                                          margin-left: 4px; 
+                                          padding: 2px 6px; 
+                                          font-size: 12px; 
+                                          cursor: pointer; 
+                                          border: none; 
+                                          background-color: transparent;
+                                        "
+                                      >
+                                        <i class="fas fa-info-circle"></i>
+                                      </button>
+                                    </p>
+                                  </div>
                                 <p style="margin-bottom:5px;margin-top:10px"><strong>Market Hubs, Ports, Terminals</strong></p>
+                                <div class="legenditem " id="legenditemid_58"><label class="category1 " id="legenditemid_68"><span class="legend-diamond" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_crudeoil" class=""  unchecked> Crude Oil (Terminal)</label></div>
                                 <div class="legenditem " id="legenditemid_35"><label class="category1 " id="legenditemid_45"><span class="legend-diamond" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_hgl" class="legenditemchk"  unchecked> HGL (Market Hub)</label></div>
+                                <div class="legenditem " id="legenditemid_59"><label class="category1 " id="legenditemid_69"><span class="legend-diamond" style="background: #FFC857; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_lng" class=""  unchecked> LNG (Terminal)</label></div>
                                 <div class="legenditem " id="legenditemid_36"><label class="category1 " id="legenditemid_46"><span class="legend-diamond" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_naturalgas" class="legenditemchk"  unchecked> Natural Gas (Market Hub)</label></div>
+                                <div class="legenditem " id="legenditemid_57"><label class="category1 " id="legenditemid_67"><span class="legend-diamond" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_storage_naturalgas" class=""  unchecked> Natural Gas (Underground Storage)</label></div>
                                 <div class="legenditem " id="legenditemid_55"><label class="category1 " id="legenditemid_65"><span class="legend-diamond" style="background: #e052e2; margin-right:5px;"></span><input type="checkbox" id="eia_ports_petroleum" class="legenditemchk"  unchecked> Petroleum (Port)</label></div>
                                 <div class="legenditem " id="legenditemid_56"><label class="category1 " id="legenditemid_66"><span class="legend-diamond" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_reserve_petroleum" class=""  unchecked> Petroleum (Reserve)</label></div>
-                                <div class="legenditem " id="legenditemid_57"><label class="category1 " id="legenditemid_67"><span class="legend-diamond" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_storage_naturalgas" class=""  unchecked> Natural Gas (Underground Storage)</label></div>
-                                <div class="legenditem " id="legenditemid_58"><label class="category1 " id="legenditemid_68"><span class="legend-diamond" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_crudeoil" class=""  unchecked> Crude Oil (Terminal)</label></div>
-                                <div class="legenditem " id="legenditemid_59"><label class="category1 " id="legenditemid_69"><span class="legend-diamond" style="background: #FFC857; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_lng" class=""  unchecked> LNG (Terminal)</label></div>
                                 <div class="legenditem " id="legenditemid_70"><label class="category1 " id="legenditemid_80"><span class="legend-diamond" style="background: red; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_petroleum" class=""  unchecked> Petroleum (Terminal)</label></div>
                                 <p style="margin-bottom:5px"><strong>Compressor Stations</strong></p>
                                 <div class="legenditem " id="legenditemid_34"><label class="category1 " id="legenditemid_44"><span class="legend-triangle" style="transform: rotate(180deg);border-bottom-color: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_compressorstations" class=""  unchecked> Compressor Station</label></div>
@@ -982,11 +1000,12 @@
                                 <div class="legenditem " id="legenditemid_38"><label class="category1 " id="legenditemid_48"><span class="legend-pentagon" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_plants_biodiesel" class="legenditemchk"  unchecked> Biodiesel</label></div>
                                 <div class="legenditem " id="legenditemid_39"><label class="category1 " id="legenditemid_49"><span class="legend-pentagon" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethanol" class="legenditemchk"  unchecked> Ethanol</label></div>
                                 <div class="legenditem " id="legenditemid_50"><label class="category1 " id="legenditemid_60"><span class="legend-pentagon" style="background: #e052e2; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethylene_cracker" class="legenditemchk"  unchecked> Ethylene Cracker</label></div>
+                                <div class="legenditem " id="legenditemid_37"><label class="category1 " id="legenditemid_47"><span class="legend-pentagon" style="background: #a3cf5f; margin-right:5px;"></span><input type="checkbox" id="plants_fertilizer" class="legenditemchk"  unchecked> Fertilizer</label></div>
                                 <div class="legenditem " id="legenditemid_75"><label class="category1 " id="legenditemid_85"><span class="legend-pentagon" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_plants_processing_naturalgas" class=""  unchecked> Natural Gas (Processing)</label></div>
                                 <div class="legenditem " id="legenditemid_76"><label class="category1 " id="legenditemid_86"><span class="legend-pentagon" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_refinery_petroleum" class=""  unchecked> Petroleum (Refinery)</label></div>
                                 <p style="margin-bottom:5px"><strong>Power Plants</strong></p>
                                 <div class="legenditem " id="legenditemid_51"><label class="category1 " id="legenditemid_61"><span class="legend-plus" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_powerplants_batterystorage" class="legenditemchk"  unchecked> Battery Storage</label></div>
-                                <div class="legenditem tooltip-target" id="legenditemid_37"><label class="category1 dim" id="legenditemid_47"><span class="legend-plus" style="background: #de02d3; margin-right:5px;"></span><input type="checkbox" id="eia_electric_generator" class="legenditemchk"  unchecked> Electric Generator</label></div>
+                                {% comment %} <div class="legenditem tooltip-target" id="legenditemid_37"><label class="category1 dim" id="legenditemid_47"><span class="legend-plus" style="background: #de02d3; margin-right:5px;"></span><input type="checkbox" id="plants_fertilizer" class="legenditemchk"  unchecked> Fertilizer</label></div> {% endcomment %}
                                 <div class="legenditem " id="legenditemid_52"><label class="category1 " id="legenditemid_62"><span class="legend-plus" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_coal" class="legenditemchk"  unchecked> Coal</label></div>
                                 <div class="legenditem " id="legenditemid_53"><label class="category1 " id="legenditemid_63"><span class="legend-plus" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_plants_geothermal" class="legenditemchk"  unchecked> Geothermal</label></div>
                                 <div class="legenditem " id="legenditemid_54"><label class="category1 " id="legenditemid_64"><span class="legend-plus" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_hydroelectric" class="legenditemchk"  unchecked> Hydroelectric</label></div>
@@ -1155,7 +1174,14 @@
           function closeSplash() {
             document.getElementById("splashScreen").style.display = "none";
           }
+          function openDD() {
+            document.getElementById("splashScreen").style.display = "block";
+            showTab('tab3'); // Show default tab content
+          }
         
+          function closeDD() {
+            document.getElementById("splashScreen").style.display = "none";
+          }
           function showTab(tabId) {
             const content = {
               tab1: {
@@ -1167,7 +1193,40 @@
               },
               tab3: {
                 title: 'Data Sourcing',
-                text: '<br><br>Compressor stations – facilities that pressurize natural gas to keep it flowing through a pipeline. Data from HIFLD. Updated 6/01/2025.<br><br>Chemical plants - Includes two types of chemical plants - petrochemical production and ammonia manufacturing - that were major sources of greenhouse gas emissions in 2018.  Data from EPA Flight. Data Updated 6/01/2025.<br><br>Crude Oil Rail Terminals – rail terminals that load and unload crude oil, active between 2017-2018. Data from EIA. Updated 6/01/2025.<br><br>Crude Oil Pipelines – major crude oil pipelines, including interstate trunk lines and selected intrastate lines, not including gathering lines. Data from EIA. Updated 6/01/2025.<br><br>Ethylene Crackers – plants that “crack” ethane (a natural gas liquid)  into ethylene. Data from EIA. Updated 6/01/2025.<br><br>HGL Pipelines – hydrocarbon gas liquid pipelines (aka natural gas liquid (NGL) pipelines). Data from EIA. Updated 6/01/2025.<br><br>Liquefied natural gas import/export terminals – Facilities that can a) liquefy natural gas so it is ready to be exported as liquefied natural gas (LNG) and/or b) re-gasify LNG so it can be used as natural gas. Natural gas is transported in a liquid state because it takes up less space as a liquid than as a gas. Data from EIA. Updated 6/01/2025.<br><br>Natural Gas Pipelines – Data from EIA. Updated 10/8/2019.<br><br>Natural Gas Processing Plants – Plants that separate impurities and components of natural gas. Data from EIA. Updated 6/01/2025.<br><br>Natural Gas Underground Storage – Data from the EIA. Updated 6/01/2025.<br><br>Offshore Petroleum and Natural Gas Production- Offshore production that are major sources of greenhouse gases. Data from EPA Flight. Updated 6/01/2025.<br><br>Oil and Gas Wells (all 3 data layers) - See fact sheet for information. Datasets obtained between March and September, 2021.<br><br>Petroleum Port – A port that can import and/or export 200,000 or more short tons of petroleum products a year. Data from the EIA 6/01/2025.<br><br>Petroleum Product Pipelines - Major petroleum product pipelines. Data from EIA. Updated 6/01/2025.<br><br>Petroleum Product Terminals – “All operable bulk petroleum product terminals in the United States with a total bulk shell storage capacity of 50,000 barrels or more, and/or ability to receive volumes from tanker, barge, or pipeline. Survey locations adjusted using public data.” – EIA Updated 6/01/2025.<br><br>Petroleum Refineries – Data from EIA. Updated 6/01/2025.<br><br>Power Plants – Electric generating plants with a capacity of at least 1 MW, by energy source. Data from EIA. Updated 6/01/2025.<br><br>Recent Pipeline Projects – data compiled by FracTracker Alliance from various online sources. Updated 3/29/2025.'
+                text:
+                '<br><br><b>MARKET HUBS, PORTS and TERMINALS</b>'+
+                '<br><br>Crude Oil (Terminal) – <i>These terminals facilitate the loading and unloading of crude oil, often connecting different modes of transportation like rail and pipelines. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>HGL (Market Hub) - <i>Hydrocarbon gas liquids (HGL) storage and trading hubs. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>LNG (Terminal) - <i>Liquefied natural gas import/export terminals – Facilities that can a) liquefy natural gas so it is ready to be exported as liquefied natural gas (LNG) and/or b) re-gasify LNG so it can be used as natural gas. Natural gas is transported in a liquid state because it takes up less space as a liquid than as a gas. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Natural Gas (Market Hub) – <i>Natural Gas trading hubs. Data from the EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Natural Gas (Underground Storage) – <i>Data from the EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Petroleum (Port) – <i>A port that can import and/or export 200,000 or more short tons of petroleum products a year. Data from the EIA 8/01/2025.</i>'+
+                '<br><br>Petroleum (Terminals) – <i>“All operable bulk petroleum product terminals in the United States with a total bulk shell storage capacity of 50,000 barrels or more, and/or ability to receive volumes from tanker, barge, or pipeline. Survey locations adjusted using public data.” Data from the EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Compressor stations – <i>facilities that pressurize natural gas to keep it flowing through a pipeline. Data from HIFLD. Updated 7/01/2024.</i>'+
+                '<br><br><br><br><b>PLANTS</b>'+
+                '<br><br>Biodiesel – <i>facilities that produce biodiesel, a renewable, clean-burning diesel fuel substitute made from various plant oils, animal fats, and recycled cooking grease. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Ethanol – <i>facility that produces ethanol, a biofuel made by fermenting and distilling grains or other starchy materials. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Ethylene Crackers – <i>plants that “crack” ethane (a natural gas liquid)  into ethylene. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Fertilizer – <i>Nitrogen and phosphorus producing plants and mines. Updated 11/1/2023.</i>'+
+                '<br><br>Natural Gas (Processing) – <i>Facilities that purify and refine raw natural gas, removing impurities and valuable liquids to produce pipeline-quality natural gas and other marketable products. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Petroleum (Refinery) – <i>Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><br><br><b>POWER PLANTS</b>'+
+                '<br><br>Battery Storage – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Coal – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Geothermal – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Hydroelectric – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Hydro Pumped Storage – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Natural Gas – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Petroleum – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Electric Transmission Lines – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Liquid Pipelines – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Natural Gas Pipelines – <i>Operable electric generating plants. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><br><br><b>PIPELINES</b>'+
+                '<br><br>Recent Pipeline Projects – <i>data compiled by FracTracker Alliance from various online sources. Updated 3/29/2025.</i>'+
+                '<br><br>Crude Oil Pipelines – <i>major crude oil pipelines, including interstate trunk lines and selected intrastate lines, not including gathering lines. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>HGL Pipelines – <i>Hydrocarbon gas liquid pipelines (aka natural gas liquid (NGL) pipelines). Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br>Natural Gas Pipelines – <i>Data from EIA. Updated 10/8/2019.</i>'+
+                '<br><br>Petroleum Product Pipelines - <i>Major petroleum product pipelines. Data from EIA. Updated 8/01/2025.</i>'
               }
             };
           

@@ -13,6 +13,7 @@ var points_eia_markethub_naturalgas;
 var points_eia_ports_petroleum;
 var points_eia_powerplants_batterystorage ;
 var points_eia_electric_generator;
+var points_plants_fertilizer;
 var points_eia_plants_biodiesel;
 var points_eia_plants_ethanol;
 var points_eia_plants_ethylene_cracker;
@@ -34,6 +35,7 @@ var points_eia_terminal_petroleum;
 var buffs;
 var filteredPoints;
 
+var download_table_name;
 // Create constants for the filter items
 const statetextbox = document.getElementById('datasetSelection');
 
@@ -376,13 +378,13 @@ function tableJson(i) {
 function applyCategoryFilter(orders) {
     // Fetch GeoJSON data from the server
     var dataLayer = getSelValues('datasetSelection').replace(",,,","");  // Assuming this returns a comma-delimited string
-    // console.log('dataLayer: '+dataLayer)
+    console.log('dataLayer: '+dataLayer)
     modname = getmodname(dataLayer)
-    // console.log('display name: '+modname)
+    console.log('display name: '+modname)
     mapLayer = getmaplayer(modname)
-    // // console.log('map layer: '+maplayer)
+    console.log('map layer: '+mapLayer)
     legendItem = getlegenditem(modname)
-    // console.log('legend item: '+legendItem)
+    console.log('legend item: '+legendItem)
 
     if (!mapLayer) {
         // console.log('checking on adding the layer')
@@ -712,16 +714,20 @@ function createPointLayer(ptlay,orders) {
                             }
                           });
                           layer.bindPopup( 
-                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
-                            `<span style="color: black; font-weight: bold;">NAICS Desc: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${feature.properties.naics_desc}</span><br>` +
-                            `<span style="color: black; font-weight: bold;">Operator: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${feature.properties.operator}</span><br>` +
-                            `<span style="color: black; font-weight: bold;">Longitude: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${feature.properties.longitude}</span><br>` +
-                            `<span style="color: black; font-weight: bold;">Latitude: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${feature.properties.latitude}</span>` 
-                            + `<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>
+                            <span style="color: black; font-weight: bold;">NAICS Desc: </span>
+                            <span style="color: grey; font-weight: normal;">${feature.properties.naics_desc}</span><br>
+                            <span style="color: black; font-weight: bold;">Operator: </span>
+                            <span style="color: grey; font-weight: normal;">${feature.properties.operator}</span><br>
+                            <span style="color: black; font-weight: bold;">Longitude: </span>
+                            <span style="color: grey; font-weight: normal;">${feature.properties.longitude}</span><br>
+                            <span style="color: black; font-weight: bold;">Latitude: </span>
+                            <span style="color: grey; font-weight: normal;">${feature.properties.latitude}</span><br><br>
+
+                            <div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>`
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -816,8 +822,10 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span><br><br>` +
-                            `<button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
-                        );
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>`                        );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
                             // Reset the line style to red (default) when popup is closed
@@ -835,25 +843,25 @@ function createPointLayer(ptlay,orders) {
                 };
 
 
-            } else if (ptlay  === 'Electric_Generator') {
+            } else if (ptlay  === 'Fertilizer_Plant') {
                 // Example point style
-                newcolor = 'de02d3'
+                newcolor = 'a3cf5f'
                 // Add the GeoJSON layer to the map
-                points_eia_electric_generator = L.geoJSON(d, {
+                points_plants_fertilizer = L.geoJSON(d, {
                         // filter: function (feature) {
                         //     return feature.properties.ft_category === 'Production Well';
                         // },
                         pointToLayer: function (feature, latlng) {
-                            const marker = createPlusMarker(latlng,newcolor);
+                            const marker = createPentagonMarker(latlng,newcolor);
                             marker.options.customColor = newcolor;
-                            marker.options.markerClass = 'plus-marker';                             
+                            marker.options.markerClass = 'pentagon-marker';                             
                             marker.on('mouseover', () => {
-                              const el = marker.getElement().querySelector('.plus-marker');
+                              const el = marker.getElement().querySelector('.pentagon-marker');
                               el.style.transform = 'scale(2)';
                             });
                         
                             marker.on('mouseout', () => {
-                              const el = marker.getElement().querySelector('.plus-marker');
+                              const el = marker.getElement().querySelector('.pentagon-marker');
                               el.style.transform = 'scale(1)';
                             });
                         
@@ -904,32 +912,31 @@ function createPointLayer(ptlay,orders) {
                           });
                         layer.bindPopup( 
                             `<div style="color: black; font-weight: bold;"><u>${displayname}</u></div><br>` +
-                            `<span style="color: black; font-weight: bold;">Owner: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${feature.properties.owner}</span><br>` +
-                            `<span style="color: black; font-weight: bold;">Linename: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${feature.properties.linename}</span><br>` +
+                            `<span style="color: black; font-weight: bold;">Company: </span>` +
+                            `<span style="color: grey; font-weight: normal;">${feature.properties.company}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Longitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`                         );
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span><br><br>` +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>`                        );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
                         });
+
                     }
             
                 });
-                if (!map.hasLayer(points_eia_electric_generator)) {
+                mapLayers.push(points_plants_fertilizer);
+                if (!map.hasLayer(points_plants_fertilizer) && orders != 'just the table') {
                     // console.log('needed to add the layer')
-                    // map.addLayer(points_eia_electric_generator);
-                }
-                // mapLayers.push(points_eia_bordercrossing_liquids);
-                // if (!map.hasLayer(points_eia_bordercrossing_liquids) && orders != 'just the table') {
-                //     // console.log('needed to add the layer')
-                //     map.addLayer(points_eia_bordercrossing_liquids);
-                // };
+                    map.addLayer(points_plants_fertilizer);
+                };
                 
             } else if (ptlay === 'Bordercrossing_Liquids') {
                 // Example point style
@@ -1009,7 +1016,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>` 
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -1107,7 +1118,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -1197,7 +1212,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -1286,7 +1305,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -1377,7 +1400,11 @@ function createPointLayer(ptlay,orders) {
                         `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                         `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                         `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                        +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                        +
+                        `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                            <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                        </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -1467,7 +1494,11 @@ function createPointLayer(ptlay,orders) {
                           feature.properties.utility_name  + "<br><b>Longitude:</b> " + 
                           parseFloat(feature.properties.longitude).toFixed(6) + "<br><b>Latitude: </b>" +
                           parseFloat(feature.properties.latitude).toFixed(6)
-                          +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                          +
+                          `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                            <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                        </div>` 
                           );
                           // Event listener for when the popup is closed
                           layer.on('popupclose', function () {
@@ -1558,7 +1589,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                             );
                           // Event listener for when the popup is closed
                           layer.on('popupclose', function () {
@@ -1651,7 +1686,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                             );
                           // Event listener for when the popup is closed
                           layer.on('popupclose', function () {
@@ -1744,7 +1783,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                             );
                           // Event listener for when the popup is closed
                           layer.on('popupclose', function () {
@@ -1835,7 +1878,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.coal_mw).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -1928,7 +1975,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2022,7 +2073,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2115,7 +2170,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2206,7 +2265,11 @@ function createPointLayer(ptlay,orders) {
                             feature.properties.utility_name + "<br><b>Longitude:</b> " + 
                             feature.properties.longitude + "<br><b>Latitude: </b>" +
                             feature.properties.latitude
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2297,7 +2360,11 @@ function createPointLayer(ptlay,orders) {
                             feature.properties.utility_name + "<br><b>Longitude:</b> " + 
                             feature.properties.longitude + "<br><b>Latitude: </b>" +
                             feature.properties.latitude
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2387,8 +2454,12 @@ function createPointLayer(ptlay,orders) {
                             feature.properties.utility_name + "<br><b>Longitude:</b> " + 
                             feature.properties.longitude + "<br><b>Latitude: </b>" +
                             feature.properties.latitude
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
-                        );
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
+                            );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
                             // Reset the line style to red (default) when popup is closed
@@ -2480,7 +2551,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                             );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2573,7 +2648,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                             );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2667,7 +2746,11 @@ function createPointLayer(ptlay,orders) {
                         `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                         `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                         `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                        +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                        +
+                        `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                            <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                        </div>` 
                     );
 
                         
@@ -2763,7 +2846,11 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
                         );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2856,7 +2943,11 @@ function createPointLayer(ptlay,orders) {
                         `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                         `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                         `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                        +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
+                        +
+                        `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                            <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                        </div>` 
                     );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
@@ -2950,8 +3041,12 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
-                        );
+                            +
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
+                            );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
                             // Reset the line style to red (default) when popup is closed
@@ -3041,9 +3136,12 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: black; font-weight: bold;">Longitude: </span>` +
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.longitude).toFixed(6)}</span><br>` +
                             `<span style="color: black; font-weight: bold;">Latitude: </span>` +
-                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`
-                            +`<br><br><button style="margin-top: 6px; background-color: #025687; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>`
-                        );
+                            `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`+
+                            `<div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            </div>` 
+                            );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
                             // Reset the line style to red (default) when popup is closed
@@ -3701,6 +3799,9 @@ function updateTable(geojson,src) {
         return;
     }
 
+
+
+
     const features = geojson.features;  // now we're working with geojson.features
     const tableBody = document.getElementById('maintablebody');
     let currentPage = 1;
@@ -3824,7 +3925,8 @@ function downloadTableData(thetabledata) {
     var encodedUri = encodeURI(csvContent);
     var link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "filtered_fractracker_table.csv");
+    n = download_table_name + '_fractracker_download.csv'
+    link.setAttribute("download", n);
 
     // Initiate download
     document.body.appendChild(link); // Required for Firefox
@@ -3862,28 +3964,29 @@ const layersArray = [
     "Border Crossing: Electric", 
     "Border Crossing: Liquids", 
     "Border Crossing: Natural Gas", 
+    "Compressor Stations", 
     "Market Hub: HGL", 
     "Market Hub: Natural Gas", 
-    "Ports: Petroleum", 
-    "Reserves: Petroleum", 
-    "Underground Storage: Natural Gas", 
-    "Terminal: Crude Oil", 
-    "Terminal: LNG", 
-    "Terminal: Petroleum", 
-    "Compressor Stations", 
     "Plants: Biodiesel", 
     "Plants: Ethanol", 
     "Plants: Ethylene Cracker", 
-    "Power Plants: Battery Storage", 
     "Plants: Coal", 
+    "Plants: Fertilizer",
     "Plants: Geothermal", 
     "Plants: Hydroelectric", 
     "Plants: Hydro Pumped Storage",  
+    "Ports: Petroleum", 
+    "Power Plants: Battery Storage",
     "Power Plants: Natural Gas", 
     "Power Plants: Nuclear", 
     "Power Plants: Petroleum", 
     "Processing Plants: Natural Gas", 
+    "Reserves: Petroleum", 
     "Refinery: Petroleum",
+    "Terminal: Crude Oil", 
+    "Terminal: LNG", 
+    "Terminal: Petroleum", 
+    "Underground Storage: Natural Gas", 
     // "Power Plants: Electric Generators"
     ];
 
@@ -4558,7 +4661,7 @@ window.onload = function() {
     document.getElementById('eia_plants_ethanol').checked = false;
     document.getElementById('eia_plants_ethylene_cracker').checked = false;
     document.getElementById('eia_powerplants_batterystorage').checked = false;
-    document.getElementById('eia_electric_generator').checked = false;
+    document.getElementById('plants_fertilizer').checked = false;
     document.getElementById('eia_plants_coal').checked = false;
     document.getElementById('eia_plants_geothermal').checked = false;
     document.getElementById('eia_plants_hydroelectric').checked = false;
@@ -4684,6 +4787,7 @@ document.getElementById('eia_compressorstations').addEventListener('change', fun
     if (this.checked) {
         if (!points_compressorstations) {
             createPointLayer('Compressors')
+            download_table_name = 'compressor_stations'
             document.getElementById('tabledataset').innerHTML = 'Compressors'
         } else {
             points_compressorstations.addTo(map);
@@ -4701,6 +4805,7 @@ document.getElementById('eia_bordercrossing_electric').addEventListener('change'
         if (!points_eia_bordercrossing_electric) {
             // console.log('toggled on via checkbox after creating points')
             createPointLayer('Bordercrossing_Electric')
+            download_table_name = 'bordercrossing_electric'
             document.getElementById('tabledataset').innerHTML = 'Border Crossing: Electric'
         } else {
             // console.log('toggled on and added')
@@ -4719,6 +4824,7 @@ document.getElementById('eia_bordercrossing_liquids').addEventListener('change',
     if (this.checked) {
         if (!points_eia_bordercrossing_liquids) {
             createPointLayer('Bordercrossing_Liquids')
+            download_table_name = 'bordercrossing_lng'
             document.getElementById('tabledataset').innerHTML = 'Border Crossing: Liquids'
         } else {
             // console.log('toggled on and added')
@@ -4738,6 +4844,7 @@ document.getElementById('eia_bordercrossing_naturalgas').addEventListener('chang
     if (this.checked) {
         if (!points_eia_bordercrossing_naturalgas) {
             createPointLayer('Bordercrossing_Naturalgas')
+            download_table_name = 'bordercrossing_naturalgas'
             document.getElementById('tabledataset').innerHTML = 'Border Crossing: Natural Gas'
         } else {
             points_eia_bordercrossing_naturalgas.addTo(map);
@@ -4756,6 +4863,7 @@ document.getElementById('eia_markethub_naturalgas').addEventListener('change', f
     if (this.checked) {
         if (!points_eia_markethub_naturalgas) {
             createPointLayer('Markethubs_Naturalgas')
+            download_table_name = 'markethub_naturalgas'
             document.getElementById('tabledataset').innerHTML = 'Market Hub: Natural Gas'
         } else {
             points_eia_markethub_naturalgas.addTo(map);
@@ -4773,6 +4881,7 @@ document.getElementById('eia_markethub_hgl').addEventListener('change', function
     if (this.checked) {
         if (!points_eia_markethub_hgl) {
             createPointLayer('Markethubs_hgl')
+            download_table_name = 'markethub_hgl'
             document.getElementById('tabledataset').innerHTML = 'Market Hub: HGL'
         } else {
             points_eia_markethub_hgl.addTo(map);
@@ -4791,6 +4900,7 @@ document.getElementById('eia_ports_petroleum').addEventListener('change', functi
     if (this.checked) {
         if (!points_eia_ports_petroleum) {
             createPointLayer('Ports_Petroleum')
+            download_table_name = 'ports_petroleum'
             document.getElementById('tabledataset').innerHTML = 'Ports: Petroleum'
         } else {
             points_eia_ports_petroleum.addTo(map);
@@ -4810,6 +4920,7 @@ document.getElementById('eia_powerplants_batterystorage').addEventListener('chan
 
         if (!points_eia_powerplants_batterystorage) {
             createPointLayer('Powerplants_Batterystorage')
+            download_table_name = 'powerplants_batterystorage'
             document.getElementById('tabledataset').innerHTML = 'Power Plants: Battery Storage'
         } else {
             points_eia_powerplants_batterystorage.addTo(map);
@@ -4824,19 +4935,19 @@ document.getElementById('eia_powerplants_batterystorage').addEventListener('chan
 
 
 // Toggle line visibility based on checkbox
-document.getElementById('eia_electric_generator').addEventListener('change', function() {
+document.getElementById('plants_fertilizer').addEventListener('change', function() {
     if (this.checked) {
-        document.getElementById('eia_electric_generator').checked = false
-    //     toggleselection('state','Power Plants: Electric Generators')
+        if (!points_plants_fertilizer) {
+            createPointLayer('Fertilizer_Plant')
+            download_table_name = 'plants_fertilizer'
+            document.getElementById('tabledataset').innerHTML = 'Plants: Fertilizer'
+        } else {
+            points_plants_fertilizer.addTo(map);
+        }
+        toggleselection('state','Plants: Fertilizer')
 
-    //     if (!points_eia_electric_generator) {
-    //         createPointLayer('Electric_Generator')
-    //         document.getElementById('tabledataset').innerHTML = 'Power Plants: Electric Generators'
-    //     } else {
-    //         points_eia_electric_generator.addTo(map);
-    //     }
-    // } else if (points_eia_electric_generator) {
-    //     map.removeLayer(points_eia_electric_generator);
+    } else if (points_plants_fertilizer) {
+        map.removeLayer(points_plants_fertilizer);
     }
 });
 
@@ -4847,6 +4958,7 @@ document.getElementById('eia_plants_biodiesel').addEventListener('change', funct
     if (this.checked) {
         if (!points_eia_plants_biodiesel) {
             createPointLayer('Plants_Biodiesel')
+            download_table_name = 'plants_biodiesel'
             document.getElementById('tabledataset').innerHTML = 'Plants: Biodiesel'
         } else {
             points_eia_plants_biodiesel.addTo(map);
@@ -4863,6 +4975,7 @@ document.getElementById('eia_plants_ethanol').addEventListener('change', functio
     if (this.checked) {
         if (!points_eia_plants_ethanol) {
             createPointLayer('Plants_Ethanol')
+            download_table_name = 'plants_ethanol'
             document.getElementById('tabledataset').innerHTML = 'Plants: Ethanol'
         } else {
             points_eia_plants_ethanol.addTo(map);
@@ -4879,6 +4992,7 @@ document.getElementById('eia_plants_ethylene_cracker').addEventListener('change'
     if (this.checked) {
         if (!points_eia_plants_ethylene_cracker) {
             createPointLayer('Plants_Ethylene_Cracker')
+            download_table_name = 'plants_ethylenecracker'
             document.getElementById('tabledataset').innerHTML = 'Plants: Ethylene Cracker'
         } else {
             points_eia_plants_ethylene_cracker.addTo(map);
@@ -4895,6 +5009,7 @@ document.getElementById('eia_plants_coal').addEventListener('change', function()
     if (this.checked) {
         if (!points_eia_plants_coal) {
             createPointLayer('Plants_Coal')
+            download_table_name = 'plants_coal'
             document.getElementById('tabledataset').innerHTML = 'Plants: Coal'
         } else {
             points_eia_plants_coal.addTo(map);
@@ -4911,6 +5026,7 @@ document.getElementById('eia_plants_geothermal').addEventListener('change', func
     if (this.checked) {
         if (!points_eia_plants_geothermal) {
             createPointLayer('Plants_Geothermal')
+            download_table_name = 'plants_geothermal'
             document.getElementById('tabledataset').innerHTML = 'Plants: Geothermal'
         } else {
             points_eia_plants_geothermal.addTo(map);
@@ -4927,6 +5043,7 @@ document.getElementById('eia_plants_hydroelectric').addEventListener('change', f
     if (this.checked) {
         if (!points_eia_plants_hydroelectric) {
             createPointLayer('Plants_Hydroelectric')
+            download_table_name = 'plants_hydroelectric'
             document.getElementById('tabledataset').innerHTML = 'Plants: Hydroelectric'
         } else {
             points_eia_plants_hydroelectric.addTo(map);
@@ -4943,6 +5060,7 @@ document.getElementById('eia_plants_hydropumped').addEventListener('change', fun
     if (this.checked) {
         if (!points_eia_plants_hydropumped) {
             createPointLayer('Plants_Hydropumped')
+            download_table_name = 'plants_hydropumped'
             document.getElementById('tabledataset').innerHTML = 'Plants: Hydro Pumped Storage'
         } else {
             points_eia_plants_hydropumped.addTo(map);
@@ -4960,6 +5078,7 @@ document.getElementById('eia_plants_power_naturalgas').addEventListener('change'
     if (this.checked) {
         if (!points_eia_plants_power_naturalgas) {
             createPointLayer('Plants_Naturalgas')
+            download_table_name = 'plants_naturalgas'
             document.getElementById('tabledataset').innerHTML = 'Power Plants: Natural Gas'
         } else {
             points_eia_plants_power_naturalgas.addTo(map);
@@ -4976,6 +5095,7 @@ document.getElementById('eia_plants_nuclear').addEventListener('change', functio
     if (this.checked) {
         if (!points_eia_plants_nuclear) {
             createPointLayer('Plants_Nuclear')
+            download_table_name = 'plants_nuclear'
             document.getElementById('tabledataset').innerHTML = 'Power Plants: Nuclear'
         } else {
             points_eia_plants_nuclear.addTo(map);
@@ -4992,6 +5112,7 @@ document.getElementById('eia_plants_petroleum').addEventListener('change', funct
     if (this.checked) {
         if (!points_eia_plants_petroleum) {
             createPointLayer('Plants_Petroleum')
+            download_table_name = 'plants_petroleum'
             document.getElementById('tabledataset').innerHTML = 'Power Plants: Petroleum'
         } else {
             points_eia_plants_petroleum.addTo(map);
@@ -5008,6 +5129,7 @@ document.getElementById('eia_plants_processing_naturalgas').addEventListener('ch
     if (this.checked) {
         if (!points_eia_plants_processing_naturalgas) {
             createPointLayer('Plants_Processing_Naturalgas')
+            download_table_name = 'processing_plants_naturalgas'
             document.getElementById('tabledataset').innerHTML = 'Processing Plants: Natural Gas'
         } else {
             points_eia_plants_processing_naturalgas.addTo(map);
@@ -5024,11 +5146,12 @@ document.getElementById('eia_plants_refinery_petroleum').addEventListener('chang
     if (this.checked) {
         if (!points_eia_plants_refinery_petroleum) {
             createPointLayer('Plants_Refinery_Petroleum')
-            document.getElementById('tabledataset').innerHTML = 'Refineries: Petroleum'
+            download_table_name = 'refinerties_petroleum'
+            document.getElementById('tabledataset').innerHTML = 'Refinery: Petroleum'
         } else {
             points_eia_plants_refinery_petroleum.addTo(map);
         }
-        toggleselection('state','Refineries: Petroleum')
+        toggleselection('state','Refinery: Petroleum')
 
     } else if (points_eia_plants_refinery_petroleum) {
         map.removeLayer(points_eia_plants_refinery_petroleum);
@@ -5040,6 +5163,7 @@ document.getElementById('eia_reserve_petroleum').addEventListener('change', func
     if (this.checked) {
         if (!points_eia_reserve_petroleum) {
             createPointLayer('Reserve_Petroleum')
+            download_table_name = 'reserves_petroleum'
             document.getElementById('tabledataset').innerHTML = 'Reserves: Petroleum'
         } else {
             points_eia_reserve_petroleum.addTo(map);
@@ -5056,6 +5180,7 @@ document.getElementById('eia_storage_naturalgas').addEventListener('change', fun
     if (this.checked) {
         if (!points_eia_storage_naturalgas) {
             createPointLayer('Storage_Naturalgas')
+            download_table_name = 'undergroundstorage_naturalgas'
             document.getElementById('tabledataset').innerHTML = 'Storage: Natural Gas'
         } else {
             points_eia_storage_naturalgas.addTo(map);
@@ -5072,6 +5197,7 @@ document.getElementById('eia_terminal_crudeoil').addEventListener('change', func
     if (this.checked) {
         if (!points_eia_terminal_crudeoil) {
             createPointLayer('Terminal_Crudeoil')
+            download_table_name = 'terminals_crudeoil'
             document.getElementById('tabledataset').innerHTML = 'Terminal: Crude Oil'
         } else {
             points_eia_terminal_crudeoil.addTo(map);
@@ -5088,6 +5214,7 @@ document.getElementById('eia_terminal_lng').addEventListener('change', function(
     if (this.checked) {
         if (!points_eia_terminal_lng) {
             createPointLayer('Terminal_Lng')
+            download_table_name = 'terminals_lng'
             document.getElementById('tabledataset').innerHTML = 'Terminal: LNG'
         } else {
             points_eia_terminal_lng.addTo(map);
@@ -5104,6 +5231,7 @@ document.getElementById('eia_terminal_petroleum').addEventListener('change', fun
     if (this.checked) {
         if (!points_eia_terminal_petroleum) {
             createPointLayer('Terminal_Petroleum')
+            download_table_name = 'terminals_petroleum'
             document.getElementById('tabledataset').innerHTML = 'Terminal: Petroleum'
         } else {
             points_eia_terminal_petroleum.addTo(map);
@@ -5194,8 +5322,8 @@ function getmodname(v) {
         return 'Plants_Processing_Naturalgas';  // Set the text inside the span
     } else if (v === "Refinery: Petroleum") {
         return 'Plants_Refinery_Petroleum';  // Set the text inside the span
-    } else if (v === "Power Plants: Electric Generators") {
-        return ''
+    } else if (v === "Plants: Fertilizer") {
+        return 'Fertilizer_Plant'
         // return 'Electric_Generator';  // Set the text inside the span
     } else {console.log('error - getmodname: '+v)}
 }
@@ -5251,8 +5379,8 @@ function getdisplayname(v) {
         return 'Processing Plants: Natural Gas';  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return 'Refinery: Petroleum';  // Set the text inside the span
-    } else if (v === "Electric_Generator") {
-        return ''
+    } else if (v === "Fertilizer_Plant") {
+        return 'Plants: Fertilizer'
         // return 'Power Plants: Electric Generators';  // Set the text inside the span
     } else {console.log('error - getdisplayname: '+v)}
 }
@@ -5309,8 +5437,8 @@ function getmaplayername(v) {
         return 'points_eia_plants_processing_naturalgas';  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return 'points_eia_plants_refinery_petroleum';  // Set the text inside the span
-    } else if (v === "Electric_Generator") {
-        return ''
+    } else if (v === "Fertilizer_Plant") {
+        return 'points_plants_fertilizer'
         // return 'points_eia_electric_generator';  // Set the text inside the span
     }  else {console.log('error - getmaplayername: '+v)}
 }
@@ -5368,8 +5496,8 @@ function getmaplayer(v) {
         return points_eia_plants_processing_naturalgas;  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return points_eia_plants_refinery_petroleum;  // Set the text inside the span
-    } else if (v === "Electric_Generator") {
-        return ''
+    } else if (v === "Fertilizer_Plant") {
+        return points_plants_fertilizer
         // return points_eia_electric_generator;  // Set the text inside the span
     }  else {console.log('error - getmaplayer: '+v)}
 }
@@ -5425,8 +5553,8 @@ function getlegenditem(v) {
         return 'eia_plants_processing_naturalgas';  // Set the text inside the span
     } else if (v === "Plants_Refinery_Petroleum") {
         return 'eia_plants_refinery_petroleum';  // Set the text inside the span
-    } else if (v === "Electric_Generator") {
-        return ''
+    } else if (v === "Fertilizer_Plant") {
+        return 'plants_fertilizer'
         // return 'eia_electric_generator';  // Set the text inside the span
     }  else {console.log('error - getlegenditem: '+v)}
 }
