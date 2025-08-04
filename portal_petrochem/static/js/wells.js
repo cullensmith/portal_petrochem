@@ -175,6 +175,56 @@ control.on('markgeocode', function(event) {
 });
 
 
+let customControl; // global reference to the control
+
+L.Control.CustomAction = L.Control.extend({
+    options: {
+      position: 'topleft'
+    },
+  
+    onAdd: function () {
+      const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+      container.id = 'my-custom-btn';
+  
+      container.innerHTML = '<button title="Clear Selection" style="background-color:white;width:30px;height:30px;cursor:pointer;"><i class="fas fa-trash"></i></button>';
+  
+      container.onclick = function () {
+        myCustomFunction();
+      };
+  
+      L.DomEvent.disableClickPropagation(container);
+      return container;
+    }
+  });
+  
+  // 2. Add your draw control
+  const drawControl = new L.Control.Draw({
+    draw: {
+      polygon: false,
+      polyline: false,
+      circle: false,
+      marker: false,
+      circlemarker: false,
+      rectangle: true
+    },
+    edit: false
+  });
+  map.addControl(drawControl);
+  
+
+  
+  // 4. Your function
+  function myCustomFunction() {
+    clearFilter();
+    // Add your logic here
+    if (customControl) {
+        map.removeControl(customControl);
+        customControl = null;
+      }
+    if (filteredPoints && map.hasLayer(filteredPoints)) {
+        map.removeLayer(filteredPoints);
+    }
+  }
 
 var dots;
 
@@ -624,6 +674,7 @@ function showdemos() {
     document.getElementById("resultspanel").classList.add("hide")
 }
 const mapLayers = [];
+var clickedid;
 
 function createPointLayer(ptlay,orders) {
     
@@ -677,8 +728,12 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
+                            console.log('here is the id: '+feature.properties.id)
+                            
+                            // console.log('clicked it!!');
                             // console.log('clicked a compressor')
                             if (closestFeature) {
                                 // console.log('closest feat')
@@ -726,7 +781,7 @@ function createPointLayer(ptlay,orders) {
 
                             <div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>`
                         );
                         // Event listener for when the popup is closed
@@ -734,6 +789,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()
                         });
                     }
             
@@ -776,6 +835,8 @@ function createPointLayer(ptlay,orders) {
                         });
 
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
+
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -824,14 +885,17 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span><br><br>` +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>`                        );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
 
                     }
             
@@ -874,6 +938,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -920,14 +985,17 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span><br><br>` +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>`                        );
                         // Event listener for when the popup is closed
                         layer.on('popupclose', function () {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
 
                     }
             
@@ -971,6 +1039,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             if (closestFeature) {
@@ -1019,7 +1088,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -1027,7 +1096,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -1072,6 +1144,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1121,7 +1194,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -1129,7 +1202,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
 
                     }
             
@@ -1168,6 +1244,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1215,7 +1292,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -1223,7 +1300,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -1261,6 +1341,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1308,7 +1389,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -1316,7 +1397,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                      }
             
                 });
@@ -1354,6 +1438,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1403,7 +1488,7 @@ function createPointLayer(ptlay,orders) {
                         +
                         `<div style="display: flex; gap: 8px; margin-top: 6px;">
                             <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                         </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -1411,7 +1496,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -1450,6 +1538,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1497,7 +1586,7 @@ function createPointLayer(ptlay,orders) {
                           +
                           `<div style="display: flex; gap: 8px; margin-top: 6px;">
                             <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                         </div>` 
                           );
                           // Event listener for when the popup is closed
@@ -1505,7 +1594,10 @@ function createPointLayer(ptlay,orders) {
                               // Reset the line style to red (default) when popup is closed
                               document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                               hidedemos()
-                          });                    }
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                          });                    }
                     
                 });
                 mapLayers.push(points_eia_powerplants_batterystorage);
@@ -1543,6 +1635,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1592,7 +1685,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                             );
                           // Event listener for when the popup is closed
@@ -1600,7 +1693,10 @@ function createPointLayer(ptlay,orders) {
                               // Reset the line style to red (default) when popup is closed
                               document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                               hidedemos()
-                          });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                          });
                     }
             
                 });
@@ -1639,6 +1735,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1689,7 +1786,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                             );
                           // Event listener for when the popup is closed
@@ -1697,7 +1794,10 @@ function createPointLayer(ptlay,orders) {
                               // Reset the line style to red (default) when popup is closed
                               document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                               hidedemos()
-                          });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                          });
                         }
             
                 });
@@ -1736,6 +1836,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1786,7 +1887,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                             );
                           // Event listener for when the popup is closed
@@ -1794,7 +1895,10 @@ function createPointLayer(ptlay,orders) {
                               // Reset the line style to red (default) when popup is closed
                               document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                               hidedemos()
-                          });                      
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                          });                      
                     }
             
                 });
@@ -1833,6 +1937,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1881,7 +1986,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -1889,7 +1994,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -1928,6 +2036,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -1978,7 +2087,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -1986,7 +2095,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2026,6 +2138,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2076,7 +2189,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -2084,7 +2197,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2123,6 +2239,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2173,7 +2290,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -2181,7 +2298,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2221,6 +2341,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2268,7 +2389,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -2276,7 +2397,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2316,6 +2440,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2363,7 +2488,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -2371,7 +2496,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
                     
                 });
@@ -2410,6 +2538,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2457,7 +2586,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                             );
                         // Event listener for when the popup is closed
@@ -2465,7 +2594,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2504,6 +2636,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2554,7 +2687,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                             );
                         // Event listener for when the popup is closed
@@ -2562,7 +2695,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2601,6 +2737,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2651,7 +2788,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                             );
                         // Event listener for when the popup is closed
@@ -2659,7 +2796,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2697,6 +2837,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2749,7 +2890,7 @@ function createPointLayer(ptlay,orders) {
                         +
                         `<div style="display: flex; gap: 8px; margin-top: 6px;">
                             <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                         </div>` 
                     );
 
@@ -2759,7 +2900,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2797,6 +2941,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2849,7 +2994,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                         );
                         // Event listener for when the popup is closed
@@ -2857,7 +3002,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2895,6 +3043,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -2946,7 +3095,7 @@ function createPointLayer(ptlay,orders) {
                         +
                         `<div style="display: flex; gap: 8px; margin-top: 6px;">
                             <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                            <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                         </div>` 
                     );
                         // Event listener for when the popup is closed
@@ -2954,7 +3103,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -2992,6 +3144,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -3044,7 +3197,7 @@ function createPointLayer(ptlay,orders) {
                             +
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                             );
                         // Event listener for when the popup is closed
@@ -3052,7 +3205,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
             
                 });
@@ -3090,6 +3246,7 @@ function createPointLayer(ptlay,orders) {
                             mouseout: defaultStyle
                         });
                         layer.on('click', function(e) {
+                            clickedid = feature.properties.id
                             const clickedLatLng = e.latlng;
                             const closestFeature = findClosestFeature(clickedLatLng);
                             // console.log('clicked a compressor')
@@ -3139,7 +3296,7 @@ function createPointLayer(ptlay,orders) {
                             `<span style="color: grey; font-weight: normal;">${parseFloat(feature.properties.latitude).toFixed(6)}</span>`+
                             `<div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
-                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showintable()">View in Table</button>
+                                <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>
                             </div>` 
                             );
                         // Event listener for when the popup is closed
@@ -3147,7 +3304,10 @@ function createPointLayer(ptlay,orders) {
                             // Reset the line style to red (default) when popup is closed
                             document.getElementById('attributes-box').innerHTML = 'Click a point feature in the map to see the population demographics within 1km of your facility.'
                             hidedemos()
-                        });
+                            if (filteredPoints && map.hasLayer(filteredPoints)) {
+                                map.removeLayer(filteredPoints);
+                            }
+                            clearFilter()                        });
                     }
                     
                 });
@@ -4581,6 +4741,88 @@ if (layer instanceof L.Circle) {
 }
 });
 
+
+map.on(L.Draw.Event.CREATED, function (e) {
+    // 3. Add your custom control
+    if (!customControl) {
+        customControl = new L.Control.CustomAction(); // your control class
+        map.addControl(customControl);
+      }
+
+
+    const layer = e.layer;
+    const bounds = layer.getBounds();
+  
+    // Convert bounds to a turf polygon
+    const turfBBox = turf.bboxPolygon([
+      bounds.getWest(),
+      bounds.getSouth(),
+      bounds.getEast(),
+      bounds.getNorth()
+    ]);
+  
+    const selectedFeatures = tabledata.features.filter(feature => {
+      return turf.booleanPointInPolygon(feature, turfBBox);
+    });
+  
+  
+
+    if (filteredPoints && map.hasLayer(filteredPoints)) {
+        map.removeLayer(filteredPoints);
+    }
+
+    const selectedIds = selectedFeatures.map(feature => feature.properties.id);
+    console.log(selectedIds)
+    const refinedsrch = {
+        type: "FeatureCollection",
+        features: tabledata.features.filter(f => selectedIds.includes( f.properties.id))
+    };
+
+    filteredPoints = L.geoJSON(refinedsrch, {
+        pointToLayer: function (feature, latlng) {
+            const icon = L.divIcon({
+                className: 'custom-square-marker',
+                iconSize: [18, 18]
+            });
+            return L.marker(latlng, { icon: icon });
+        }
+    }).addTo(map);
+
+    updateTable(refinedsrch, 'refined');
+
+    // Optionally clear the rectangle after drawing
+    layer.remove(); // or: map.removeLayer(layer);
+  });
+
+
+function fulldeets(id) {
+
+    const refinedsrch = {
+        type: "FeatureCollection",
+        features: tabledata.features.filter(f => f.properties.id === id)
+    };
+
+    if (!Array.isArray(refinedsrch.features)) {
+        console.error('Invalid GeoJSON: "features" is not an array');
+        return;
+    }
+
+    if (filteredPoints && map.hasLayer(filteredPoints)) {
+        map.removeLayer(filteredPoints);
+    }
+
+    filteredPoints = L.geoJSON(refinedsrch, {
+        pointToLayer: function (feature, latlng) {
+            const icon = L.divIcon({
+                className: 'custom-square-marker',
+                iconSize: [18, 18]
+            });
+            return L.marker(latlng, { icon: icon });
+        }
+    }).addTo(map);
+
+    updateTable(refinedsrch, 'refined');
+}
 
 function refinefilter() {
     const f = document.getElementById('sort-field2').value;
