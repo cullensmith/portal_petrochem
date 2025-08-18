@@ -818,7 +818,9 @@
     <div class="container" >
         <header style="display: flex; justify-content: space-between; margin-left: -10px; padding: 10px 20px;">
             <div style="display: flex; align-items: center;">
-                <img class="header-image" style="font-family:Archivo Black; margin-top:10px; height:80px; width:90px; position: relative; z-index: 5100;" src="/static/images/dataportallogo.png">
+                <a href="https://www.fractracker.org/" target="_blank" style="text-decoration: none;">
+                    <img class="header-image" style="font-family:Archivo Black; margin-top:10px; height:90px; width:90px; position: relative; z-index: 5100;" src="/static/images/ft2021_logo_icon dark_blue.png">
+                </a>
                 <h1 style="font-family:Archivo Black; margin-top:4px; margin-left: 20px; color:#02253a; line-height:1; font-size:45px;">
                     Petrochemical<br>Data Portal
                 </h1>
@@ -952,7 +954,7 @@
             <div class="right" id="container" style="min-width:650px">
                 <!-- Top content of the right side -->
                 <div id="map" style="border-top-left-radius: 20px;">
-                    {% comment %} <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/fta.png"> {% endcomment %}
+                    {% comment %} <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/ft2021_logo_icon dark_blue.png"> {% endcomment %}
 
                     <div class="legend" id="legend" style="width:auto;overflow:auto;max-height:calc(100% - 30px)">
                         <div class="legend-header" id="legend-toggle">
@@ -1125,7 +1127,7 @@
             {% comment %} <button onclick="showTab('tab2')">Quick Guide</button> {% endcomment %}
             <button disabled onclick="showTab('tab3')" class="btn" id="btn2" disabled>Data Details</button>
         </div>
-        </div>
+    {% comment %} </div> {% endcomment %}
     </div>
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
