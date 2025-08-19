@@ -4,6 +4,8 @@
     <meta charset=utf-8 />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FracTracker Petrochem Data Portal</title>
+    <link rel="icon" type="image/png" href="/static/images/ft2021_logo_icon dark_blue_small.png">
+
     <!-- Include Project Specific CSS -->
 
     {% comment %} <link rel = "stylesheet" href = "/static/css/filtering.css"/> {% endcomment %}
@@ -770,8 +772,26 @@
             flex-direction: column;
             justify-content: space-between; /* keeps top content and bottom tabs spaced out */
           }
-        
+          
+          .enter-button {
+            display:none;
+            height: 50px;
+            width: 100px;
+            background-color: #a3cf5f;
+            color: #02253a;
+            font-weight: bold;
+            font-size:16px;
+            border:none;
+            border-radius:6px;
+            cursor: pointer;
+          }
+          .enter-button.enabled {
+            display:block;
+            opacity: 1;
+            pointer-events: auto;
+          }
           .close-button {
+            display:none;
             position: absolute;
             top: 15px;
             right: 20px;
@@ -785,6 +805,15 @@
             color: #000;
           }
         
+          .close-button.enabled {
+            display: block;
+            pointer-events: auto;
+          }
+
+          .checkbox-agree:hover{
+            cursor: pointer;
+          }
+
           .tab-buttons {
             display: flex;
             justify-content: space-between;
@@ -1099,7 +1128,7 @@
             <a href="https://www.fractracker.org/" target="_blank">
                 <img class="header-image"
                      style="font-family:Archivo Black; margin-top:10px; height:40px; width:160px; position: relative; z-index: 5100;"
-                     src="/static/images/fractrackerlogodark.png"
+                     src="/static/images/fraccloseSplashtrackerlogodark.png"
                      alt="Beyond Petrochemicals">
             </a>
             <a href="https://www.beyondpetrochemicals.org/" target="_blank">
@@ -1113,7 +1142,7 @@
     <!-- Splash Modal -->
     <div id="splashScreen" class="splash-modal">
         <div class="splash-content">
-        <span class="close-button" onclick="closeSplash()">&times;</span>
+        <span class="close-button" onclick="closeSplash()" id="closex">&times;</span>
     
         <!-- Main Content Area (changes when tabs are clicked) -->
         <div id="tabContent" class="tab-content" style="overflow-y:auto">
@@ -1123,9 +1152,9 @@
     
         <!-- Tab Buttons -->
         <div class="tab-buttons">
-            <button disabled onclick="showTab('tab1')" class="btn" id="btn1" disabled>Terms of Service</button>
+            <button disabled onclick="showTab('tab1')" class="btn" id="btn1" >Terms of Service</button>
             {% comment %} <button onclick="showTab('tab2')">Quick Guide</button> {% endcomment %}
-            <button disabled onclick="showTab('tab3')" class="btn" id="btn2" disabled>Data Details</button>
+            <button disabled onclick="showTab('tab3')" class="btn" id="btn2" >Data Details</button>
         </div>
     {% comment %} </div> {% endcomment %}
     </div>
@@ -1176,18 +1205,21 @@
             showTab('tab1'); // Show default tab content
           }
         
-          function closeSplash() {
+        function closeSplash() {
             document.getElementById("splashScreen").style.display = "none";
           }
-          function openDD() {
+        function openDD() {
             document.getElementById("splashScreen").style.display = "block";
             showTab('tab3'); // Show default tab content
           }
         
-          function closeDD() {
+        function closeDD() {
             document.getElementById("splashScreen").style.display = "none";
           }
-          function showTab(tabId) {
+
+
+
+        function showTab(tabId) {
             const content = {
               tab1: {
                 title: 'Welcome to our Petrochemical Data Portal',
@@ -1195,8 +1227,9 @@
                        `<br>© Copyright 2025 `+
                        `<a href="https://www.fractracker.org" target="_blank" rel="noopener noreferrer">FracTracker Alliance</a><br>`+
                        `<br>The FracTracker data available to the public on this web page is subject to the following terms and conditions:<br><br>`+
-                        `1. The Site and App are provided on an “as is” basis without warranties or representations of any kind, either express or implied, including, but not limited to, warranties of title or implied warranties of merchantability or fitness for a particular purpose. <br>2. In no event shall FracTracker be liable for any special, direct, indirect, consequential, or incidental damages or any damages whatsoever arising out of or in connection with the use of the Site and App or the contents of the Site and App.<br>3. FracTracker Alliance retains all rights, title, and interest in and to the Data compilation, the database structure, and the Portal itself, including all associated intellectual property rights. The license granted herein is strictly limited to the uses permitted under these Terms.<br>4. A core condition of using the Data is that your use must be consistent with and supportive of the mission of FracTracker Alliance. Our mission is to "map, analyze, and communicate the risks of oil, gas, and petrochemical development to advance just energy alternatives that protect public health, natural resources, and the climate." We reserve the right, <strong>in our sole discretion</strong>, to determine whether a particular use is consistent with our mission.<br>5. When using the Data in any public-facing materials, you must cite FracTracker Alliance as the source.<br>6. By using the Site and/or App, you agree to our <a href="https://www.fractracker.org/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms of Service</a> (“Terms”) and our <a href="https://www.fractracker.org/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a> (“Privacy Policy”).` +
-                        `<br><br><label><input type="checkbox" id="splash-checkbox"> <strong>I agree to the terms</strong></label>`
+                       `<div style="font-size:13px;font-weight:normal;font-family:arial;margin-left:20px">1. The Site and App are provided on an “as is” basis without warranties or representations of any kind, either express or implied, including, but not limited to, warranties of title or implied warranties of merchantability or fitness for a particular purpose. <br>2. In no event shall FracTracker be liable for any special, direct, indirect, consequential, or incidental damages or any damages whatsoever arising out of or in connection with the use of the Site and App or the contents of the Site and App.<br>3. FracTracker Alliance retains all rights, title, and interest in and to the Data compilation, the database structure, and the Portal itself, including all associated intellectual property rights. The license granted herein is strictly limited to the uses permitted under these Terms.<br>4. A core condition of using the Data is that your use must be consistent with and supportive of the mission of FracTracker Alliance. Our mission is to "map, analyze, and communicate the risks of oil, gas, and petrochemical development to advance just energy alternatives that protect public health, natural resources, and the climate." We reserve the right, <strong>in our sole discretion</strong>, to determine whether a particular use is consistent with our mission.<br>5. When using the Data in any public-facing materials, you must cite FracTracker Alliance as the source.<br>6. By using the Site and/or App, you agree to our <a href="https://www.fractracker.org/terms-of-service/" target="_blank" rel="noopener noreferrer">Terms of Service</a> (“Terms”) and our <a href="https://www.fractracker.org/privacy-policy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a> (“Privacy Policy”).</div>` +
+                       `<button class="enter-button" id="enter-btn" style="margin-top:24px" onclick="closeSplash()">Enter</button>`+
+                       `<br><label><input type="checkbox" class ="checkbox-agree" id="splash-checkbox"> <strong>I agree to the terms</strong></label>`
               },
               
               tab3: {
@@ -1239,29 +1272,81 @@
             }
         };
       
+        // Enable or disable the button based on checkbox state
+
+
+
         const tabContent = document.getElementById("tabContent");
         tabContent.innerHTML = `<h2>${content[tabId].title}</h2><p style="font-family:arial">${content[tabId].text}</p>`;
       
+
+
+
         // ✅ Only attach checkbox logic if this is tab1
         if (tabId === 'tab1') {
-          const checkbox = document.getElementById('splash-checkbox');
-          const btn1 = document.getElementById('btn1');
-          const btn2 = document.getElementById('btn2');
-      
-          if (checkbox) {
+            const checkbox = document.getElementById('splash-checkbox');
+            const enterBtn = document.getElementById('enter-btn');
+            const close_x = document.getElementById('closex');
+            const btn1 = document.getElementById('btn1');
+            const btn2 = document.getElementById('btn2');
+          
+            // Restore checkbox state from sessionStorage
+            const savedState = sessionStorage.getItem('splashCheckboxChecked');
+            if (savedState === 'true') {
+              checkbox.checked = true;
+              enterBtn.classList.add('enabled');
+              close_x.classList.add('enabled');
+              btn1.classList.add('active');
+              btn2.classList.add('active');
+            }
+          
             checkbox.addEventListener('change', function () {
-              const isChecked = checkbox.checked;
-              [btn1, btn2].forEach(btn => {
-                btn.disabled = !isChecked;
-                btn.classList.toggle('active', isChecked);
-                btn.style.cursor = isChecked ? 'pointer' : 'not-allowed';
-              });
+              sessionStorage.setItem('splashCheckboxChecked', checkbox.checked);
+          
+              if (checkbox.checked) {
+                enterBtn.classList.add('enabled');
+                close_x.classList.add('enabled');
+                btn1.disabled=false;
+                btn2.disabled=false;
+
+              } else {
+                enterBtn.classList.remove('enabled');
+                close_x.classList.remove('enabled');
+                btn1.disabled=true;
+                btn2.disabled=true;
+              }
             });
           }
-        }
       }
-
+      document.addEventListener('DOMContentLoaded', () => {
+        const mcheckbox = document.getElementById('splash-checkbox');
+    
+        // Restore state on load (within session)
+        if (sessionStorage.getItem('modalCheckboxChecked') === 'true') {
+          mcheckbox.checked = true;
+        }
+    
+        // Update state when checkbox is clicked
+        mcheckbox.addEventListener('change', () => {
+          sessionStorage.setItem('modalCheckboxChecked', mcheckbox.checked);
+        });
+      });
       
+      document.addEventListener('DOMContentLoaded', () => {
+        const splashScreen = document.getElementById('splashScreen');
+    
+        splashScreen.addEventListener('click', function (e) {
+          // Only block if click is directly on the background overlay
+          if (e.target === splashScreen) {
+            console.log('Overlay clicked - do nothing');
+            // Prevent accidental modal close
+            e.stopPropagation();
+          } else {
+            console.log('Clicked inside modal content');
+          }
+        });
+      });
+
 
         // ✅ Show modal on load
         window.addEventListener('DOMContentLoaded', () => {
@@ -1279,6 +1364,9 @@
             splash.style.display = "none";
             }
         };
+        window.addEventListener('beforeunload', function () {
+            sessionStorage.clear();
+          });
 </script>
 </body>
 </html>
