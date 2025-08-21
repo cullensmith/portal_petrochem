@@ -878,7 +878,7 @@
                 <div class=" tabpanel hide" id="filterpanel" style="color:white"> {% comment %} class was class="catgrid tabpanel" {% endcomment %}
                     <div id="attributes-box" style="position: relative; padding: 10px; margin-top: 40px; border-radius: 5px;">
                         {% comment %} <h3>Demographics of the population within </h3> {% endcomment %}
-                        <p>Click a point feature in the map to see the population demographics within 1km of your facility.</p>
+                        <p>Load a layer onto the map and click a feature in the map to see the population demographics within 1km of your facility.</p>
                     </div>
                 </div>
                 <div class="tabpanel " id="filterpanel2"  style="display:none">
@@ -1367,6 +1367,17 @@
         window.addEventListener('beforeunload', function () {
             sessionStorage.clear();
           });
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+                        || window.innerWidth <= 768;
+        
+        if (isMobile) {
+            console.log("Mobile device detected, for a more user friendly experience rotate your device so that it's horizontal");
+        } else (
+            console.log("Likely a desktop")
+        )
+        });
 </script>
 </body>
 </html>
