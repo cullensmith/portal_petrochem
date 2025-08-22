@@ -226,8 +226,18 @@ L.Control.CustomAction = L.Control.extend({
     }
   }
 
-var dots;
 
+//   L.easyPrint({
+//     title: '🖨️ Print Map',
+//     position: 'topleft', // or 'topright', etc.
+//     sizeModes: ['Current', 'A4Landscape', 'A4Portrait'],
+//     filename: 'leaflet-map',
+//     exportOnly: false,
+//     hideControlContainer: false
+//   }).addTo(map);
+
+
+var dots;
 
 
 
@@ -243,6 +253,303 @@ var numicon;
 
 var ctytallyLayer;
 var markerIconCollection;
+
+
+
+// Configuration
+const GEOSERVER_URL = 'http://18.223.119.14:8080/geoserver';
+const WORKSPACE = 'portal_petrochem';
+const LAYER_NAME = 'fractracker_pipelines';
+
+// Create WMS layer with high z-index
+const pipelineLayer = L.tileLayer.wms(GEOSERVER_URL + '/wms', {
+    layers: WORKSPACE + ':' + LAYER_NAME,
+    format: 'image/png',
+    transparent: true,
+    styles: 'pink-lines',
+    version: '1.3.0',
+    attribution: 'Pipeline Data',
+    zIndex: 1000
+});
+
+// Debug the WMS layer
+pipelineLayer.on('tileerror', function(error) {
+    console.error('WMS Tile Error:', error);
+});
+
+// pipelineLayer.on('tileload', function() {
+//     console.log('WMS tile loaded');
+// });
+
+// Add click interactivity to WMS layer
+map.on('click', function(e) {
+    // Only handle clicks if pipeline layer is visible
+    if (!map.hasLayer(pipelineLayer)) return;
+    
+    // Show loading cursor
+    map.getContainer().style.cursor = 'wait';
+    
+    // Get clicked point in container coordinates
+    const point = map.latLngToContainerPoint(e.latlng);
+    const size = map.getSize();
+    const bounds = map.getBounds();
+    
+    // Build GetFeatureInfo parameters
+    const params = {
+        request: 'GetFeatureInfo',
+        service: 'WMS',
+        srs: 'EPSG:4326',
+        styles: '',
+        version: '1.3.0',
+        format: 'image/png',
+        bbox: bounds.getSouth() + ',' + bounds.getWest() + ',' + bounds.getNorth() + ',' + bounds.getEast(),
+        height: size.y,
+        width: size.x,
+        layers: WORKSPACE + ':' + LAYER_NAME,
+        query_layers: WORKSPACE + ':' + LAYER_NAME,
+        info_format: 'application/json',
+        i: Math.round(point.x),
+        j: Math.round(point.y),
+        feature_count: 5
+    };
+    
+    // Build URL
+    const url = GEOSERVER_URL + '/wms?' + Object.keys(params).map(key => 
+        key + '=' + encodeURIComponent(params[key])
+    ).join('&');
+    
+    // Make request
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            // Reset cursor
+            map.getContainer().style.cursor = '';
+            
+            if (data.features && data.features.length > 0) {
+                let popupContent = '<h4 style="color: black"><u>Pipeline Information</u></h4>';
+                
+                const feature = data.features[0];
+                const props = feature.properties;
+                
+                // Look for name variations
+                const name = props.name || props.NAME || props.pipeline_name || props.PIPELINE_NAME || 'N/A';
+                
+                // Look for status variations
+                const status = props.status || props.STATUS || props.state || props.STATE || 'N/A';
+                
+                // Look for company/operator variations
+                const company = props.company || props.COMPANY || props.operator || props.OPERATOR || 'N/A';
+                
+                // Look for product variations
+                const product = props.product || props.PRODUCT || props.commodity || props.COMMODITY || 'N/A';
+                
+                popupContent += `<br><span style="color: black; font-weight: bold;">Name: </span><span style="color: grey; font-weight: normal;">${feature.properties.name}</span><br>` ;
+                popupContent += `<span style="color: black; font-weight: bold;">Status: </span><span style="color: grey; font-weight: normal;">${feature.properties.status}</span><br>` ;
+                popupContent += `<span style="color: black; font-weight: bold;">Company: </span><span style="color: grey; font-weight: normal;">${feature.properties.company}</span><br>` ;
+                popupContent += `<span style="color: black; font-weight: bold;">Product: </span><span style="color: grey; font-weight: normal;">${feature.properties.product}</span><br>` ;
+                popupContent += `<span style="color: black; font-weight: bold;">Source Resolution: </span><span style="color: grey; font-weight: normal;">${feature.properties.res}</span><br>` ;
+
+
+
+                // If multiple features at this location
+                if (data.features.length > 1) {
+                    popupContent += `<br><em>+ ${data.features.length - 1} more pipeline(s) here</em>`;
+                }
+                
+                L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent(popupContent)
+                    .openOn(map);
+            }
+        })
+        .catch(error => {
+            // Reset cursor on error
+            map.getContainer().style.cursor = '';
+            console.error('GetFeatureInfo error:', error);
+        });
+ });
+
+// Listen for base layer changes and bring pipeline to front
+map.on('baselayerchange', function(e) {
+    if (map.hasLayer(pipelineLayer)) {
+        setTimeout(() => {
+            pipelineLayer.bringToFront();
+        }, 100);
+    }
+});
+
+let cursorTimeout;
+
+map.on('mousemove', function(e) {
+    if (!map.hasLayer(pipelineLayer)) return;
+
+    // Debounce requests to avoid spamming GeoServer
+    clearTimeout(cursorTimeout);
+    cursorTimeout = setTimeout(() => {
+        const point = map.latLngToContainerPoint(e.latlng);
+        const size = map.getSize();
+        const bounds = map.getBounds();
+
+        const params = {
+            request: 'GetFeatureInfo',
+            service: 'WMS',
+            srs: 'EPSG:4326',
+            styles: '',
+            version: '1.3.0',
+            format: 'image/png',
+            bbox: bounds.getSouth() + ',' + bounds.getWest() + ',' + bounds.getNorth() + ',' + bounds.getEast(),
+            height: size.y,
+            width: size.x,
+            layers: WORKSPACE + ':' + LAYER_NAME,
+            query_layers: WORKSPACE + ':' + LAYER_NAME,
+            info_format: 'application/json',
+            i: Math.round(point.x),
+            j: Math.round(point.y),
+            feature_count: 1
+        };
+
+        const url = GEOSERVER_URL + '/wms?' + Object.keys(params).map(key =>
+            key + '=' + encodeURIComponent(params[key])
+        ).join('&');
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                if (data.features && data.features.length > 0) {
+                    map.getContainer().style.cursor = 'pointer';
+                } else {
+                    map.getContainer().style.cursor = '';
+                }
+            })
+            .catch(() => {
+                map.getContainer().style.cursor = '';
+            });
+    }, 100); // Small delay to reduce load
+});
+
+// Attach to checkbox
+document.getElementById('pipeline_fta').addEventListener('change', function() {
+    if (this.checked) {
+        console.log('Adding WMS layer');
+        pipelineLayer.addTo(map);
+        setTimeout(() => {
+            pipelineLayer.bringToFront();
+        }, 100);
+    } else {
+        console.log('Removing WMS layer');
+        if (map.hasLayer(pipelineLayer)) {
+            map.removeLayer(pipelineLayer);
+        }
+    }
+});
+
+// // Test URL
+// console.log('WMS GetCapabilities URL:', GEOSERVER_URL + '/wms?service=WMS&request=GetCapabilities');
+
+
+// const GEOSERVER_URL = 'http://18.223.119.14:8080/geoserver';
+// const WORKSPACE = 'portal_petrochem';
+// const LAYER_NAME = 'fractracker_pipelines';
+
+// let pipelineVectorLayer;
+
+// function fetchPipelines() {
+//     // const wfsUrl = `${GEOSERVER_URL}/${WORKSPACE}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${WORKSPACE}:${LAYER_NAME}&outputFormat=application/json`;
+//     // const wfsUrl = `${GEOSERVER_URL}/${WORKSPACE}/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=${WORKSPACE}:${LAYER_NAME}&outputFormat=application/json&srsName=EPSG:4326`;
+//     const wfsUrl = GEOSERVER_URL + '/ows?' + 
+//     'service=WFS&' +
+//     'version=2.0.0&' +
+//     'request=GetFeature&' +
+//     'typename=' + WORKSPACE + ':' + LAYER_NAME + '&' +
+//     'outputFormat=application/json&' +
+//     'srsname=EPSG:4326&' +
+//     'format_options=coordinate_precision:8';
+//     console.log("Fetching WFS:", wfsUrl);
+
+//     fetch(wfsUrl)
+//         .then(res => {
+//             if (!res.ok) throw new Error("Network response was not ok");
+//             return res.json();
+//         })
+//         .then(data => {
+//             console.log("WFS data loaded:", data);
+//             pipelineVectorLayer = L.geoJSON(data, {
+//                 style: dStyle,
+//                 onEachFeature: handlePipelineFeature
+//             }).addTo(map);
+//         })
+//         .catch(err => console.error('Failed to load WFS data:', err));
+// }
+
+// const dStyle = {
+//     color: '#0000FF',
+//     weight: 2,
+//     opacity: 0.7
+// };
+
+// const hStyle = {
+//     color: 'red',
+//     weight: 5,
+//     opacity: 1
+// };
+
+// function handlePipelineFeature(feature, layer) {
+//     layer.on({
+//         mouseover: function (e) {
+//             e.target.setStyle(hStyle);
+//             map.getContainer().style.cursor = 'pointer';
+//         },
+//         mouseout: function (e) {
+//             e.target.setStyle(dStyle);
+//             map.getContainer().style.cursor = '';
+//         },
+//         click: function (e) {
+//             const props = feature.properties;
+//             const name = props.name || props.NAME || 'N/A';
+//             const status = props.status || props.STATUS || 'N/A';
+//             const company = props.company || props.COMPANY || 'N/A';
+//             const product = props.product || props.PRODUCT || 'N/A';
+
+//             const content = `
+//                 <h4>🛢️ Pipeline Information</h4>
+//                 <div><strong>Name:</strong> ${name}</div>
+//                 <div><strong>Status:</strong> ${status}</div>
+//                 <div><strong>Company:</strong> ${company}</div>
+//                 <div><strong>Product:</strong> ${product}</div>
+//             `;
+
+//             L.popup()
+//                 .setLatLng(e.latlng)
+//                 .setContent(content)
+//                 .openOn(map);
+//         }
+//     });
+// }
+
+// document.getElementById('pipeline_fta').addEventListener('change', function () {
+//     if (this.checked) {
+//         console.log('Adding pipeline vector layer');
+//         if (!pipelineVectorLayer) {
+//             fetchPipelines();
+//         } else {
+//             map.addLayer(pipelineVectorLayer);
+//         }
+//     } else {
+//         console.log('Removing pipeline vector layer');
+//         if (pipelineVectorLayer && map.hasLayer(pipelineVectorLayer)) {
+//             map.removeLayer(pipelineVectorLayer);
+//         }
+//     }
+// });
+
+
+
+
+
+
+
+
+
 function ctyct(data, d) {
     // Initialize a tally object
     let tally = {};
@@ -4883,6 +5190,7 @@ window.onload = function() {
     //document.getElementById('pipeline_fractracker').checked = false;
     document.getElementById('addtomap').checked = true;
     document.getElementById('srch-input1').value = '';
+    document.getElementById('pipeline_fta').checked = false;
     document.getElementById('pipeline_crudeoil').checked = false;
     document.getElementById('pipeline_hgl').checked = false;
     document.getElementById('pipeline_naturalgas').checked = false;

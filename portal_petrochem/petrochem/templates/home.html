@@ -47,8 +47,52 @@
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
     
+    {% comment %} <!-- EasyPrint CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easyprint@2.1.9/dist/bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-easyprint@2.1.9/dist/bundle.min.js"></script> {% endcomment %}
+
+
 
     <style>
+        @media print {
+            @page {
+                margin-top: 0px;
+                margin-bottom: 0px;
+                margin-left: 55px;
+
+              }
+            html, body {
+              margin: 0;
+              padding: 0;
+              height: 100%;
+            }
+        
+            /* Hide everything except the map */
+            body * {
+              {% comment %} visibility: hidden !important; {% endcomment %}
+            }
+            #legend * {
+                display:none
+            }
+            #map {
+              visibility: visible !important;
+              position: absolute !important;
+              top: 0 !important;
+              left: 0 !important;
+              width: 150% !important;
+              height: 100% !important;
+              z-index: 9999 !important;
+              border-top-right-radius:20px;
+              border-top-left-radius:20px;
+              border-bottom-right-radius:20px;
+              border-bottom-left-radius:20px;
+              margin-left:-300px
+            }
+        
+            .leaflet-control-container {
+              display: none !important;
+            }
+          }
         /*
         colors:
          dark blue - 02253a
@@ -425,6 +469,10 @@
             display: none;
             width: 100%;
         } 
+        #pbutton {
+            display: none;
+            width: 100%;
+        } 
         {% comment %} .dropdownbutton::after {
             transform: rotate(45deg);
             content: '\2BFE'; /* Down arrow Unicode */
@@ -749,15 +797,15 @@
             z-index: 9999;
             left: 0;
             top: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             background-color: rgba(0,0,0,0.6);
           }
         
           .splash-content {
             max-width: 1000px;
-            width: 80vw;
-            height: 80vh;
+            width: 80%;
+            height: 80%;
             position: fixed;
             top: 50%;
             left: 50%;
@@ -969,7 +1017,9 @@
                                 </div>
 
                             </div>
-
+                            <div class="dlbtn" style="position: absolute; bottom: 87px; left: 10px; right: 10px;">
+                                <button class="divbtns" id="pbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="printMap()"><i class="fa-solid fa-print"></i> Print Map</button>
+                            </div>
                             <div class="dlbtn" style="position: absolute; bottom: 10px; left: 10px; right: 10px;">
                                 <button class="divbtns" id="dlbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="downloadTableData(thetabledata)">
                                     Download
@@ -982,6 +1032,7 @@
             </div>
             <div class="right" id="container" style="min-width:650px">
                 <!-- Top content of the right side -->
+                
                 <div id="map" style="border-top-left-radius: 20px;">
                     {% comment %} <img class="header-image" style="height: 60px;position: absolute; right: 10px;z-index: 5100;" src="/static/images/ft2021_logo_icon dark_blue.png"> {% endcomment %}
 
@@ -1057,10 +1108,11 @@
                                 <div class="legenditem " id="legenditemid_32"><label class="category1 " id="legenditemid_42"><span class="legend-triangle" style="border-bottom-color: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_liquids" class="legenditemchk"  unchecked> Liquid Pipelines</label></div>
                                 <div class="legenditem " id="legenditemid_33"><label class="category1 " id="legenditemid_43"><span class="legend-triangle" style="border-bottom-color: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_naturalgas" class="legenditemchk"  unchecked> Natural Gas Pipelines</label></div>
                                 <p style="margin-bottom:5px"><strong>Pipelines</strong></p>
-                                <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#00253B;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_crudeoil" class=""  unchecked> Crude Oil</label></div>
-                                <div class="legenditem " id="legenditemid_13"><label class="category1 " id="legenditemid_23"><span style ="color:#0287D4;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_hgl" class=""  unchecked> HGL</label></div>
-                                <div class="legenditem " id="legenditemid_14"><label class="category1 " id="legenditemid_24"><span style ="color:#de541e;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_naturalgas" class=""  unchecked> Natural Gas</label></div>
-                                <div class="legenditem " id="legenditemid_15"><label class="category1 " id="legenditemid_25"><span style ="color:#e052e2;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_petroleum" class=""  unchecked> Petroleum</label></div>
+                                <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#e052e2;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_fta" class=""  unchecked> FracTracker Pipelines</label></div>
+                                <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#00253B;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_crudeoil" class=""  unchecked> Crude Oil</label></div>
+                                <div class="legenditem " id="legenditemid_13"><label class="category1 " id="legenditemid_23"><span style ="color:#0287D4;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_hgl" class=""  unchecked> HGL</label></div>
+                                <div class="legenditem " id="legenditemid_14"><label class="category1 " id="legenditemid_24"><span style ="color:#de541e;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_naturalgas" class=""  unchecked> Natural Gas</label></div>
+                                <div class="legenditem " id="legenditemid_15"><label class="category1 " id="legenditemid_25"><span style ="color:#a3cf5f;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_petroleum" class=""  unchecked> Petroleum</label></div>
                                 {% comment %} <div class="legenditem tooltip-target" id="legenditemid_11"><label class="category1 dim " id="legenditemid_21"><span style ="color:#de02d3;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_fractracker" class="dim"  unchecked> FracTracker Digitized</label></div> {% endcomment %}
                                 <div <span style ="color:white;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><p type="checkbox" id="pipeline_fractracker" class="dim"  > </p></label></div>
 
@@ -1223,7 +1275,7 @@
             const content = {
               tab1: {
                 title: 'Welcome to our Petrochemical Data Portal',
-                text: `<br>This application was developed to provides key insights into petrochemical data across the United States by FracTracker Alliance.<br>`+
+                text: `<br>This application was developed to provide key insights into petrochemical data across the United States by FracTracker Alliance.<br>`+
                        `<br>© Copyright 2025 `+
                        `<a href="https://www.fractracker.org" target="_blank" rel="noopener noreferrer">FracTracker Alliance</a><br>`+
                        `<br>The FracTracker data available to the public on this web page is subject to the following terms and conditions:<br><br>`+
@@ -1235,7 +1287,8 @@
               tab3: {
                 title: 'Data Sourcing',
                 text:
-                `<br><a href="https://www.fractracker.org/petrochemicals/guide/" target="_blank" rel="noopener noreferrer">Head over to our handy guide for more information about petrochemicals</a>`+
+                `<br><span><b>In need of background information? </b></span><a href="https://www.fractracker.org/petrochemicals/guide/" target="_blank" rel="noopener noreferrer">Petrochemical Basics</a><br>`+
+                `<br><span><b>Help Us Improve the FracTracker Data Portals:</b></span> <a href="https://forms.gle/NQ7QLRCm4HYm1SXF8" target="_blank" rel="noopener noreferrer">Feedback Form</a>`+
                 '<br><br><b>MARKET HUBS, PORTS and TERMINALS</b>'+
                 '<br><br><u>Crude Oil (Terminal)</u> – <i>These terminals facilitate the loading and unloading of crude oil, often connecting different modes of transportation like rail and pipelines. Data from EIA. Updated 8/01/2025.</i>'+
                 '<br><br><u>HGL (Market Hub)</u> - <i>Hydrocarbon gas liquids (HGL) storage and trading hubs. Data from EIA. Updated 8/01/2025.</i>'+
@@ -1378,6 +1431,24 @@
             console.log("Likely a desktop")
         )
         });
+
+        window.addEventListener("beforeprint", () => {
+            if (map && map.invalidateSize) {
+              setTimeout(() => {
+                map.invalidateSize();
+              }, 100);
+            }
+          });
+          function printMap() {
+            const center = map.getCenter();
+            const zoom = map.getZoom();
+        
+            setTimeout(() => {
+                map.invalidateSize();           // Force Leaflet to resize
+                map.setView(center, zoom);      // Reapply the same view (important if layout shifts)
+                window.print();
+            }, 200);  // Delay ensures layout and CSS changes apply first
+        }
 </script>
 </body>
 </html>

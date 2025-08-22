@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FracTracker Pipelines - Interactive Vector Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        #map {
+            height: calc(100vh - 120px);
+            width: 100%;
+            border: none;
+        }
+        
+        .loading-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .stats-panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            z-index: 1000;
+            min-width: 200px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats-panel h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        
+        .stat-value {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        
+        .error-message {
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            margin: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .leaflet-popup-content {
+            max-width: 300px;
+        }
+        
+        .popup-header {
+            background: #3498db;
+            color: white;
+            margin: -10px -10px 10px -10px;
+            padding: 10px;
+            border-radius: 3px 3px 0 0;
+            font-weight: bold;
+        }
+        
+        .popup-property {
+            margin: 5px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .popup-property:last-child {
+            border-bottom: none;
+        }
+        
+        .popup-label {
+            font-weight: bold;
+            color: #2c3e50;
+            display: inline-block;
+            min-width: 80px;
+        }
+        
+        .popup-value {
+            color: #7f8c8d;
+        }
+        
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .legend h5 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        
+        .legend-line {
+            width: 30px;
+            height: 3px;
+            margin-right: 10px;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🛢️ FracTracker Pipelines Interactive Map</h1>
+        <p>Click on any pipeline to view detailed information</p>
+    </div>
+
+    <div id="loading" class="loading-indicator">
+        <div class="loading-spinner"></div>
+        <div>Loading pipeline data...</div>
+        <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">This may take a moment for large datasets</div>
+    </div>
+
+    <div id="map"></div>
+
+    <div id="stats" class="stats-panel" style="display: none;">
+        <h4>📊 Dataset Stats</h4>
+        <div class="stat-item">
+            <span class="stat-label">Total Pipelines:</span>
+            <span class="stat-value" id="total-features">-</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Data Source:</span>
+            <span class="stat-value">GeoServer WFS</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Last Updated:</span>
+            <span class="stat-value" id="last-updated">-</span>
+        </div>
+    </div>
+
+    <div class="legend">
+        <h5>Pipeline Legend</h5>
+        <div class="legend-item">
+            <div class="legend-line" style="background-color: #e74c3c;"></div>
+            <span>Active Pipelines</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line" style="background-color: #f39c12;"></div>
+            <span>Proposed Pipelines</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-line" style="background-color: #95a5a6;"></div>
+            <span>Inactive/Other</span>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <script>
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        
+        const GEOSERVER_URL = 'http://18.223.119.14:8080/geoserver';
+        const WORKSPACE = 'portal_petrochem';
+        const LAYER_NAME = 'fractracker_pipelines';
+        
+        // ========================================
+        // MAP INITIALIZATION
+        // ========================================
+        
+        // Initialize the map - centered on US
+        const map = L.map('map').setView([39.8283, -98.5795], 5);
+        
+        // Add base map layers
+        const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 18
+        });
+        
+        const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© CARTO',
+            maxZoom: 18
+        });
+        
+        const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles © Esri',
+            maxZoom: 17
+        });
+        
+        // Start with CartoDB light for better pipeline visibility
+        cartoLayer.addTo(map);
+        
+        // ========================================
+        // WFS VECTOR LAYER LOADING
+        // ========================================
+        
+        let pipelineLayer;
+        let featureCount = 0;
+        
+        // Build WFS URL
+        const wfsUrl = GEOSERVER_URL + '/ows?' + 
+            'service=WFS&' +
+            'version=2.0.0&' +
+            'request=GetFeature&' +
+            'typename=' + WORKSPACE + ':' + LAYER_NAME + '&' +
+            'outputFormat=application/json&' +
+            'srsname=EPSG:4326';
+        
+        console.log('WFS URL:', wfsUrl);
+        
+        // Function to determine pipeline style based on properties
+        function getPipelineStyle(feature) {
+            const props = feature.properties;
+            
+            // Try different property names that might indicate status
+            const status = props.status || props.STATUS || props.State || props.state || 
+                          props.condition || props.CONDITION || props.type || props.TYPE || '';
+            
+            const statusLower = status.toString().toLowerCase();
+            
+            // Determine color based on status
+            let color = '#95a5a6'; // Default gray
+            let weight = 2;
+            let opacity = 0.8;
+            
+            if (statusLower.includes('active') || statusLower.includes('operational') || 
+                statusLower.includes('in service') || statusLower.includes('existing')) {
+                color = '#e74c3c'; // Red for active
+                weight = 3;
+                opacity = 0.9;
+            } else if (statusLower.includes('proposed') || statusLower.includes('planned') || 
+                      statusLower.includes('under construction') || statusLower.includes('pending')) {
+                color = '#f39c12'; // Orange for proposed
+                weight = 2.5;
+                opacity = 0.8;
+            } else if (statusLower.includes('abandoned') || statusLower.includes('inactive') || 
+                      statusLower.includes('decommissioned')) {
+                color = '#7f8c8d'; // Dark gray for inactive
+                weight = 1.5;
+                opacity = 0.6;
+            }
+            
+            return {
+                color: color,
+                weight: weight,
+                opacity: opacity,
+                lineCap: 'round',
+                lineJoin: 'round'
+            };
+        }
+        
+        // Function to create popup content
+        function createPopupContent(feature) {
+            const props = feature.properties;
+            let content = '<div class="popup-header">🛢️ Pipeline Information</div>';
+            
+            // List of common pipeline property names to look for
+            const importantProps = [
+                'name', 'NAME', 'pipeline_name', 'PIPELINE_NAME',
+                'operator', 'OPERATOR', 'company', 'COMPANY',
+                'status', 'STATUS', 'state', 'STATE',
+                'type', 'TYPE', 'product', 'PRODUCT',
+                'diameter', 'DIAMETER', 'size', 'SIZE',
+                'length', 'LENGTH', 'distance', 'DISTANCE',
+                'year', 'YEAR', 'date', 'DATE', 'built', 'BUILT'
+            ];
+            
+            // Show important properties first
+            importantProps.forEach(propName => {
+                if (props.hasOwnProperty(propName) && props[propName] !== null && props[propName] !== '') {
+                    const label = propName.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    content += `<div class="popup-property">
+                        <span class="popup-label">${label}:</span>
+                        <span class="popup-value">${props[propName]}</span>
+                    </div>`;
+                }
+            });
+            
+            // Show other properties (limit to prevent overwhelming popup)
+            let otherPropsShown = 0;
+            const maxOtherProps = 5;
+            
+            for (let key in props) {
+                if (otherPropsShown >= maxOtherProps) break;
+                
+                if (!importantProps.includes(key) && props[key] !== null && props[key] !== '' && 
+                    key !== 'geom' && key !== 'geometry' && key !== 'the_geom') {
+                    const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    content += `<div class="popup-property">
+                        <span class="popup-label">${label}:</span>
+                        <span class="popup-value">${props[key]}</span>
+                    </div>`;
+                    otherPropsShown++;
+                }
+            }
+            
+            // Add coordinates info
+            if (feature.geometry.type === 'LineString' || feature.geometry.type === 'MultiLineString') {
+                content += `<div class="popup-property">
+                    <span class="popup-label">Geometry:</span>
+                    <span class="popup-value">${feature.geometry.type}</span>
+                </div>`;
+            }
+            
+            return content;
+        }
+        
+        // Function to add hover effects
+        function onEachFeature(feature, layer) {
+            // Bind popup
+            layer.bindPopup(createPopupContent(feature), {
+                maxWidth: 300,
+                className: 'custom-popup'
+            });
+            
+            // Add hover effects
+            layer.on({
+                mouseover: function(e) {
+                    const layer = e.target;
+                    layer.setStyle({
+                        weight: layer.options.weight + 2,
+                        opacity: 1,
+                        color: '#2c3e50'
+                    });
+                    
+                    // Show tooltip with basic info
+                    const props = feature.properties;
+                    const name = props.name || props.NAME || props.pipeline_name || props.PIPELINE_NAME || 'Pipeline';
+                    const operator = props.operator || props.OPERATOR || props.company || props.COMPANY || '';
+                    
+                    let tooltipText = `<strong>${name}</strong>`;
+                    if (operator) tooltipText += `<br>Operator: ${operator}`;
+                    
+                    layer.bindTooltip(tooltipText, {
+                        permanent: false,
+                        direction: 'top',
+                        offset: [0, -10]
+                    }).openTooltip();
+                },
+                mouseout: function(e) {
+                    const layer = e.target;
+                    pipelineLayer.resetStyle(layer);
+                    layer.closeTooltip();
+                }
+            });
+        }
+        
+        // Load WFS data
+        console.log('Fetching pipeline data...');
+        
+        fetch(wfsUrl)
+            .then(response => {
+                console.log('Response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data received:', data);
+                
+                // Hide loading indicator
+                document.getElementById('loading').style.display = 'none';
+                
+                if (!data.features || data.features.length === 0) {
+                    throw new Error('No pipeline features found in the response');
+                }
+                
+                featureCount = data.features.length;
+                console.log(`Loaded ${featureCount} pipeline features`);
+                
+                // Create and add the pipeline layer
+                pipelineLayer = L.geoJSON(data, {
+                    style: getPipelineStyle,
+                    onEachFeature: onEachFeature
+                });
+                
+                pipelineLayer.addTo(map);
+                
+                // Fit map to pipeline bounds with padding
+                const bounds = pipelineLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [20, 20] });
+                }
+                
+                // Update stats panel
+                document.getElementById('total-features').textContent = featureCount.toLocaleString();
+                document.getElementById('last-updated').textContent = new Date().toLocaleDateString();
+                document.getElementById('stats').style.display = 'block';
+                
+                console.log('Pipeline layer added successfully');
+                
+                // Log sample of properties for debugging
+                if (data.features.length > 0) {
+                    console.log('Sample feature properties:', Object.keys(data.features[0].properties));
+                }
+                
+            })
+            .catch(error => {
+                console.error('Error loading pipeline data:', error);
+                
+                // Hide loading indicator
+                document.getElementById('loading').style.display = 'none';
+                
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.innerHTML = `
+                    <h3>⚠️ Error Loading Pipeline Data</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>WFS URL:</strong> ${wfsUrl}</p>
+                    <p>Please check:</p>
+                    <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+                        <li>GeoServer is running and accessible</li>
+                        <li>Workspace and layer names are correct</li>
+                        <li>Layer is published and accessible</li>
+                        <li>CORS is properly configured</li>
+                        <li>Network connectivity to GeoServer</li>
+                    </ul>
+                `;
+                document.body.appendChild(errorDiv);
+            });
+        
+        // ========================================
+        // LAYER CONTROLS
+        // ========================================
+        
+        const baseMaps = {
+            "🗺️ Light Map": cartoLayer,
+            "🌍 OpenStreetMap": osmLayer,
+            "🛰️ Satellite": satelliteLayer
+        };
+        
+        // Add layer control
+        L.control.layers(baseMaps, null, {
+            position: 'topright',
+            collapsed: true
+        }).addTo(map);
+        
+        // ========================================
+        // ADDITIONAL CONTROLS
+        // ========================================
+        
+        // Add scale control
+        L.control.scale({
+            position: 'bottomright',
+            metric: true,
+            imperial: true
+        }).addTo(map);
+        
+        // Add custom control for layer actions
+        const customControl = L.control({position: 'topleft'});
+        customControl.onAdd = function(map) {
+            const div = L.DomUtil.create('div', 'leaflet-control-layers leaflet-control');
+            div.innerHTML = `
+                <div style="padding: 10px; background: white; border-radius: 5px;">
+                    <button onclick="refreshData()" style="padding: 8px 12px; margin: 2px; border: none; background: #3498db; color: white; border-radius: 4px; cursor: pointer;">
+                        🔄 Refresh Data
+                    </button><br>
+                    <button onclick="zoomToExtent()" style="padding: 8px 12px; margin: 2px; border: none; background: #27ae60; color: white; border-radius: 4px; cursor: pointer;">
+                        🎯 Zoom to Extent
+                    </button><br>
+                    <button onclick="exportData()" style="padding: 8px 12px; margin: 2px; border: none; background: #8e44ad; color: white; border-radius: 4px; cursor: pointer;">
+                        💾 Export Data
+                    </button>
+                </div>
+            `;
+            return div;
+        };
+        customControl.addTo(map);
+        
+        // ========================================
+        // UTILITY FUNCTIONS
+        // ========================================
+        
+        function refreshData() {
+            if (pipelineLayer) {
+                map.removeLayer(pipelineLayer);
+            }
+            document.getElementById('loading').style.display = 'block';
+            location.reload();
+        }
+        
+        function zoomToExtent() {
+            if (pipelineLayer) {
+                const bounds = pipelineLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                }
+            }
+        }
+        
+        function exportData() {
+            if (pipelineLayer) {
+                const geoJSON = pipelineLayer.toGeoJSON();
+                const dataStr = JSON.stringify(geoJSON, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(dataBlob);
+                link.download = 'fractracker_pipelines.geojson';
+                link.click();
+            }
+        }
+        
+        // ========================================
+        // ERROR HANDLING
+        // ========================================
+        
+        // Handle map errors
+        map.on('error', function(error) {
+            console.error('Map error:', error);
+        });
+        
+        // Add connection test
+        function testConnection() {
+            const testUrl = GEOSERVER_URL + '/wms?service=WMS&request=GetCapabilities';
+            fetch(testUrl)
+                .then(response => {
+                    console.log('GeoServer connection test:', response.ok ? 'SUCCESS' : 'FAILED');
+                })
+                .catch(error => {
+                    console.error('GeoServer connection test FAILED:', error);
+                });
+        }
+        
+        testConnection();
+        
+        // Log configuration for debugging
+        console.log('=== CONFIGURATION ===');
+        console.log('GeoServer URL:', GEOSERVER_URL);
+        console.log('Workspace:', WORKSPACE);
+        console.log('Layer:', LAYER_NAME);
+        console.log('Full Layer Name:', WORKSPACE + ':' + LAYER_NAME);
+        console.log('WFS URL:', wfsUrl);
+        console.log('=====================');
+        
+    </script>
+</body>
+</html>
