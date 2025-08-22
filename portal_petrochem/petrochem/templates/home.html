@@ -54,45 +54,99 @@
 
 
     <style>
-        @media print {
-            @page {
-                margin-top: 0px;
-                margin-bottom: 0px;
-                margin-left: 55px;
+      
+        
+        .print-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 10px;
+        }
+        
+        .print-btn:hover {
+            background-color: #45a049;
+        }
+        
+        .print-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
 
-              }
-            html, body {
-              margin: 0;
-              padding: 0;
-              height: 100%;
-            }
         
-            /* Hide everything except the map */
-            body * {
-              {% comment %} visibility: hidden !important; {% endcomment %}
-            }
-            #legend * {
-                display:none
-            }
-            #map {
-              visibility: visible !important;
-              position: absolute !important;
-              top: 0 !important;
-              left: 0 !important;
-              width: 150% !important;
-              height: 100% !important;
-              z-index: 9999 !important;
-              border-top-right-radius:20px;
-              border-top-left-radius:20px;
-              border-bottom-right-radius:20px;
-              border-bottom-left-radius:20px;
-              margin-left:-300px
-            }
+        /* Print preview modal */
+        .print-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+        }
         
-            .leaflet-control-container {
-              display: none !important;
-            }
-          }
+        .print-content {
+            position: relative;
+            margin: 2% auto;
+            width: 80%;
+            height: 90%;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .print-map {
+            width: 100%;
+            height: 80%;
+            border: 1px solid #ddd;
+        }
+        
+        .print-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .print-actions {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .screenshot-btn {
+            background-color: #2196F3;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 0 5px;
+        }
+        
+        .screenshot-btn:hover {
+            background-color: #1976D2;
+        }
+        
+        .screenshot-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+
         /*
         colors:
          dark blue - 02253a
@@ -1017,9 +1071,13 @@
                                 </div>
 
                             </div>
-                            <div class="dlbtn" style="position: absolute; bottom: 87px; left: 10px; right: 10px;">
-                                <button class="divbtns" id="pbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="printMap()"><i class="fa-solid fa-print"></i> Print Map</button>
+                            <div class="controls" style="position: absolute; bottom: 87px; left: 10px; right: 10px;">
+                                {% comment %} <button class="print-btn" onclick="showPrintPreview()">📋 Create Map Screenshot</button> {% endcomment %}
+                                <button class="divbtns" id="pbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="showPrintPreview()"><i class="fa-solid fa-print"></i> Print Map</button>
                             </div>
+                            {% comment %} <div class="dlbtn" style="position: absolute; bottom: 87px; left: 10px; right: 10px;">
+                                <button class="divbtns" id="pbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="printMap()"><i class="fa-solid fa-print"></i> Print Map</button>
+                            </div> {% endcomment %}
                             <div class="dlbtn" style="position: absolute; bottom: 10px; left: 10px; right: 10px;">
                                 <button class="divbtns" id="dlbutton" style="font-family: 'Archivo Black'; font-size:18px;height: 60px; display: block; background-color: #ffc857;" onclick="downloadTableData(thetabledata)">
                                     Download
@@ -1191,6 +1249,22 @@
             </a>
         </div> {% endcomment %}
     </div>
+
+    <!-- Print Preview Modal -->
+    <div id="printModal" class="print-modal">
+        <div class="print-content">
+            <button class="close-btn" onclick="closePrintPreview()">&times;</button>
+            <div class="print-header">
+                <h2>Map Screenshot Preview</h2>
+                <p>Date: <span id="printDate"></span></p>
+            </div>
+            <div id="printMap" class="print-map"></div>
+            <div class="print-actions">
+                <button class="screenshot-btn" onclick="captureMapScreenshot()">📸 Download Screenshot</button>
+                <button class="print-btn" onclick="closePrintPreview()">Cancel</button>
+            </div>
+        </div>
+    </div>
     <!-- Splash Modal -->
     <div id="splashScreen" class="splash-modal">
         <div class="splash-content">
@@ -1212,7 +1286,354 @@
     </div>
     <!-- Include Project Specific JavaScript -->
     <script src = "/static/js/wells.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <script>
+
+        
+
+        let printMapInstance;
+
+
+        // Screenshot preview function
+        function showPrintPreview() {
+            const modal = document.getElementById('printModal');
+            const printDate = document.getElementById('printDate');
+            
+            // Set current date
+            printDate.textContent = new Date().toLocaleDateString();
+            
+            // Show modal
+            modal.style.display = 'block';
+            
+            // Create print map instance with better layer handling
+            setTimeout(() => {
+                if (printMapInstance) {
+                    printMapInstance.remove();
+                }
+                
+                printMapInstance = L.map('printMap').setView(map.getCenter(), map.getZoom());
+                
+                // Find the current tile layer from the main map
+                let originalTileLayer;
+
+                map.eachLayer(layer => {
+                    if (layer instanceof L.TileLayer && !(layer instanceof L.ImageOverlay)) {
+                        originalTileLayer = layer;
+                    }
+                });
+
+                let tileLayer;
+                if (originalTileLayer) {
+                    tileLayer = L.tileLayer(originalTileLayer._url, {
+                        ...originalTileLayer.options
+                    }).addTo(printMapInstance);
+                } else {
+                    // Fallback to OpenStreetMap if no tile layer found
+                    tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '© OpenStreetMap contributors',
+                        maxZoom: 19
+                    }).addTo(printMapInstance);
+                }
+                
+                // Wait for base tiles to load
+                let tilesLoaded = 0;
+                let tilesToLoad = 0;
+                
+                tileLayer.on('tileloadstart', function() {
+                    tilesToLoad++;
+                });
+                
+                tileLayer.on('tileload', function() {
+                    tilesLoaded++;
+                });
+                
+                tileLayer.on('tileerror', function() {
+                    tilesLoaded++;
+                });
+                
+                // Copy all layers from original map with full styling
+                map.eachLayer(function(layer) {
+                    if (layer instanceof L.Marker) {
+                        // Copy marker with all options including custom icons
+                        const newMarker = L.marker(layer.getLatLng(), {
+                            icon: layer.options.icon,
+                            opacity: layer.options.opacity,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newMarker.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
+                        // Handle polylines with full styling
+                        const newPolyline = L.polyline(layer.getLatLngs(), {
+                            color: layer.options.color,
+                            weight: layer.options.weight,
+                            opacity: layer.options.opacity,
+                            fillColor: layer.options.fillColor,
+                            fillOpacity: layer.options.fillOpacity,
+                            dashArray: layer.options.dashArray,
+                            lineCap: layer.options.lineCap,
+                            lineJoin: layer.options.lineJoin,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newPolyline.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.Polygon) {
+                        // Handle polygons with full styling
+                        const newPolygon = L.polygon(layer.getLatLngs(), {
+                            color: layer.options.color,
+                            weight: layer.options.weight,
+                            opacity: layer.options.opacity,
+                            fillColor: layer.options.fillColor,
+                            fillOpacity: layer.options.fillOpacity,
+                            dashArray: layer.options.dashArray,
+                            lineCap: layer.options.lineCap,
+                            lineJoin: layer.options.lineJoin,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newPolygon.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.Circle) {
+                        // Handle circles with full styling
+                        const newCircle = L.circle(layer.getLatLng(), {
+                            radius: layer.getRadius(),
+                            color: layer.options.color,
+                            weight: layer.options.weight,
+                            opacity: layer.options.opacity,
+                            fillColor: layer.options.fillColor,
+                            fillOpacity: layer.options.fillOpacity,
+                            dashArray: layer.options.dashArray,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newCircle.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.CircleMarker && !(layer instanceof L.Circle)) {
+                        // Handle circle markers with full styling
+                        const newCircleMarker = L.circleMarker(layer.getLatLng(), {
+                            radius: layer.options.radius,
+                            color: layer.options.color,
+                            weight: layer.options.weight,
+                            opacity: layer.options.opacity,
+                            fillColor: layer.options.fillColor,
+                            fillOpacity: layer.options.fillOpacity,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                        if (layer.getPopup()) {
+                            newCircleMarker.bindPopup(layer.getPopup().getContent());
+                        }
+                    } else if (layer instanceof L.GeoJSON) {
+                        // Handle GeoJSON layers with styling
+                        const newGeoJSON = L.geoJSON(layer.toGeoJSON(), {
+                            style: layer.options.style,
+                            pointToLayer: layer.options.pointToLayer,
+                            onEachFeature: layer.options.onEachFeature,
+                            filter: layer.options.filter,
+                            coordsToLatLng: layer.options.coordsToLatLng,
+                            ...layer.options
+                        }).addTo(printMapInstance);
+                    } else if (layer instanceof L.LayerGroup) {
+                        // Handle layer groups recursively
+                        const newLayerGroup = L.layerGroup();
+                        layer.eachLayer(function(subLayer) {
+                            // Recursively add sublayers with styling
+                            if (subLayer instanceof L.Marker) {
+                                const newSubMarker = L.marker(subLayer.getLatLng(), {
+                                    icon: subLayer.options.icon,
+                                    opacity: subLayer.options.opacity,
+                                    ...subLayer.options
+                                });
+                                if (subLayer.getPopup()) {
+                                    newSubMarker.bindPopup(subLayer.getPopup().getContent());
+                                }
+                                newLayerGroup.addLayer(newSubMarker);
+                            }
+                            // Add other sublayer types as needed
+                        });
+                        newLayerGroup.addTo(printMapInstance);
+                    } else if (layer instanceof L.ImageOverlay) {
+                        // Handle image overlays
+                        const newImageOverlay = L.imageOverlay(
+                            layer._url,
+                            layer.getBounds(),
+                            {
+                                opacity: layer.options.opacity,
+                                alt: layer.options.alt,
+                                interactive: layer.options.interactive,
+                                crossOrigin: layer.options.crossOrigin,
+                                errorOverlayUrl: layer.options.errorOverlayUrl,
+                                zIndex: layer.options.zIndex,
+                                className: layer.options.className,
+                                ...layer.options
+                            }
+                        ).addTo(printMapInstance);
+                    }
+                    // Note: TileLayer is handled separately above
+                });
+                
+                // Ensure the print map renders properly
+                setTimeout(() => {
+                    printMapInstance.invalidateSize();
+                    
+                    // Enable screenshot button once everything is loaded
+                    setTimeout(() => {
+                        const screenshotBtn = document.querySelector('.screenshot-btn');
+                        if (screenshotBtn) {
+                            screenshotBtn.disabled = false;
+                            screenshotBtn.textContent = '📸 Download Screenshot';
+                        }
+                    }, 1000);
+                }, 200);
+            }, 100);
+        }
+        
+        // Close screenshot preview
+        function closePrintPreview() {
+            document.getElementById('printModal').style.display = 'none';
+            if (printMapInstance) {
+                printMapInstance.remove();
+                printMapInstance = null;
+            }
+        }
+        function captureMapScreenshot() {
+            const captureButton = document.querySelector('.screenshot-btn');
+            const originalText = captureButton.textContent;
+            const title = document.querySelector('.print-header h2');
+            const printActions = document.querySelector('.print-actions');
+            const closeButton = document.querySelector('.close-btn');
+            const originalTitle = title.textContent;
+        
+            // Update title and hide buttons
+            title.textContent = 'FracTracker Data Portal';
+            printActions.style.display = 'none';
+            closeButton.style.display = 'none';
+        
+            // Show waiting cursor
+            document.body.style.cursor = 'wait';
+        
+            setTimeout(() => {
+                if (printMapInstance) {
+                    printMapInstance.invalidateSize();
+                }
+        
+                setTimeout(() => {
+                    const printContent = document.querySelector('.print-content');
+        
+                    html2canvas(printContent, {
+                        useCORS: true,
+                        allowTaint: true,
+                        scale: 2,
+                        logging: false,
+                        width: printContent.offsetWidth,
+                        height: printContent.offsetHeight,
+                        backgroundColor: '#ffffff',
+                        foreignObjectRendering: false,
+                        imageTimeout: 15000,
+                        onclone: function(clonedDoc) {
+                            const images = clonedDoc.querySelectorAll('img');
+                            images.forEach(img => {
+                                if (!img.complete) {
+                                    img.onload = function() {};
+                                }
+                            });
+                        }
+                    }).then(function(canvas) {
+                        // Ask user for filename
+                        let userInput = prompt("Enter a filename for your download:", "fractracker-dataportal-map");
+                        if (!userInput) {
+                            userInput = "fractracker-dataportal-map";
+                        }
+        
+                        // Sanitize filename (remove invalid characters)
+                        userInput = userInput.replace(/[^a-z0-9_\-\.]/gi, '_').toLowerCase();
+        
+                        // Add date to filename
+                        const filename = `${userInput}.png`;
+        
+                        const link = document.createElement('a');
+                        link.download = filename;
+                        link.href = canvas.toDataURL('image/png');
+        
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+        
+                        // Reset UI
+                        title.textContent = originalTitle;
+                        printActions.style.display = 'block';
+                        closeButton.style.display = 'block';
+                        document.body.style.cursor = 'default';
+        
+                        showMessage('Screenshot saved successfully!', 'success');
+                        setTimeout(() => {
+                            closePrintPreview();
+                        }, 1000);
+        
+                    }).catch(function(error) {
+                        console.error('Screenshot failed:', error);
+        
+                        // Reset UI
+                        title.textContent = originalTitle;
+                        printActions.style.display = 'block';
+                        closeButton.style.display = 'block';
+                        captureButton.disabled = false;
+                        captureButton.textContent = originalText;
+                        document.body.style.cursor = 'default';
+        
+                        showMessage('Screenshot failed. Please try again.', 'error');
+                    });
+                }, 1500);
+            }, 500);
+        }
+        
+        
+        // Show temporary message
+        function showMessage(text, type) {
+            const message = document.createElement('div');
+            message.textContent = text;
+            message.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 24px;
+                border-radius: 4px;
+                color: white;
+                font-weight: bold;
+                z-index: 10001;
+                ${type === 'success' ? 'background-color: #4CAF50;' : 'background-color: #f44336;'}
+            `;
+            
+            document.body.appendChild(message);
+            
+            setTimeout(() => {
+                document.body.removeChild(message);
+            }, 3000);
+        }
+        
+        // Wait for tiles to load before enabling screenshot
+        function waitForTilesToLoad() {
+            const printButtons = document.querySelectorAll('.print-btn');
+            
+            // Disable buttons initially
+            printButtons.forEach(btn => {
+                btn.disabled = true;
+                btn.textContent = btn.textContent.replace('📋', '⏳');
+            });
+            
+            // Re-enable after a short delay to allow tiles to load
+            setTimeout(() => {
+                printButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.textContent = btn.textContent.replace('⏳', '📋');
+                });
+            }, 2000);
+        }
+
+
+
         // Function to toggle filter visibility
         function toggleFilter(filterName) {
             let list = ['counties','wellstatus','welltype','ftacat']
@@ -1439,16 +1860,13 @@
               }, 100);
             }
           });
-          function printMap() {
-            const center = map.getCenter();
-            const zoom = map.getZoom();
-        
-            setTimeout(() => {
-                map.invalidateSize();           // Force Leaflet to resize
-                map.setView(center, zoom);      // Reapply the same view (important if layout shifts)
-                window.print();
-            }, 200);  // Delay ensures layout and CSS changes apply first
-        }
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('printModal');
+            if (event.target === modal) {
+                closePrintPreview();
+            }
+        };
 </script>
 </body>
 </html>
