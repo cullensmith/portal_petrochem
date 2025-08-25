@@ -257,7 +257,8 @@ var markerIconCollection;
 
 
 // Configuration
-const GEOSERVER_URL = 'http://18.223.119.14:8080/geoserver';
+// const GEOSERVER_URL = 'http://18.223.119.14:8080/geoserver';
+const GEOSERVER_URL = 'http://3.137.156.223:8080/geoserver';
 const WORKSPACE = 'portal_petrochem';
 const LAYER_NAME = 'fractracker_pipelines';
 
