@@ -258,16 +258,16 @@ var markerIconCollection;
 
 // Configuration
 // const GEOSERVER_URL = 'http://18.223.119.14:8080/geoserver';
-const GEOSERVER_URL = 'http://3.137.156.223:8080/geoserver';
+const GEOSERVER_URL = 'https://geoserver.fractrackerdev.org/geoserver';
 const WORKSPACE = 'portal_petrochem';
-const LAYER_NAME = 'fractracker_pipelines';
+const LAYER_NAME = 'fractracker';
 
 // Create WMS layer with high z-index
 const pipelineLayer = L.tileLayer.wms(GEOSERVER_URL + '/wms', {
     layers: WORKSPACE + ':' + LAYER_NAME,
     format: 'image/png',
     transparent: true,
-    styles: 'pink-lines',
+    styles: 'pipelines_fractracker',
     version: '1.3.0',
     attribution: 'Pipeline Data',
     zIndex: 1000
