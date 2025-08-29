@@ -256,193 +256,25 @@ var markerIconCollection;
 
 
 
-// Configuration
-// const GEOSERVER_URL = 'http://18.223.119.14:8080/geoserver';
-const GEOSERVER_URL = 'https://geoserver.fractrackerdev.org/geoserver';
-const WORKSPACE = 'portal_petrochem';
-const LAYER_NAME = 'fractracker';
-
-// Create WMS layer with high z-index
-const pipelineLayer = L.tileLayer.wms(GEOSERVER_URL + '/wms', {
-    layers: WORKSPACE + ':' + LAYER_NAME,
-    format: 'image/png',
-    transparent: true,
-    styles: 'pipelines_fractracker',
-    version: '1.3.0',
-    attribution: 'Pipeline Data',
-    zIndex: 1000
-});
-
-// Debug the WMS layer
-pipelineLayer.on('tileerror', function(error) {
-    console.error('WMS Tile Error:', error);
-});
-
-// pipelineLayer.on('tileload', function() {
-//     console.log('WMS tile loaded');
-// });
-
-// Add click interactivity to WMS layer
-map.on('click', function(e) {
-    // Only handle clicks if pipeline layer is visible
-    if (!map.hasLayer(pipelineLayer)) return;
-    
-    // Show loading cursor
-    map.getContainer().style.cursor = 'wait';
-    
-    // Get clicked point in container coordinates
-    const point = map.latLngToContainerPoint(e.latlng);
-    const size = map.getSize();
-    const bounds = map.getBounds();
-    
-    // Build GetFeatureInfo parameters
-    const params = {
-        request: 'GetFeatureInfo',
-        service: 'WMS',
-        srs: 'EPSG:4326',
-        styles: '',
-        version: '1.3.0',
-        format: 'image/png',
-        bbox: bounds.getSouth() + ',' + bounds.getWest() + ',' + bounds.getNorth() + ',' + bounds.getEast(),
-        height: size.y,
-        width: size.x,
-        layers: WORKSPACE + ':' + LAYER_NAME,
-        query_layers: WORKSPACE + ':' + LAYER_NAME,
-        info_format: 'application/json',
-        i: Math.round(point.x),
-        j: Math.round(point.y),
-        feature_count: 5
-    };
-    
-    // Build URL
-    const url = GEOSERVER_URL + '/wms?' + Object.keys(params).map(key => 
-        key + '=' + encodeURIComponent(params[key])
-    ).join('&');
-    
-    // Make request
-    fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            // Reset cursor
-            map.getContainer().style.cursor = '';
-            
-            if (data.features && data.features.length > 0) {
-                let popupContent = '<h4 style="color: black"><u>Pipeline Information</u></h4>';
-                
-                const feature = data.features[0];
-                const props = feature.properties;
-                
-                // Look for name variations
-                const name = props.name || props.NAME || props.pipeline_name || props.PIPELINE_NAME || 'N/A';
-                
-                // Look for status variations
-                const status = props.status || props.STATUS || props.state || props.STATE || 'N/A';
-                
-                // Look for company/operator variations
-                const company = props.company || props.COMPANY || props.operator || props.OPERATOR || 'N/A';
-                
-                // Look for product variations
-                const product = props.product || props.PRODUCT || props.commodity || props.COMMODITY || 'N/A';
-                
-                popupContent += `<br><span style="color: black; font-weight: bold;">Name: </span><span style="color: grey; font-weight: normal;">${feature.properties.name}</span><br>` ;
-                popupContent += `<span style="color: black; font-weight: bold;">Status: </span><span style="color: grey; font-weight: normal;">${feature.properties.status}</span><br>` ;
-                popupContent += `<span style="color: black; font-weight: bold;">Company: </span><span style="color: grey; font-weight: normal;">${feature.properties.company}</span><br>` ;
-                popupContent += `<span style="color: black; font-weight: bold;">Product: </span><span style="color: grey; font-weight: normal;">${feature.properties.product}</span><br>` ;
-                popupContent += `<span style="color: black; font-weight: bold;">Source Resolution: </span><span style="color: grey; font-weight: normal;">${feature.properties.res}</span><br>` ;
 
 
 
-                // If multiple features at this location
-                if (data.features.length > 1) {
-                    popupContent += `<br><em>+ ${data.features.length - 1} more pipeline(s) here</em>`;
-                }
-                
-                L.popup()
-                    .setLatLng(e.latlng)
-                    .setContent(popupContent)
-                    .openOn(map);
-            }
-        })
-        .catch(error => {
-            // Reset cursor on error
-            map.getContainer().style.cursor = '';
-            console.error('GetFeatureInfo error:', error);
-        });
- });
-
-// Listen for base layer changes and bring pipeline to front
-map.on('baselayerchange', function(e) {
-    if (map.hasLayer(pipelineLayer)) {
-        setTimeout(() => {
-            pipelineLayer.bringToFront();
-        }, 100);
-    }
-});
-
-let cursorTimeout;
-
-map.on('mousemove', function(e) {
-    if (!map.hasLayer(pipelineLayer)) return;
-
-    // Debounce requests to avoid spamming GeoServer
-    clearTimeout(cursorTimeout);
-    cursorTimeout = setTimeout(() => {
-        const point = map.latLngToContainerPoint(e.latlng);
-        const size = map.getSize();
-        const bounds = map.getBounds();
-
-        const params = {
-            request: 'GetFeatureInfo',
-            service: 'WMS',
-            srs: 'EPSG:4326',
-            styles: '',
-            version: '1.3.0',
-            format: 'image/png',
-            bbox: bounds.getSouth() + ',' + bounds.getWest() + ',' + bounds.getNorth() + ',' + bounds.getEast(),
-            height: size.y,
-            width: size.x,
-            layers: WORKSPACE + ':' + LAYER_NAME,
-            query_layers: WORKSPACE + ':' + LAYER_NAME,
-            info_format: 'application/json',
-            i: Math.round(point.x),
-            j: Math.round(point.y),
-            feature_count: 1
-        };
-
-        const url = GEOSERVER_URL + '/wms?' + Object.keys(params).map(key =>
-            key + '=' + encodeURIComponent(params[key])
-        ).join('&');
-
-        fetch(url)
-            .then(res => res.json())
-            .then(data => {
-                if (data.features && data.features.length > 0) {
-                    map.getContainer().style.cursor = 'pointer';
-                } else {
-                    map.getContainer().style.cursor = '';
-                }
-            })
-            .catch(() => {
-                map.getContainer().style.cursor = '';
-            });
-    }, 100); // Small delay to reduce load
-});
 
 // Attach to checkbox
-document.getElementById('pipeline_fta').addEventListener('change', function() {
-    if (this.checked) {
-        console.log('Adding WMS layer');
-        pipelineLayer.addTo(map);
-        setTimeout(() => {
-            pipelineLayer.bringToFront();
-        }, 100);
-    } else {
-        console.log('Removing WMS layer');
-        if (map.hasLayer(pipelineLayer)) {
-            map.removeLayer(pipelineLayer);
-        }
-    }
-});
+// document.getElementById('pipeline_fta').addEventListener('change', function() {
+//     if (this.checked) {
+//         console.log('Adding WMS layer');
+//         pipelineLayer.addTo(map);
+//         setTimeout(() => {
+//             pipelineLayer.bringToFront();
+//         }, 100);
+//     } else {
+//         console.log('Removing WMS layer');
+//         if (map.hasLayer(pipelineLayer)) {
+//             map.removeLayer(pipelineLayer);
+//         }
+//     }
+// });
 
 // // Test URL
 // console.log('WMS GetCapabilities URL:', GEOSERVER_URL + '/wms?service=WMS&request=GetCapabilities');
@@ -3826,364 +3658,394 @@ var myRenderer = L.canvas({ padding: 0.5, tolerance: 4 });
 
 function createLineLayer(lay) {
     // Fetch GeoJSON data from the server
-    const grab = lay
-    fetch(`/petrochem/generate_geojson_lines?grab=${encodeURIComponent(grab)}`)
-        .then(response => response.json())
-        .then(data => {
-            // console.log('here are the lines');
-            data=JSON.parse(data)
-            // console.log(data); // The GeoJSON data is already parsed
-
-            if (lay === 'Pipeline_Naturalgas') {
-
-                // Line style
-                var lineStyle = {
-                    color: '#de541e',
-                    weight: 1.5,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
-
-                // Line style
-                var hoverStyle = {
-                    color: '#de541e',
-                    weight: 4,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
-                
-                // Create the GeoJSON layer and apply the style
-                lines_pipeline_naturalgas = L.geoJSON(data, {
-                    renderer: myRenderer,
-                    style: lineStyle,
-                    onEachFeature: function (feature, layer) {
-                        // Bind a popup to each line feature
-                        if (feature.properties && feature.properties.opername && feature.properties.pipename) {
-                            layer.bindPopup(
-                                "<br><b>Operator: </b>" + feature.properties.opername + 
-                                "<br><b>Pipeline Name: </b>" + feature.properties.pipename
-                            );
-                        }
-
-                        // Event listeners for hover effect
-                        layer.on('mouseover', function () {
-                            layer.setStyle(
-                                hoverStyle
-                            );
-                        });
-
-                        layer.on('mouseout', function () {
-                            // Only reset the color to red if the line is not clicked
-                            if (!layer.clicked) {
-                                layer.setStyle(
-                                    lineStyle
-                                );
-                            }
-                        });
-
-                        // Event listener for click effect
-                        layer.on('click', function () {
-                            // Set the line color to green when clicked
-                            layer.setStyle(
-                                hoverStyle
-                            );
-
-                            // Mark this line as clicked (so we don't reset to red on mouseout)
-                            layer.clicked = true;
-
-                            // Open the popup when the line is clicked
-                            layer.openPopup();
-                        });
-
-                        // Event listener for when the popup is closed
-                        layer.on('popupclose', function () {
-                            // Reset the line style to red (default) when popup is closed
-                            layer.setStyle(
-                                lineStyle
-                            );
-                            layer.clicked = false; // Reset clicked state
-                        });
-                    }
-                }).addTo(map); // Add the layer to the map
-            } else if (lay === 'Pipeline_Fractracker') {
-
-                // Line style
-                var lineStyle = {
-                    color: '#025687',
-                    weight: 1.5,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
-
-                // Line style
-                var hoverStyle = {
-                    color: '#025687',
-                    weight: 4,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
-                
-                // Create the GeoJSON layer and apply the style
+    console.log(`lay: ${lay}`)
+    if (lay === 'Pipeline_Fractracker') {
+        // Set cursor to indicate loading or interaction mode
+        document.body.classList.add('cursor-loading');
+    
+        const GEOSERVER_URL = 'https://geoserver.fractrackerdev.org/geoserver';
+        const WORKSPACE = 'portal_petrochem';
+        const LAYER_NAME = 'fractracker';
+    
+        const lineStyle = {
+            color: '#e052e2',
+            weight: 1.5,
+            opacity: 1
+        };
+    
+        const hoverStyle = {
+            color: '#A92BAB',
+            weight: 4,
+            opacity: 1
+        };
+    
+        const myRenderer = L.canvas({ padding: 0.5 });
+    
+        const wfsUrl = `${GEOSERVER_URL}/${WORKSPACE}/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=${WORKSPACE}:${LAYER_NAME}&outputFormat=application/json&srsName=EPSG:4326`;
+    
+        fetch(wfsUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('WFS request failed');
+                } else {
+                    console.log('retrieved wfs');
+                }
+                return response.json();
+            })
+            .then(data => {
                 lines_pipeline_fractracker = L.geoJSON(data, {
                     renderer: myRenderer,
                     style: lineStyle,
                     onEachFeature: function (feature, layer) {
-                        // Bind a popup to each line feature
-                        if (feature.properties && feature.properties.opername && feature.properties.pipename) {
-                            layer.bindPopup(
-                                "<br><b>Operator: </b>" + feature.properties.opername + 
-                                "<br><b>Pipeline Name: </b>" + feature.properties.pipename
-                            );
-                        }
-
-                        // Event listeners for hover effect
+                        const props = feature.properties || {};
+    
+                        const name = props.name || props.NAME || props.pipeline_name || props.PIPELINE_NAME || 'N/A';
+                        const status = props.status || props.STATUS || props.state || props.STATE || 'N/A';
+                        const company = props.company || props.COMPANY || props.operator || props.OPERATOR || 'N/A';
+                        const product = props.product || props.PRODUCT || props.commodity || props.COMMODITY || 'N/A';
+                        const res = props.res || 'N/A';
+    
+                        let popupContent = `
+                            <div style="max-width: 250px;">
+                                <h4 style="margin: 0 0 10px; color: black; text-decoration: underline;">Pipeline Information</h4>
+                                <p style="margin: 0;"><strong style="color: black;">Name: </strong><span style="color: grey;">${name}</span></p>
+                                <p style="margin: 0;"><strong style="color: black;">Status: </strong><span style="color: grey;">${status}</span></p>
+                                <p style="margin: 0;"><strong style="color: black;">Company: </strong><span style="color: grey;">${company}</span></p>
+                                <p style="margin: 0;"><strong style="color: black;">Product: </strong><span style="color: grey;">${product}</span></p>
+                                <p style="margin: 0;"><strong style="color: black;">Source Resolution: </strong><span style="color: grey;">${res}</span></p>
+                            </div>
+                        `;
+    
+                        layer.bindPopup(popupContent);
+    
+                        // Set pointer cursor on hover
                         layer.on('mouseover', function () {
-                            layer.setStyle(
-                                hoverStyle
-                            );
+                            layer.setStyle(hoverStyle);
+                            map.getContainer().style.cursor = 'pointer';
                         });
-
+    
                         layer.on('mouseout', function () {
-                            // Only reset the color to red if the line is not clicked
                             if (!layer.clicked) {
-                                layer.setStyle(
-                                    lineStyle
-                                );
+                                layer.setStyle(lineStyle);
                             }
+                            map.getContainer().style.cursor = 'default';
                         });
-
-                        // Event listener for click effect
+    
                         layer.on('click', function () {
-                            // Set the line color to green when clicked
-                            layer.setStyle(
-                                hoverStyle
-                            );
-
-                            // Mark this line as clicked (so we don't reset to red on mouseout)
+                            layer.setStyle(hoverStyle);
                             layer.clicked = true;
-
-                            // Open the popup when the line is clicked
                             layer.openPopup();
                         });
-
-                        // Event listener for when the popup is closed
+    
                         layer.on('popupclose', function () {
-                            // Reset the line style to red (default) when popup is closed
-                            layer.setStyle(
-                                lineStyle
-                            );
-                            layer.clicked = false; // Reset clicked state
+                            layer.setStyle(lineStyle);
+                            layer.clicked = false;
+                            map.getContainer().style.cursor = 'default';
                         });
                     }
-                }).addTo(map); // Add the layer to the map
-            } else if (lay === 'Pipeline_hgl') {
+                }).addTo(map);
+    
+                // Optionally reset cursor to default after adding layer
+                document.body.classList.remove('cursor-loading');
+            })
+            .catch(error => {
+                console.error('WFS Layer Error:', error);
+                map.getContainer().style.cursor = 'default'; // Always reset on error
+            });
+    } else {
+            const grab = lay
+            fetch(`/petrochem/generate_geojson_lines?grab=${encodeURIComponent(grab)}`)
+                .then(response => response.json())
+                .then(data => {
+                    // console.log('here are the lines');
+                    data=JSON.parse(data)
+                    // console.log(data); // The GeoJSON data is already parsed
 
-                // Line style
-                var lineStyle = {
-                    color: '#0287d4',
-                    weight: 1.5,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
+                    if (lay === 'Pipeline_Naturalgas') {
+                        document.body.classList.add('cursor-loading');
 
-                // Line style
-                var hoverStyle = {
-                    color: '#0287d4',
-                    weight: 4,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
-                
-                // Create the GeoJSON layer and apply the style
-                lines_pipeline_hgl = L.geoJSON(data, {
-                    renderer: myRenderer,
-                    style: lineStyle,
-                    onEachFeature: function (feature, layer) {
-                        // Bind a popup to each line feature
-                        if (feature.properties && feature.properties.opername && feature.properties.pipename) {
-                            layer.bindPopup(
-                                "<br><b>Operator: </b>" + feature.properties.opername + 
-                                "<br><b>Pipeline Name: </b>" + feature.properties.pipename
-                            );
-                        }
+                        // Line style
+                        var lineStyle = {
+                            color: '#de541e',
+                            weight: 1.5,        // Line thickness
+                            opacity: 1        // Line opacity
+                        };
 
-                        // Event listeners for hover effect
-                        layer.on('mouseover', function () {
-                            layer.setStyle(
-                                hoverStyle
-                            );
-                        });
+                        // Line style
+                        var hoverStyle = {
+                            color: '#de541e',
+                            weight: 4,        // Line thickness
+                            opacity: 1        // Line opacity
+                        };
+                        
+                        // Create the GeoJSON layer and apply the style
+                        lines_pipeline_naturalgas = L.geoJSON(data, {
+                            renderer: myRenderer,
+                            style: lineStyle,
+                            onEachFeature: function (feature, layer) {
+                                // Bind a popup to each line feature
+                                if (feature.properties && feature.properties.opername && feature.properties.pipename) {
+                                    layer.bindPopup(
+                                        "<br><b>Operator: </b>" + feature.properties.opername + 
+                                        "<br><b>Pipeline Name: </b>" + feature.properties.pipename
+                                    );
+                                }
 
-                        layer.on('mouseout', function () {
-                            // Only reset the color to red if the line is not clicked
-                            if (!layer.clicked) {
-                                layer.setStyle(
-                                    lineStyle
-                                );
+                                // Event listeners for hover effect
+                                layer.on('mouseover', function () {
+                                    layer.setStyle(
+                                        hoverStyle
+                                    );
+                                });
+
+                                layer.on('mouseout', function () {
+                                    // Only reset the color to red if the line is not clicked
+                                    if (!layer.clicked) {
+                                        layer.setStyle(
+                                            lineStyle
+                                        );
+                                    }
+                                });
+
+                                // Event listener for click effect
+                                layer.on('click', function () {
+                                    // Set the line color to green when clicked
+                                    layer.setStyle(
+                                        hoverStyle
+                                    );
+
+                                    // Mark this line as clicked (so we don't reset to red on mouseout)
+                                    layer.clicked = true;
+
+                                    // Open the popup when the line is clicked
+                                    layer.openPopup();
+                                });
+
+                                // Event listener for when the popup is closed
+                                layer.on('popupclose', function () {
+                                    // Reset the line style to red (default) when popup is closed
+                                    layer.setStyle(
+                                        lineStyle
+                                    );
+                                    layer.clicked = false; // Reset clicked state
+                                });
                             }
-                        });
+                        }).addTo(map); // Add the layer to the map
+                        document.body.classList.remove('cursor-loading');
 
-                        // Event listener for click effect
-                        layer.on('click', function () {
-                            // Set the line color to green when clicked
-                            layer.setStyle(
-                                hoverStyle
-                            );
+                    } else if (lay === 'Pipeline_hgl') {
 
-                            // Mark this line as clicked (so we don't reset to red on mouseout)
-                            layer.clicked = true;
+                        // Line style
+                        var lineStyle = {
+                            color: '#0287d4',
+                            weight: 1.5,        // Line thickness
+                            opacity: 1        // Line opacity
+                        };
 
-                            // Open the popup when the line is clicked
-                            layer.openPopup();
-                        });
+                        // Line style
+                        var hoverStyle = {
+                            color: '#0287d4',
+                            weight: 4,        // Line thickness
+                            opacity: 1        // Line opacity
+                        };
+                        
+                        // Create the GeoJSON layer and apply the style
+                        lines_pipeline_hgl = L.geoJSON(data, {
+                            renderer: myRenderer,
+                            style: lineStyle,
+                            onEachFeature: function (feature, layer) {
+                                // Bind a popup to each line feature
+                                if (feature.properties && feature.properties.opername && feature.properties.pipename) {
+                                    layer.bindPopup(
+                                        "<br><b>Operator: </b>" + feature.properties.opername + 
+                                        "<br><b>Pipeline Name: </b>" + feature.properties.pipename
+                                    );
+                                }
 
-                        // Event listener for when the popup is closed
-                        layer.on('popupclose', function () {
-                            // Reset the line style to red (default) when popup is closed
-                            layer.setStyle(
-                                lineStyle
-                            );
-                            layer.clicked = false; // Reset clicked state
-                        });
-                    }
-                }).addTo(map); // Add the layer to the map
-            } else if (lay === 'Pipeline_Petroleum') {
+                                // Event listeners for hover effect
+                                layer.on('mouseover', function () {
+                                    layer.setStyle(
+                                        hoverStyle
+                                    );
+                                });
 
-                // Line style
-                var lineStyle = {
-                    color: '#7aa535',
-                    weight: 1.5,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
+                                layer.on('mouseout', function () {
+                                    // Only reset the color to red if the line is not clicked
+                                    if (!layer.clicked) {
+                                        layer.setStyle(
+                                            lineStyle
+                                        );
+                                    }
+                                });
 
-                // Line style
-                var hoverStyle = {
-                    color: '#7aa535',
-                    weight: 4,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
-                
-                // Create the GeoJSON layer and apply the style
-                lines_pipeline_petroleum = L.geoJSON(data, {
-                    renderer: myRenderer,
-                    style: lineStyle,
-                    onEachFeature: function (feature, layer) {
-                        // Bind a popup to each line feature
-                        if (feature.properties && feature.properties.opername && feature.properties.pipename) {
-                            layer.bindPopup(
-                                "<br><b>Operator: </b>" + feature.properties.opername + 
-                                "<br><b>Pipeline Name: </b>" + feature.properties.pipename
-                            );
-                        }
+                                // Event listener for click effect
+                                layer.on('click', function () {
+                                    // Set the line color to green when clicked
+                                    layer.setStyle(
+                                        hoverStyle
+                                    );
 
-                        // Event listeners for hover effect
-                        layer.on('mouseover', function () {
-                            layer.setStyle(
-                                hoverStyle
-                            );
-                        });
+                                    // Mark this line as clicked (so we don't reset to red on mouseout)
+                                    layer.clicked = true;
 
-                        layer.on('mouseout', function () {
-                            // Only reset the color to red if the line is not clicked
-                            if (!layer.clicked) {
-                                layer.setStyle(
-                                    lineStyle
-                                );
+                                    // Open the popup when the line is clicked
+                                    layer.openPopup();
+                                });
+
+                                // Event listener for when the popup is closed
+                                layer.on('popupclose', function () {
+                                    // Reset the line style to red (default) when popup is closed
+                                    layer.setStyle(
+                                        lineStyle
+                                    );
+                                    layer.clicked = false; // Reset clicked state
+                                });
                             }
-                        });
+                        }).addTo(map); // Add the layer to the map
+                    } else if (lay === 'Pipeline_Petroleum') {
 
-                        // Event listener for click effect
-                        layer.on('click', function () {
-                            // Set the line color to green when clicked
-                            layer.setStyle(
-                                hoverStyle
-                            );
+                        // Line style
+                        var lineStyle = {
+                            color: '#7aa535',
+                            weight: 1.5,        // Line thickness
+                            opacity: 1        // Line opacity
+                        };
 
-                            // Mark this line as clicked (so we don't reset to red on mouseout)
-                            layer.clicked = true;
+                        // Line style
+                        var hoverStyle = {
+                            color: '#7aa535',
+                            weight: 4,        // Line thickness
+                            opacity: 1        // Line opacity
+                        };
+                        
+                        // Create the GeoJSON layer and apply the style
+                        lines_pipeline_petroleum = L.geoJSON(data, {
+                            renderer: myRenderer,
+                            style: lineStyle,
+                            onEachFeature: function (feature, layer) {
+                                // Bind a popup to each line feature
+                                if (feature.properties && feature.properties.opername && feature.properties.pipename) {
+                                    layer.bindPopup(
+                                        "<br><b>Operator: </b>" + feature.properties.opername + 
+                                        "<br><b>Pipeline Name: </b>" + feature.properties.pipename
+                                    );
+                                }
 
-                            // Open the popup when the line is clicked
-                            layer.openPopup();
-                        });
+                                // Event listeners for hover effect
+                                layer.on('mouseover', function () {
+                                    layer.setStyle(
+                                        hoverStyle
+                                    );
+                                });
 
-                        // Event listener for when the popup is closed
-                        layer.on('popupclose', function () {
-                            // Reset the line style to red (default) when popup is closed
-                            layer.setStyle(
-                                lineStyle
-                            );
-                            layer.clicked = false; // Reset clicked state
-                        });
-                    }
-                }).addTo(map); // Add the layer to the map
-            } else if (lay === 'Pipeline_Crudeoil') {
+                                layer.on('mouseout', function () {
+                                    // Only reset the color to red if the line is not clicked
+                                    if (!layer.clicked) {
+                                        layer.setStyle(
+                                            lineStyle
+                                        );
+                                    }
+                                });
 
-                // Line style
-                var lineStyle = {
-                    color: '#00253b',
-                    weight: 1.5,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
+                                // Event listener for click effect
+                                layer.on('click', function () {
+                                    // Set the line color to green when clicked
+                                    layer.setStyle(
+                                        hoverStyle
+                                    );
 
-                // Line style
-                var hoverStyle = {
-                    color: '#00253b',
-                    weight: 4,        // Line thickness
-                    opacity: 1        // Line opacity
-                };
-                
-                // Create the GeoJSON layer and apply the style
-                lines_pipeline_crudeoil = L.geoJSON(data, {
-                    renderer: myRenderer,
-                    style: lineStyle,
-                    onEachFeature: function (feature, layer) {
-                        // Bind a popup to each line feature
-                        if (feature.properties && feature.properties.opername && feature.properties.pipename) {
-                            layer.bindPopup(
-                                "<br><b>Operator: </b>" + feature.properties.opername + 
-                                "<br><b>Pipeline Name: </b>" + feature.properties.pipename
-                            );
-                        }
+                                    // Mark this line as clicked (so we don't reset to red on mouseout)
+                                    layer.clicked = true;
 
-                        // Event listeners for hover effect
-                        layer.on('mouseover', function () {
-                            layer.setStyle(
-                                hoverStyle
-                            );
-                        });
+                                    // Open the popup when the line is clicked
+                                    layer.openPopup();
+                                });
 
-                        layer.on('mouseout', function () {
-                            // Only reset the color to red if the line is not clicked
-                            if (!layer.clicked) {
-                                layer.setStyle(
-                                    lineStyle
-                                );
+                                // Event listener for when the popup is closed
+                                layer.on('popupclose', function () {
+                                    // Reset the line style to red (default) when popup is closed
+                                    layer.setStyle(
+                                        lineStyle
+                                    );
+                                    layer.clicked = false; // Reset clicked state
+                                });
                             }
-                        });
+                        }).addTo(map); // Add the layer to the map
+                    } else if (lay === 'Pipeline_Crudeoil') {
 
-                        // Event listener for click effect
-                        layer.on('click', function () {
-                            // Set the line color to green when clicked
-                            layer.setStyle(
-                                hoverStyle
-                            );
+                        // Line style
+                        var lineStyle = {
+                            color: '#00253b',
+                            weight: 1.5,        // Line thickness
+                            opacity: 1        // Line opacity
+                        };
 
-                            // Mark this line as clicked (so we don't reset to red on mouseout)
-                            layer.clicked = true;
+                        // Line style
+                        var hoverStyle = {
+                            color: '#00253b',
+                            weight: 4,        // Line thickness
+                            opacity: 1        // Line opacity
+                        };
+                        
+                        // Create the GeoJSON layer and apply the style
+                        lines_pipeline_crudeoil = L.geoJSON(data, {
+                            renderer: myRenderer,
+                            style: lineStyle,
+                            onEachFeature: function (feature, layer) {
+                                // Bind a popup to each line feature
+                                if (feature.properties && feature.properties.opername && feature.properties.pipename) {
+                                    layer.bindPopup(
+                                        "<br><b>Operator: </b>" + feature.properties.opername + 
+                                        "<br><b>Pipeline Name: </b>" + feature.properties.pipename
+                                    );
+                                }
 
-                            // Open the popup when the line is clicked
-                            layer.openPopup();
-                        });
+                                // Event listeners for hover effect
+                                layer.on('mouseover', function () {
+                                    layer.setStyle(
+                                        hoverStyle
+                                    );
+                                });
 
-                        // Event listener for when the popup is closed
-                        layer.on('popupclose', function () {
-                            // Reset the line style to red (default) when popup is closed
-                            layer.setStyle(
-                                lineStyle
-                            );
-                            layer.clicked = false; // Reset clicked state
-                        });
-                    }
-                }).addTo(map); // Add the layer to the map
-            } 
-            // createTable(data);
-        })
-        .catch(error => console.log(error));
-}
+                                layer.on('mouseout', function () {
+                                    // Only reset the color to red if the line is not clicked
+                                    if (!layer.clicked) {
+                                        layer.setStyle(
+                                            lineStyle
+                                        );
+                                    }
+                                });
+
+                                // Event listener for click effect
+                                layer.on('click', function () {
+                                    // Set the line color to green when clicked
+                                    layer.setStyle(
+                                        hoverStyle
+                                    );
+
+                                    // Mark this line as clicked (so we don't reset to red on mouseout)
+                                    layer.clicked = true;
+
+                                    // Open the popup when the line is clicked
+                                    layer.openPopup();
+                                });
+
+                                // Event listener for when the popup is closed
+                                layer.on('popupclose', function () {
+                                    // Reset the line style to red (default) when popup is closed
+                                    layer.setStyle(
+                                        lineStyle
+                                    );
+                                    layer.clicked = false; // Reset clicked state
+                                });
+                            }
+                        }).addTo(map); // Add the layer to the map
+                    } 
+                    // createTable(data);
+                })
+                .catch(error => console.log(error));
+        }
+    }
 
 function createTable(geojson) {
     const tableHeader = document.getElementById("maintableheader");
@@ -5330,21 +5192,21 @@ document.getElementById('pipeline_naturalgas').addEventListener('change', functi
 });
 
 // // Toggle line visibility based on checkbox
-// document.getElementById('pipeline_fractracker').addEventListener('change', function() {
-//     if (this.checked) {
-//         // // console.log('pipeline_naturalgas - checked')
-//         if (!lines_pipeline_fractracker) {
-//             // console.log('pipeline_naturalgas - needs to load')
-//             // createLineLayer('Pipeline_Fractracker')
-//         } else {
-//             // // console.log('pipeline_naturalgas - just adding')
-//             lines_pipeline_fractracker.addTo(map);
-//         }
-//     } else if (lines_pipeline_fractracker) {
-//         // console.log('pipeline_naturalgas - fake removing')
-//         // map.removeLayer(lines_pipeline_fractracker);
-//     }
-// });
+document.getElementById('pipeline_fta').addEventListener('change', function() {
+    if (this.checked) {
+        // // console.log('pipeline_naturalgas - checked')
+        if (!lines_pipeline_fractracker) {
+            // console.log('pipeline_naturalgas - needs to load')
+            createLineLayer('Pipeline_Fractracker')
+        } else {
+            // // console.log('pipeline_naturalgas - just adding')
+            lines_pipeline_fractracker.addTo(map);
+        }
+    } else if (lines_pipeline_fractracker) {
+        // console.log('pipeline_naturalgas - fake removing')
+        map.removeLayer(lines_pipeline_fractracker);
+    }
+});
 
 // Toggle line visibility based on checkbox
 document.getElementById('pipeline_hgl').addEventListener('change', function() {
