@@ -949,6 +949,18 @@
           .tab-content {
             min-height: 150px;
           }
+
+          .custom-photo-icon i {
+            color: #ff0000;
+            opacity: 0.5;
+            font-size: 16px; /* base size */
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .custom-photo-icon i:hover {
+            opacity: 1;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body>
@@ -1132,6 +1144,9 @@
                                       </button>
                                     </p>
                                   </div>
+                                {% comment %} <p style="margin-bottom:5px;margin-top:10px"><strong>Imagery</strong></p>
+                                <div class="legenditem " id="legenditemid_58"><label class="category1 " id="legenditemid_68"><i style="color:gray;font-size:11px;margin-right:4px;margin-left:-4px" class="fa-solid fa-camera"></i><input type="checkbox" id="eia_terminal_crudeoil" class=""  unchecked> Image Locations</label></div> {% endcomment %}
+
                                 <p style="margin-bottom:5px;margin-top:10px"><strong>Market Hubs, Ports, Terminals</strong></p>
                                 <div class="legenditem " id="legenditemid_58"><label class="category1 " id="legenditemid_68"><span class="legend-diamond" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_crudeoil" class=""  unchecked> Crude Oil (Terminal)</label></div>
                                 <div class="legenditem " id="legenditemid_35"><label class="category1 " id="legenditemid_45"><span class="legend-diamond" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_markethub_hgl" class="legenditemchk"  unchecked> HGL (Market Hub)</label></div>
@@ -1141,8 +1156,10 @@
                                 <div class="legenditem " id="legenditemid_55"><label class="category1 " id="legenditemid_65"><span class="legend-diamond" style="background: #e052e2; margin-right:5px;"></span><input type="checkbox" id="eia_ports_petroleum" class="legenditemchk"  unchecked> Petroleum (Port)</label></div>
                                 <div class="legenditem " id="legenditemid_56"><label class="category1 " id="legenditemid_66"><span class="legend-diamond" style="background: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_reserve_petroleum" class=""  unchecked> Petroleum (Reserve)</label></div>
                                 <div class="legenditem " id="legenditemid_70"><label class="category1 " id="legenditemid_80"><span class="legend-diamond" style="background: red; margin-right:5px;"></span><input type="checkbox" id="eia_terminal_petroleum" class=""  unchecked> Petroleum (Terminal)</label></div>
+
                                 <p style="margin-bottom:5px"><strong>Compressor Stations</strong></p>
                                 <div class="legenditem " id="legenditemid_34"><label class="category1 " id="legenditemid_44"><span class="legend-triangle" style="transform: rotate(180deg);border-bottom-color: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_compressorstations" class=""  unchecked> Compressor Station</label></div>
+
                                 <p style="margin-bottom:5px"><strong>Plants</strong></p>
                                 <div class="legenditem " id="legenditemid_38"><label class="category1 " id="legenditemid_48"><span class="legend-pentagon" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_plants_biodiesel" class="legenditemchk"  unchecked> Biodiesel</label></div>
                                 <div class="legenditem " id="legenditemid_39"><label class="category1 " id="legenditemid_49"><span class="legend-pentagon" style="background: #0287D4; margin-right:5px;"></span><input type="checkbox" id="eia_plants_ethanol" class="legenditemchk"  unchecked> Ethanol</label></div>
@@ -1150,6 +1167,7 @@
                                 <div class="legenditem " id="legenditemid_37"><label class="category1 " id="legenditemid_47"><span class="legend-pentagon" style="background: #a3cf5f; margin-right:5px;"></span><input type="checkbox" id="plants_fertilizer" class="legenditemchk"  unchecked> Fertilizer</label></div>
                                 <div class="legenditem " id="legenditemid_75"><label class="category1 " id="legenditemid_85"><span class="legend-pentagon" style="background: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_plants_processing_naturalgas" class=""  unchecked> Natural Gas (Processing)</label></div>
                                 <div class="legenditem " id="legenditemid_76"><label class="category1 " id="legenditemid_86"><span class="legend-pentagon" style="background: #000000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_refinery_petroleum" class=""  unchecked> Petroleum (Refinery)</label></div>
+
                                 <p style="margin-bottom:5px"><strong>Power Plants</strong></p>
                                 <div class="legenditem " id="legenditemid_51"><label class="category1 " id="legenditemid_61"><span class="legend-plus" style="background: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_powerplants_batterystorage" class="legenditemchk"  unchecked> Battery Storage</label></div>
                                 {% comment %} <div class="legenditem tooltip-target" id="legenditemid_37"><label class="category1 dim" id="legenditemid_47"><span class="legend-plus" style="background: #de02d3; margin-right:5px;"></span><input type="checkbox" id="plants_fertilizer" class="legenditemchk"  unchecked> Fertilizer</label></div> {% endcomment %}
@@ -1161,28 +1179,18 @@
                                 <div class="legenditem " id="legenditemid_73"><label class="category1 " id="legenditemid_83"><span class="legend-plus" style="background: #FFC857; margin-right:5px;"></span><input type="checkbox" id="eia_plants_nuclear" class="legenditemchk"  unchecked> Nuclear</label></div>
                                 <div class="legenditem " id="legenditemid_74"><label class="category1 " id="legenditemid_84"><span class="legend-plus" style="background: #ff0000; margin-right:5px;"></span><input type="checkbox" id="eia_plants_petroleum" class=""  unchecked> Petroleum</label></div>
 
-                                {% comment %} <div class="legenditem " id="legenditemid11"><label class="category1 dim" id="legenditemid21"><input type="checkbox" id="category1" class="dim" unchecked><img src="../static/images/cat1.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'>Injection / Storage / Service</label></div>
-                                <div class="legenditem " id="legenditemid12"><label class="category1 dim" id="legenditemid22"><input type="checkbox" id="category2" class="dim" unchecked><img src="../static/images/cat2.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Not Drilled</label></div>
-                                <div class="legenditem " id="legenditemid13"><label class="category1 dim" id="legenditemid23"><input type="checkbox" id="category3" class="dim" unchecked><img src="../static/images/cat3.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Orphaned / Abandoned / Unverified Plug</label></div>
-                                <div class="legenditem " id="legenditemid14"><label class="category1 dim" id="legenditemid24"><input type="checkbox" id="category4" class="dim" unchecked><img src="../static/images/cat4.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Other / Unknown</label></div>
-                                <div class="legenditem " id="legenditemid15"><label class="category1 dim" id="legenditemid25"><input type="checkbox" id="category5" class="dim" unchecked><img src="../static/images/cat5.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Plugged</label></div>
-                                <div class="legenditem " id="legenditemid16"><label class="category1 dim" id="legenditemid26"><input type="checkbox" id="category6" class="dim"  unchecked><img src="../static/images/cat6.png" style='height:17px;width:19px;margin-right:2px;margin-left:-6px'> Production Well</label></div> {% endcomment %}
+
                                 <p style="margin-bottom:5px"><strong>Border Crossings</strong></p>
                                 <div class="legenditem " id="legenditemid_31"><label class="category1 " id="legenditemid_41"><span class="legend-triangle" style="border-bottom-color: #5d792f; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_electric" class="legenditemchk"  unchecked> Electric Transmission Lines</label></div>
                                 <div class="legenditem " id="legenditemid_32"><label class="category1 " id="legenditemid_42"><span class="legend-triangle" style="border-bottom-color: #00253B; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_liquids" class="legenditemchk"  unchecked> Liquid Pipelines</label></div>
                                 <div class="legenditem " id="legenditemid_33"><label class="category1 " id="legenditemid_43"><span class="legend-triangle" style="border-bottom-color: #de541e; margin-right:5px;"></span><input type="checkbox" id="eia_bordercrossing_naturalgas" class="legenditemchk"  unchecked> Natural Gas Pipelines</label></div>
-                                <p style="margin-bottom:5px"><strong>Pipelines</strong></p>
-                                <div class="legenditem " id="legenditemid_12d"><label class="category1 " id="legenditemid_22d"><span style ="color:#e052e2;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_fta" class=""  unchecked> FracTracker Pipelines</label></div>
-                                <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#00253B;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_crudeoil" class=""  unchecked> Crude Oil</label></div>
-                                <div class="legenditem " id="legenditemid_13"><label class="category1 " id="legenditemid_23"><span style ="color:#0287D4;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_hgl" class=""  unchecked> HGL</label></div>
-                                <div class="legenditem " id="legenditemid_14"><label class="category1 " id="legenditemid_24"><span style ="color:#de541e;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_naturalgas" class=""  unchecked> Natural Gas</label></div>
-                                <div class="legenditem " id="legenditemid_15"><label class="category1 " id="legenditemid_25"><span style ="color:#a3cf5f;font-weight:bold;position:relative; top: -8px;left:6px;font-size:x-large;transform:rotate(50deg)">_</span><input type="checkbox" id="pipeline_petroleum" class=""  unchecked> Petroleum</label></div>
-                                {% comment %} <div class="legenditem tooltip-target" id="legenditemid_11"><label class="category1 dim " id="legenditemid_21"><span style ="color:#de02d3;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><input type="checkbox" id="pipeline_fractracker" class="dim"  unchecked> FracTracker Digitized</label></div> {% endcomment %}
-                                <div <span style ="color:white;font-weight:bold;position:relative; top: -8px;margin-right:5px">_</span><p type="checkbox" id="pipeline_fractracker" class="dim"  > </p></label></div>
 
-                                {% comment %} <div class="legenditem " id="legenditemid17"><label class="category1 dim" id="legenditemid27"><input type="checkbox" id="countylayer" class="dim"  unchecked> County Borders</label></div>
-                                <div class="legenditem " id="legenditemid18"><label class="category1 dim" id="legenditemid28"><input type="checkbox" id="countycount" class="dim"  unchecked> County Counts</label></div>
-                                <div class="legenditem " id="legenditemid19"><label class="category1 dim" id="legenditemid29"><input type="checkbox" id="countychoropleth" class="dim"  unchecked> County Choropleth</label></div> {% endcomment %}
+                                <p style="margin-bottom:5px"><strong>Pipelines</strong></p>
+                                <div class="legenditem " id="legenditemid_12d"><label class="category1 " id="legenditemid_22d"><span style ="color:#e052e2;font-weight:bold;position:relative; top: 0px;left:0px;font-size:x-large;transform:rotate(-20deg);margin-right:7px">\</span><input type="checkbox" id="pipeline_fta" class=""  unchecked> FracTracker Pipelines</label></div>
+                                <div class="legenditem " id="legenditemid_12"><label class="category1 " id="legenditemid_22"><span style ="color:#00253B;font-weight:bold;position:relative; top: 0px;left:0px;font-size:x-large;transform:rotate(-20deg);margin-right:7px">\</span><input type="checkbox" id="pipeline_crudeoil" class=""  unchecked> Crude Oil</label></div>
+                                <div class="legenditem " id="legenditemid_13"><label class="category1 " id="legenditemid_23"><span style ="color:#0287D4;font-weight:bold;position:relative; top: 0px;left:0px;font-size:x-large;transform:rotate(-20deg);margin-right:7px">\</span><input type="checkbox" id="pipeline_hgl" class=""  unchecked> HGL</label></div>
+                                <div class="legenditem " id="legenditemid_14"><label class="category1 " id="legenditemid_24"><span style ="color:#de541e;font-weight:bold;position:relative; top: 0px;left:0px;font-size:x-large;transform:rotate(-20deg);margin-right:7px">\</span><input type="checkbox" id="pipeline_naturalgas" class=""  unchecked> Natural Gas</label></div>
+                                <div class="legenditem " id="legenditemid_15"><label class="category1 " id="legenditemid_25"><span style ="color:#a3cf5f;font-weight:bold;position:relative; top: 0px;left:0px;font-size:x-large;transform:rotate(-20deg);margin-right:7px">\</span><input type="checkbox" id="pipeline_petroleum" class=""  unchecked> Petroleum</label></div>
                             </div>
                         </div>
                     </div>
@@ -1721,14 +1729,15 @@
                 `<br><span><b>In need of background information? </b></span><a href="https://www.fractracker.org/petrochemicals/guide/" target="_blank" rel="noopener noreferrer">Petrochemical Basics</a><br>`+
                 `<br><span><b>Help Us Improve the FracTracker Data Portals:</b></span> <a href="https://forms.gle/NQ7QLRCm4HYm1SXF8" target="_blank" rel="noopener noreferrer">Feedback Form</a>`+
                 '<br><br><br><b>MARKET HUBS, PORTS and TERMINALS</b>'+
-                '<br><br><u>Crude Oil (Terminal)</u> – <i>These terminals facilitate the loading and unloading of crude oil, often connecting different modes of transportation like rail and pipelines. Data from EIA. Updated 8/01/2025.</i>'+
-                '<br><br><u>HGL (Market Hub)</u> - <i>Hydrocarbon gas liquids (HGL) storage and trading hubs. Data from EIA. Updated 8/01/2025.</i>'+
-                '<br><br><u>LNG (Terminal)</u> - <i>Liquefied natural gas import/export terminals – Facilities that can a) liquefy natural gas so it is ready to be exported as liquefied natural gas (LNG) and/or b) re-gasify LNG so it can be used as natural gas. Natural gas is transported in a liquid state because it takes up less space as a liquid than as a gas. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Crude Oil (Terminal)</u> – <i>These facilities are sites of storage, transfer, and distribution of liquid petroleum, the building blocks of many petrochemical products. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>HGL (Market Hub)</u> - <i>Hydrocarbon gas liquids include natural gas liquid feedstocks like ethane and propane, along with their refinery-produced counterparts, such as ethylene and propylene. Hubs are locations where these commodities are traded, which can impact future distribution. Data from EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>LNG (Terminal)</u> - <i>Locations where the US imports or exports liquefied natural gas. This gas is then shipped around the world for a variety of purposes, including a significant amount to power petrochemical facilities in Europe. Data from EIA. Updated 8/01/2025.</i>'+
                 '<br><br><u>Natural Gas (Market Hub)</u> – <i>Natural Gas trading hubs. Data from the EIA. Updated 8/01/2025.</i>'+
-                '<br><br><u>Natural Gas (Underground Storage)</u> – <i>Data from the EIA. Updated 8/01/2025.</i>'+
-                '<br><br><u>Petroleum (Port)</u> – <i>A port that can import and/or export 200,000 or more short tons of petroleum products a year. Data from the EIA 8/01/2025.</i>'+
-                '<br><br><u>Petroleum (Terminals)</u> – <i>“All operable bulk petroleum product terminals in the United States with a total bulk shell storage capacity of 50,000 barrels or more, and/or ability to receive volumes from tanker, barge, or pipeline. Survey locations adjusted using public data.” Data from the EIA. Updated 8/01/2025.</i>'+
-                '<br><br><u>Compressor stations</u> – <i>facilities that pressurize natural gas to keep it flowing through a pipeline. Data from HIFLD. Updated 7/01/2024.</i>'+
+                '<br><br><u>Natural Gas (Underground Storage)</u> – <i>The US consumes significantly more gas in the winter than the summer.  Storage facilities allow the supply to match demand for a variety of purposes, including powering petrochemical facilities. Data from the EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Petroleum (Port)</u> – <i>These maritime facilities are locations where petroleum products are loaded onto or removed from vessels. Ports are found on rivers as well as the coast. Data from the EIA 8/01/2025.</i>'+
+                `<br><br><u>Petroleum (Terminals)</u> – <i>All operable bulk petroleum product terminals in the United States with a total bulk shell storage capacity of 50,000 barrels or more, and/or ability to receive volumes from tanker, barge, or pipeline. Survey locations adjusted using public data. Data from the EIA. Updated 8/01/2025.</i>`+
+                '<br><br><u>Petroleum (Reserves)</u> – <i>This layer includes heating oil reserves in the Northeastern US. Data from the EIA. Updated 8/01/2025.</i>'+
+                '<br><br><u>Compressor stations</u> – <i>These facilities push gasses along pipelines. This could include natural gas liquids feedstocks as well as methane used to power the facilities. Data from HIFLD. Updated 7/01/2024.</i>'+
                 '<br><br><br><br><b>PLANTS</b>'+
                 '<br><br><u>Biodiesel</u> – <i>facilities that produce biodiesel, a renewable, clean-burning diesel fuel substitute made from various plant oils, animal fats, and recycled cooking grease. Data from EIA. Updated 8/01/2025.</i>'+
                 '<br><br><u>Ethanol</u> – <i>facility that produces ethanol, a biofuel made by fermenting and distilling grains or other starchy materials. Data from EIA. Updated 8/01/2025.</i>'+
@@ -1803,6 +1812,7 @@
           }
       }
       document.addEventListener('DOMContentLoaded', () => {
+        if (document.getElementById('splash-checkbox')) {
         const mcheckbox = document.getElementById('splash-checkbox');
     
         // Restore state on load (within session)
@@ -1814,6 +1824,7 @@
         mcheckbox.addEventListener('change', () => {
           sessionStorage.setItem('modalCheckboxChecked', mcheckbox.checked);
         });
+        }
       });
       
       document.addEventListener('DOMContentLoaded', () => {
@@ -1822,12 +1833,9 @@
         splashScreen.addEventListener('click', function (e) {
           // Only block if click is directly on the background overlay
           if (e.target === splashScreen) {
-            console.log('Overlay clicked - do nothing');
             // Prevent accidental modal close
             e.stopPropagation();
-          } else {
-            console.log('Clicked inside modal content');
-          }
+          } 
         });
       });
 

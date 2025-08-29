@@ -3713,6 +3713,52 @@ map.on('zoom', function () {
 });
 
 
+var photo_locs;
+function generate_photo_pts() {
+    console.log('generating the photo layer')
+
+    fetch(`/petrochem/generate_photo_pts`)
+        .then(response => response.json())
+        .then(data => {
+            const geojson = JSON.parse(data);
+
+            photo_locs = L.geoJSON(geojson, {
+                pointToLayer: function (feature, latlng) {
+                    const icon = L.divIcon({
+                        html: '<i class="fa-solid fa-camera" style="color:#ff0000; opacity:0.5; font-size: 12px;"></i>',
+                        className: 'custom-photo-icon', // You can style this further with CSS
+                        iconSize: [20, 20],
+                        iconAnchor: [10, 10] // center the icon on the point
+                    });
+                    return L.marker(latlng, { icon: icon });
+                },
+                onEachFeature: function (feature, layer) {
+                    const imageUrl = feature.properties.photo_src_url;
+                    const imageHtml = imageUrl
+                        ? `<img src="${imageUrl}" style="width:100%; height:auto; display:block; margin-top:5px;" />`
+                        : '';
+                
+                    const popupContent =
+                        `<span style="color: black; font-weight: bold;">Description: </span>` +
+                        `<span style="color: grey; font-weight: normal;">${feature.properties.mission_desc}</span><br>` +
+                        `<span style="color: black; font-weight: bold;">Date Taken: </span>` +
+                        `<span style="color: grey; font-weight: normal;">${feature.properties.date_taken}</span><br>` +
+                        `<span style="color: black; font-weight: bold;">Latitude: </span>` +
+                        `<span style="color: grey; font-weight: normal;">${feature.properties.latitude}</span><br>` +
+                        `<span style="color: black; font-weight: bold;">Longitude: </span>` +
+                        `<span style="color: grey; font-weight: normal;">${feature.properties.longitude}</span><br>` +
+                        imageHtml;  // <--- this was missing the `+`
+                
+                    layer.bindPopup(popupContent);
+                }
+                
+            }).addTo(map);
+        });
+}
+
+// generate_photo_pts();
+
+
 var demobuffer;
 function generate_buffs() {
     // console.log('generating the buffer layer')
@@ -4858,33 +4904,33 @@ function filterProd(data) {
 
 
 
-// Function to toggle the point layer visibility based on zoom level
-function togglePointLayerByZoom() {
-    var currentZoom = map.getZoom();
-    // console.log(currentZoom);
+// // Function to toggle the point layer visibility based on zoom level
+// function togglePointLayerByZoom() {
+//     var currentZoom = map.getZoom();
+//     // console.log(currentZoom);
 
 
-    const wellftc = {'category6':productionwells, 'category5':pluggedwells, 'category4':otherwells, 'category3':orphanwells, 'category2':injectionwells, 'category1':notdrilledwells}
-    // toggle well layers
-    for (const [k,v] of Object.entries(wellftc)) {
-        if (currentZoom >= 13 && currentZoom <= 20) {lines_pipeline_naturalgas
-            if (!map.hasLayer(v) && document.getElementById(k).checked) {
-                map.addLayer(v);  // Add point layer when zoom level is between 14 and 20
-                document.getElementById(k).checked = true;
-            }
-        } else if (v) {
-            map.removeLayer(v);  // Remove point layer when zoom level is outside 14 to 20
-            document.getElementById(k).checked = false;
-        };
-    }
+//     const wellftc = {'category6':productionwells, 'category5':pluggedwells, 'category4':otherwells, 'category3':orphanwells, 'category2':injectionwells, 'category1':notdrilledwells}
+//     // toggle well layers
+//     for (const [k,v] of Object.entries(wellftc)) {
+//         if (currentZoom >= 13 && currentZoom <= 20) {lines_pipeline_naturalgas
+//             if (!map.hasLayer(v) && document.getElementById(k).checked) {
+//                 map.addLayer(v);  // Add point layer when zoom level is between 14 and 20
+//                 document.getElementById(k).checked = true;
+//             }
+//         } else if (v) {
+//             map.removeLayer(v);  // Remove point layer when zoom level is outside 14 to 20
+//             document.getElementById(k).checked = false;
+//         };
+//     }
 
-}
+// }
 
-// Call togglePointLayerByZoom every time the map zooms
-map.on('zoomend', togglePointLayerByZoom);
+// // Call togglePointLayerByZoom every time the map zooms
+// map.on('zoomend', togglePointLayerByZoom);
 
-// Initial check for the zoom level
-togglePointLayerByZoom();
+// // Initial check for the zoom level
+// togglePointLayerByZoom();
 
 
 
@@ -5183,7 +5229,9 @@ function clearFilter() {
     updateTable(tabledata)
     document.getElementById('srch-input1').value = '';
     document.getElementById('sort-field2').value = '';
-    map.removeLayer(filteredPoints)
+    if (filteredPoints) {
+        map.removeLayer(filteredPoints)
+    }
 }
 
 

@@ -973,3 +973,21 @@ class Fertilizer_Plant(models.Model):
     
     def __str__(self) -> str:
         return super().__str__()
+    
+
+class Photos(models.Model):
+    id = models.IntegerField(primary_key=True, db_column='id')
+    title = models.CharField(max_length=2048, blank=True, null=True, db_column='title' )
+    date_taken = models.CharField(max_length=2048, blank=True, null=True, db_column='date_taken' )
+    mission_desc = models.CharField(max_length=2048, blank=True, null=True, db_column='mission_description' )
+    album = models.CharField(max_length=2048, blank=True, null=True, db_column='albumtitle' )
+    description = models.CharField(max_length=2048, blank=True, null=True, db_column='description' )
+    photo_src_url = models.CharField(max_length=2048, blank=True, null=True, db_column='photo_src_url' )
+    latitude = models.FloatField(blank=True, null=True, db_column='latitude')
+    longitude = models.FloatField(blank=True, null=True, db_column='longitude')
+    class Meta:
+        managed = False
+        db_table = '"misc"."photos"'
+    
+    def __str__(self) -> str:
+        return super().__str__()

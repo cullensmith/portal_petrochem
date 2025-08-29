@@ -13,7 +13,7 @@ def index(request):
 
 
 from django.shortcuts import render
-from .models import Counties, States#, Wells, stStatus, stType #, CountyNames
+from .models import Photos,Counties, States#, Wells, stStatus, stType #, CountyNames
 from django.http import HttpResponse
 from django.http import JsonResponse
 # from django.views.generic import View
@@ -666,3 +666,30 @@ def generate_geojson_buffs2(request):
     # print(mapdata)
     print('did this run?????')
     return JsonResponse(mapdata, safe=False)
+
+def generate_photo_pts(request):
+    # print('getting the images...')
+    attrvals = list()
+    attrvals = Photos.objects.all()
+
+    pt = list()
+    for n,x in enumerate(attrvals):
+        # print(x)
+        tmp=vars(x)
+        tmp.pop('_state')
+        pt.append(tmp)
+    geojson = {
+        "type": "FeatureCollection",
+        "features": [
+        {
+            "type": "Feature",
+            "geometry" : {
+                "type": "Point",
+                "coordinates": [d["longitude"], d["latitude"]],
+                },
+            "properties" : d,
+        } for d in pt]
+    }
+    photopt = json.dumps(geojson)
+    # print(photopt)
+    return JsonResponse(photopt, safe=False)
