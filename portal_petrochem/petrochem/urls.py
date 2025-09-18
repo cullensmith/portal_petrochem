@@ -20,4 +20,6 @@ urlpatterns = [
     path('generate_geojson_buffs_alt',views.generate_geojson_buffs_alt, name="generate_geojson_buffs_alt"),
     path('generate_geojson_buffs2',views.generate_geojson_buffs2, name="generate_geojson_buffs2"),
     path('generate_photo_pts',views.generate_photo_pts, name="generate_photo_pts"),
+    path('check-ip/', views.check_ip, name='check_ip'),
+
 ]

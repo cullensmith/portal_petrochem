@@ -693,3 +693,17 @@ def generate_photo_pts(request):
     photopt = json.dumps(geojson)
     # print(photopt)
     return JsonResponse(photopt, safe=False)
+
+
+from django.http import HttpResponse
+import urllib.request
+import json
+
+def check_ip(request):
+    try:
+        with urllib.request.urlopen('https://api.ipify.org?format=json') as response:
+            data = json.loads(response.read().decode())
+            ip = data['ip']
+            return HttpResponse(f"Public IP: {ip}")
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}")
