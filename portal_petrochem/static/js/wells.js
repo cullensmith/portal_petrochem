@@ -3663,7 +3663,7 @@ function createLineLayer(lay) {
         // Set cursor to indicate loading or interaction mode
         document.body.classList.add('cursor-loading');
     
-        const GEOSERVER_URL = 'https://geoserver.fractrackerdev.org/geoserver';
+        const GEOSERVER_URL = 'https://geoserver.fractracker.org/geoserver';
         const WORKSPACE = 'portal_petrochem';
         const LAYER_NAME = 'fractracker';
     

@@ -517,6 +517,42 @@ def generate_geojson_buffs_alt(request):
     return JsonResponse(mapdata, safe=False)
 
 
+ALLOWED_LINE_MODELS = {
+    'Pipeline_Crudeoil',
+    'Pipeline_Naturalgas',
+    'Pipeline_hgl',
+    'Pipeline_Petroleum',
+}
+
+ALLOWED_POINT_MODELS = {
+    'Bordercrossing_Electric',
+    'Bordercrossing_Liquids',
+    'Bordercrossing_Naturalgas',
+    'Markethubs_hgl',
+    'Markethubs_Naturalgas',
+    'Ports_Petroleum',
+    'Reserve_Petroleum',
+    'Storage_Naturalgas',
+    'Terminal_Crudeoil',
+    'Terminal_Lng',
+    'Terminal_Petroleum',
+    'Compressors',
+    'Plants_Biodiesel',
+    'Plants_Ethanol',
+    'Plants_Ethylene_Cracker',
+    'Powerplants_Batterystorage',
+    'Plants_Coal',
+    'Plants_Geothermal',
+    'Plants_Hydroelectric',
+    'Plants_Hydropumped',
+    'Plants_Naturalgas',
+    'Plants_Nuclear',
+    'Plants_Petroleum',
+    'Plants_Processing_Naturalgas',
+    'Plants_Refinery_Petroleum',
+    'Fertilizer_Plant',
+}
+
 def generate_geojson_lines(request):
     print('=============')
     print('=============')
@@ -527,8 +563,11 @@ def generate_geojson_lines(request):
     # print('using the right one...')
     attrvals = list()
 
+    if model_name not in ALLOWED_LINE_MODELS:
+        return JsonResponse({'error': 'Invalid model name'}, status=400)
+
     # Dynamically get the model class from the installed apps
-    lines = apps.get_model('petrochem', model_name) 
+    lines = apps.get_model('petrochem', model_name)
         
     attrvals = lines.objects.all()
 
@@ -568,8 +607,11 @@ def generate_geojson_comps(request):
     # print('using the right one...')
     attrvals = list()
 
+    if model_name not in ALLOWED_POINT_MODELS:
+        return JsonResponse({'error': 'Invalid model name'}, status=400)
+
     # Dynamically get the model class from the installed apps
-    points = apps.get_model('petrochem', model_name) 
+    points = apps.get_model('petrochem', model_name)
         
     attrvals = points.objects.all()
 
