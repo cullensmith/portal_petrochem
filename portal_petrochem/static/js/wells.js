@@ -918,7 +918,8 @@ function createPointLayer(ptlay,orders) {
                             <span style="color: grey; font-weight: normal;">${feature.properties.longitude}</span><br>
                             <span style="color: black; font-weight: bold;">Latitude: </span>
                             <span style="color: grey; font-weight: normal;">${feature.properties.latitude}</span><br><br>
-
+                            <span style="color: black; font-weight: bold;">Source: </span>
+                            <span style="color: grey; font-weight: normal;">${feature.properties.data_src}</span><br><br>
                             <div style="display: flex; gap: 8px; margin-top: 6px;">
                                 <button style="width: 50%;background-color: #ffc857; color: #02253a;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="showdemos()">Impacted Demographics</button>
                                 <button style="width: 50%;background-color: #025687; color: white;font-weight: bold; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer;" onclick="fulldeets(clickedid)">View in Table</button>

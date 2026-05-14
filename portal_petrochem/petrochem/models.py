@@ -35,6 +35,7 @@ class Counties(models.Model):
 
 class Compressors(models.Model):
     id = models.IntegerField(primary_key=True, db_column='id')
+    data_src = models.CharField(max_length=50, blank=True, null=True, db_column='data_source')
     name = models.CharField(max_length=50, blank=True, null=True, db_column='name')
     address = models.CharField(max_length=50, blank=True, null=True, db_column='address')
     city = models.CharField(max_length=50, blank=True, null=True, db_column='city')
@@ -47,6 +48,7 @@ class Compressors(models.Model):
     longitude = models.FloatField(blank=True, null=True, db_column='longitude')
     naics_code = models.CharField(max_length=50, blank=True, null=True, db_column='naics_code')
     naics_desc = models.CharField(max_length=50, blank=True, null=True, db_column='naics_desc')
+    facility_type = models.CharField(max_length=50, blank=True, null=True, db_column='facility_type')
     source = models.CharField(max_length=50, blank=True, null=True, db_column='source')
     website = models.CharField(max_length=50, blank=True, null=True, db_column='website')
     pipeco = models.CharField(max_length=50, blank=True, null=True, db_column='pipeco')
@@ -64,7 +66,7 @@ class Compressors(models.Model):
     elec_compr = models.CharField(max_length=50, blank=True, null=True, db_column='elec_compr')
     class Meta:
         managed = False
-        db_table = '"eia"."compressor_stations_naturalgas"'
+        db_table = '"portal_petrochem"."compressor_stations"'
     
     def __str__(self) -> str:
         return super().__str__()
