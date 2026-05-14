@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from petrochem.models import Compressors,Buffs
 from django.apps import apps
+from django.db import connection
 
 
 # Create your views here.
@@ -652,6 +653,79 @@ def generate_geojson_comps(request):
     mapdata = json.dumps(geojson)
 
     return JsonResponse(mapdata, safe=False)
+
+
+def fractracker_table(request):
+    sql = """
+        SELECT ftid, name, status, company, product, state, res, diameter, datasrce, srcelink
+        FROM pipelines.fractracker
+        ORDER BY name
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        cols = [c[0] for c in cursor.description]
+        rows = cursor.fetchall()
+
+    features = [
+        {'type': 'Feature', 'geometry': None, 'properties': dict(zip(cols, row))}
+        for row in rows
+    ]
+    return JsonResponse({'type': 'FeatureCollection', 'features': features})
+
+
+def fractracker_feature(request, feature_id):
+    sql = """
+        SELECT ST_AsGeoJSON(geom_4326), name, status, company, product, res
+        FROM pipelines.fractracker
+        WHERE ftid = %s
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [feature_id])
+        row = cursor.fetchone()
+
+    if not row or not row[0]:
+        return JsonResponse({'error': 'Not found'}, status=404)
+
+    return JsonResponse({
+        'type': 'Feature',
+        'geometry': json.loads(row[0]),
+        'properties': {
+            'name': row[1], 'status': row[2], 'company': row[3],
+            'product': row[4], 'res': row[5],
+        }
+    })
+
+
+def fractracker_tiles(request, z, x, y):
+    z, x, y = int(z), int(x), int(y)
+
+    sql = """
+        WITH bounds AS (
+            SELECT ST_Transform(ST_TileEnvelope(%s, %s, %s), 4326) AS geom
+        ),
+        mvtgeom AS (
+            SELECT
+                ST_AsMVTGeom(
+                    p.geom_4326,
+                    bounds.geom,
+                    4096, 64, true
+                ) AS geom,
+                p.ftid, p.name, p.status, p.company, p.product, p.res, p.state, p.diameter
+            FROM pipelines.fractracker p, bounds
+            WHERE p.geom_4326 && bounds.geom
+        )
+        SELECT ST_AsMVT(mvtgeom, 'fractracker', 4096, 'geom') FROM mvtgeom
+        WHERE geom IS NOT NULL
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(sql, [z, x, y])
+        row = cursor.fetchone()
+
+    tile_data = bytes(row[0]) if row and row[0] else b''
+    response = HttpResponse(tile_data, content_type='application/x-protobuf')
+    response['Cache-Control'] = 'public, max-age=3600'
+    return response
 
 
 def generate_geojson_buffs(request):

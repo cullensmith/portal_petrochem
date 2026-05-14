@@ -550,17 +550,22 @@ map.on('zoomend', function () {
 
 
 function tableJson(i) {
-    // console.log('tableJson: '+i)
+    if (i === "FracTracker Pipelines") {
+        fetch('/petrochem/fractracker_table')
+            .then(r => r.json())
+            .then(data => {
+                createTable(data);
+                download_table_name = 'fractracker';
+                document.getElementById('tabledataset').innerText = i;
+            });
+        return;
+    }
     const grab = getmodname(i)
-    // console.log('tableJson activated')
-
     fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab)}`)
         .then(response => response.json())
         .then(data => {
-            // console.log('table data out')
             tabledata=JSON.parse(data)
-            // console.log(tabledata)
-            createTable(tabledata); 
+            createTable(tabledata);
             document.getElementById('tabledataset').innerText = i;
 })}
 
@@ -775,27 +780,32 @@ const defaultStyle = {
 var layerStore = {};
 
 function addLayerSafely(layerId, orders) {
-    // console.log('and here is the layer store')
-    // console.log(layerStore)
-    // console.log(`layer stores orders --> ${orders}`)
-    // // console.log(`layer stores objects --> ${layerObj}`)
     if (!layerId.includes('_')) {
         thisone = getmodname(layerId)
     } else {
         thisone = layerId
     };
-    if (!layerStore[thisone]) {
-        // layerStore[thisone] = layerObj;
-        // console.log('has not been created yet')
-        if (layerId.includes('_')) {
-            // console.log("Underscore found - 1");
+    if (thisone === 'Pipeline_Fractracker') {
+        if (!lines_pipeline_fractracker) {
+            createLineLayer('Pipeline_Fractracker');
         } else {
-            // console.log("No underscore - 1");
+            lines_pipeline_fractracker.addTo(map);
         }
+        if (orders === 'add it') {
+            document.getElementById('pipeline_fta').checked = true;
+        }
+        fetch('/petrochem/fractracker_table')
+            .then(r => r.json())
+            .then(data => {
+                createTable(data);
+                download_table_name = 'fractracker';
+            });
+        return;
+    }
+    if (!layerStore[thisone]) {
         createPointLayer(thisone,orders)
     } else {
         tableJson(layerId)
-        // console.log("Layer already created:", layerId);
     }
 }
 
@@ -3661,98 +3671,67 @@ function createLineLayer(lay) {
     // Fetch GeoJSON data from the server
     console.log(`lay: ${lay}`)
     if (lay === 'Pipeline_Fractracker') {
-        // Set cursor to indicate loading or interaction mode
-        document.body.classList.add('cursor-loading');
-    
-        const GEOSERVER_URL = 'https://geoserver.fractracker.org/geoserver';
-        const WORKSPACE = 'portal_petrochem';
-        const LAYER_NAME = 'fractracker';
-    
-        const lineStyle = {
-            color: '#e052e2',
-            weight: 1.5,
-            opacity: 1
-        };
-    
-        const hoverStyle = {
-            color: '#A92BAB',
-            weight: 4,
-            opacity: 1
-        };
-    
-        const myRenderer = L.canvas({ padding: 0.5 });
-    
-        const wfsUrl = `${GEOSERVER_URL}/${WORKSPACE}/ows?service=WFS&version=1.1.0&request=GetFeature&typeName=${WORKSPACE}:${LAYER_NAME}&outputFormat=application/json&srsName=EPSG:4326`;
-    
-        fetch(wfsUrl)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('WFS request failed');
-                } else {
-                    console.log('retrieved wfs');
-                }
-                return response.json();
-            })
-            .then(data => {
-                lines_pipeline_fractracker = L.geoJSON(data, {
-                    renderer: myRenderer,
-                    style: lineStyle,
-                    onEachFeature: function (feature, layer) {
-                        const props = feature.properties || {};
-    
-                        const name = props.name || props.NAME || props.pipeline_name || props.PIPELINE_NAME || 'N/A';
-                        const status = props.status || props.STATUS || props.state || props.STATE || 'N/A';
-                        const company = props.company || props.COMPANY || props.operator || props.OPERATOR || 'N/A';
-                        const product = props.product || props.PRODUCT || props.commodity || props.COMMODITY || 'N/A';
-                        const res = props.res || 'N/A';
-    
-                        let popupContent = `
-                            <div style="max-width: 250px;">
-                                <h4 style="margin: 0 0 10px; color: black; text-decoration: underline;">Pipeline Information</h4>
-                                <p style="margin: 0;"><strong style="color: black;">Name: </strong><span style="color: grey;">${name}</span></p>
-                                <p style="margin: 0;"><strong style="color: black;">Status: </strong><span style="color: grey;">${status}</span></p>
-                                <p style="margin: 0;"><strong style="color: black;">Company: </strong><span style="color: grey;">${company}</span></p>
-                                <p style="margin: 0;"><strong style="color: black;">Product: </strong><span style="color: grey;">${product}</span></p>
-                                <p style="margin: 0;"><strong style="color: black;">Source Resolution: </strong><span style="color: grey;">${res}</span></p>
-                            </div>
-                        `;
-    
-                        layer.bindPopup(popupContent);
-    
-                        // Set pointer cursor on hover
-                        layer.on('mouseover', function () {
-                            layer.setStyle(hoverStyle);
-                            map.getContainer().style.cursor = 'pointer';
-                        });
-    
-                        layer.on('mouseout', function () {
-                            if (!layer.clicked) {
-                                layer.setStyle(lineStyle);
-                            }
-                            map.getContainer().style.cursor = 'default';
-                        });
-    
-                        layer.on('click', function () {
-                            layer.setStyle(hoverStyle);
-                            layer.clicked = true;
-                            layer.openPopup();
-                        });
-    
-                        layer.on('popupclose', function () {
-                            layer.setStyle(lineStyle);
-                            layer.clicked = false;
-                            map.getContainer().style.cursor = 'default';
-                        });
-                    }
-                }).addTo(map);
-    
-                // Optionally reset cursor to default after adding layer
-                document.body.classList.remove('cursor-loading');
-            })
-            .catch(error => {
-                console.error('WFS Layer Error:', error);
-                map.getContainer().style.cursor = 'default'; // Always reset on error
-            });
+        const ftLineStyle = { color: '#e052e2', weight: 1.5, opacity: 1, fill: false };
+        const ftHoverStyle = { color: '#A92BAB', weight: 4, opacity: 1, fill: false };
+
+        lines_pipeline_fractracker = L.vectorGrid.protobuf(
+            '/petrochem/tiles/fractracker/{z}/{x}/{y}',
+            {
+                vectorTileLayerStyles: {
+                    fractracker: function() { return ftLineStyle; }
+                },
+                interactive: true,
+                getFeatureId: function(f) { return f.properties.ftid; },
+                maxNativeZoom: 16,
+                pane: 'overlayPane',
+            }
+        );
+
+        let ftHighlightLayer = null;
+        let ftJustClicked = false;
+
+        lines_pipeline_fractracker.on('click', function(e) {
+            ftJustClicked = true;
+            const id = e.layer.properties.ftid;
+            if (!id) return;
+
+            if (ftHighlightLayer) {
+                map.removeLayer(ftHighlightLayer);
+                ftHighlightLayer = null;
+            }
+
+            fetch(`/petrochem/tiles/fractracker/feature/${id}`)
+                .then(r => r.json())
+                .then(data => {
+                    ftHighlightLayer = L.geoJSON(data, { style: ftHoverStyle }).addTo(map);
+                    const p = data.properties;
+                    L.popup()
+                        .setLatLng(e.latlng)
+                        .setContent(`
+                            <div style="color: black; font-weight: bold;"><u>Pipeline Information</u></div><br>
+                            <span style="color: black; font-weight: bold;">Name: </span><span style="color: grey;">${p.name || 'N/A'}</span><br>
+                            <span style="color: black; font-weight: bold;">Status: </span><span style="color: grey;">${p.status || 'N/A'}</span><br>
+                            <span style="color: black; font-weight: bold;">Company: </span><span style="color: grey;">${p.company || 'N/A'}</span><br>
+                            <span style="color: black; font-weight: bold;">Product: </span><span style="color: grey;">${p.product || 'N/A'}</span><br>
+                            <span style="color: black; font-weight: bold;">Resolution: </span><span style="color: grey;">${p.res || 'N/A'}</span>
+                        `)
+                        .openOn(map);
+                })
+                .catch(err => console.error('fractracker feature fetch failed:', err));
+        });
+
+        map.on('click', function() {
+            if (ftJustClicked) {
+                ftJustClicked = false;
+                return;
+            }
+            if (ftHighlightLayer) {
+                map.removeLayer(ftHighlightLayer);
+                ftHighlightLayer = null;
+            }
+        });
+
+        lines_pipeline_fractracker.addTo(map);
     } else {
             const grab = lay
             fetch(`/petrochem/generate_geojson_lines?grab=${encodeURIComponent(grab)}`)
@@ -4338,10 +4317,11 @@ document.getElementById('legend-toggle').addEventListener('click', function() {
 
 
 const layersArray = [
-    "Border Crossing: Electric", 
-    "Border Crossing: Liquids", 
-    "Border Crossing: Natural Gas", 
-    "Compressor Stations", 
+    "Border Crossing: Electric",
+    "Border Crossing: Liquids",
+    "Border Crossing: Natural Gas",
+    "Compressor Stations",
+    "FracTracker Pipelines",
     "Market Hub: HGL", 
     "Market Hub: Natural Gas", 
     "Plants: Biodiesel", 
@@ -4516,37 +4496,39 @@ function toggleselection(c,v) {
 
 
 function getcolumns(ptlay) {
-    // console.log('getting columns for: ' + ptlay);
     grab1 = getmodname(ptlay);
-    // console.log('grab1: ' + grab1);
     document.getElementById('srch-input1').value = '';
-    // might need to edit the fetch url somehow
-    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab1)}`)
-        .then(response => response.json())
-        .then(data => {
-            d = JSON.parse(data);
 
-            const dropdown = document.getElementById("sort-field2");
-
-            // Clear existing options
-            dropdown.innerHTML = ''; // Remove all existing <option>s
-
-            // Optional: Add a placeholder/default option
-            const placeholder = document.createElement("option");
-            placeholder.value = "";
-            placeholder.textContent = "Select";
-            placeholder.style.color = "#8a8a8a";
-            dropdown.appendChild(placeholder);
-
-            
-
-            const keys = Object.keys(d.features[0].properties);
-            keys.forEach(key => {
+    const buildDropdown = (features) => {
+        const dropdown = document.getElementById("sort-field2");
+        dropdown.innerHTML = '';
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Select";
+        placeholder.style.color = "#8a8a8a";
+        dropdown.appendChild(placeholder);
+        if (features && features.length > 0) {
+            Object.keys(features[0].properties).forEach(key => {
                 const option = document.createElement("option");
                 option.value = key;
                 option.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                 dropdown.appendChild(option);
             });
+        }
+    };
+
+    if (ptlay === 'FracTracker Pipelines') {
+        fetch('/petrochem/fractracker_table')
+            .then(r => r.json())
+            .then(data => buildDropdown(data.features));
+        return;
+    }
+
+    fetch(`/petrochem/generate_geojson_comps?grab=${encodeURIComponent(grab1)}`)
+        .then(response => response.json())
+        .then(data => {
+            d = JSON.parse(data);
+            buildDropdown(d.features);
         });
 }
 
@@ -5195,16 +5177,20 @@ document.getElementById('pipeline_naturalgas').addEventListener('change', functi
 // // Toggle line visibility based on checkbox
 document.getElementById('pipeline_fta').addEventListener('change', function() {
     if (this.checked) {
-        // // console.log('pipeline_naturalgas - checked')
         if (!lines_pipeline_fractracker) {
-            // console.log('pipeline_naturalgas - needs to load')
             createLineLayer('Pipeline_Fractracker')
         } else {
-            // // console.log('pipeline_naturalgas - just adding')
             lines_pipeline_fractracker.addTo(map);
         }
+        fetch('/petrochem/fractracker_table')
+            .then(r => r.json())
+            .then(data => {
+                createTable(data);
+                download_table_name = 'fractracker';
+                document.getElementById('tabledataset').innerHTML = 'FracTracker Pipelines';
+            });
+        toggleselection('state', 'FracTracker Pipelines');
     } else if (lines_pipeline_fractracker) {
-        // console.log('pipeline_naturalgas - fake removing')
         map.removeLayer(lines_pipeline_fractracker);
     }
 });
@@ -5786,7 +5772,8 @@ function getmodname(v) {
         return 'Plants_Refinery_Petroleum';  // Set the text inside the span
     } else if (v === "Plants: Fertilizer") {
         return 'Fertilizer_Plant'
-        // return 'Electric_Generator';  // Set the text inside the span
+    } else if (v === "FracTracker Pipelines") {
+        return 'Pipeline_Fractracker';
     } else {console.log('error - getmodname: '+v)}
 }
 
@@ -5843,7 +5830,8 @@ function getdisplayname(v) {
         return 'Refinery: Petroleum';  // Set the text inside the span
     } else if (v === "Fertilizer_Plant") {
         return 'Plants: Fertilizer'
-        // return 'Power Plants: Electric Generators';  // Set the text inside the span
+    } else if (v === "Pipeline_Fractracker") {
+        return 'FracTracker Pipelines';
     } else {console.log('error - getdisplayname: '+v)}
 }
 
@@ -5901,7 +5889,8 @@ function getmaplayername(v) {
         return 'points_eia_plants_refinery_petroleum';  // Set the text inside the span
     } else if (v === "Fertilizer_Plant") {
         return 'points_plants_fertilizer'
-        // return 'points_eia_electric_generator';  // Set the text inside the span
+    } else if (v === "Pipeline_Fractracker") {
+        return 'lines_pipeline_fractracker';
     }  else {console.log('error - getmaplayername: '+v)}
 }
 
@@ -5960,7 +5949,8 @@ function getmaplayer(v) {
         return points_eia_plants_refinery_petroleum;  // Set the text inside the span
     } else if (v === "Fertilizer_Plant") {
         return points_plants_fertilizer
-        // return points_eia_electric_generator;  // Set the text inside the span
+    } else if (v === "Pipeline_Fractracker") {
+        return lines_pipeline_fractracker;
     }  else {console.log('error - getmaplayer: '+v)}
 }
 
@@ -6017,6 +6007,7 @@ function getlegenditem(v) {
         return 'eia_plants_refinery_petroleum';  // Set the text inside the span
     } else if (v === "Fertilizer_Plant") {
         return 'plants_fertilizer'
-        // return 'eia_electric_generator';  // Set the text inside the span
+    } else if (v === "Pipeline_Fractracker") {
+        return 'pipeline_fta';
     }  else {console.log('error - getlegenditem: '+v)}
 }

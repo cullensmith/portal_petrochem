@@ -46,6 +46,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap" rel="stylesheet">
 
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <script src="https://unpkg.com/leaflet.vectorgrid@1.3.0/dist/Leaflet.VectorGrid.bundled.js"></script>
     
     {% comment %} <!-- EasyPrint CSS and JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easyprint@2.1.9/dist/bundle.min.css" />
@@ -1318,23 +1319,25 @@
 
         // Screenshot preview function
         function showPrintPreview() {
-            const modal = document.getElementById('printModal');
+            const pmodal = document.getElementById('printModal');
             const printDate = document.getElementById('printDate');
-            
+
             // Set current date
             printDate.textContent = new Date().toLocaleDateString();
-            
+
             // Show modal
-            modal.style.display = 'block';
-            
+            pmodal.style.display = 'block';
+
             // Create print map instance with better layer handling
             setTimeout(() => {
                 if (printMapInstance) {
                     printMapInstance.remove();
                 }
-                
+
                 printMapInstance = L.map('printMap').setView(map.getCenter(), map.getZoom());
-                
+                // Pane for GeoJSON below markers — avoids overlay pane whose transform html2canvas doubles
+                printMapInstance.createPane('printGeoPane').style.zIndex = 250;
+
                 // Find the current tile layer from the main map
                 let originalTileLayer;
 
@@ -1356,25 +1359,34 @@
                         maxZoom: 19
                     }).addTo(printMapInstance);
                 }
-                
+
                 // Wait for base tiles to load
                 let tilesLoaded = 0;
                 let tilesToLoad = 0;
-                
+
                 tileLayer.on('tileloadstart', function() {
                     tilesToLoad++;
                 });
-                
+
                 tileLayer.on('tileload', function() {
                     tilesLoaded++;
                 });
-                
+
                 tileLayer.on('tileerror', function() {
                     tilesLoaded++;
                 });
-                
+
+                // Shared canvas renderer for all GeoJSON — one element, one transform, no drift
+                const sharedGeoRenderer = L.canvas({ pane: 'printGeoPane' });
+
                 // Copy all layers from original map with full styling
                 map.eachLayer(function(layer) {
+                    // Skip sub-layers already registered by a LayerGroup/GeoJSON — handled explicitly below
+                    if (layer._eventParents && Object.keys(layer._eventParents).some(function(id) {
+                        var parent = layer._eventParents[id];
+                        return parent instanceof L.LayerGroup;
+                    })) { return; }
+
                     if (layer instanceof L.Marker) {
                         // Copy marker with all options including custom icons
                         const newMarker = L.marker(layer.getLatLng(), {
@@ -1446,16 +1458,6 @@
                         if (layer.getPopup()) {
                             newCircleMarker.bindPopup(layer.getPopup().getContent());
                         }
-                    } else if (layer instanceof L.GeoJSON) {
-                        // Handle GeoJSON layers with styling
-                        const newGeoJSON = L.geoJSON(layer.toGeoJSON(), {
-                            style: layer.options.style,
-                            pointToLayer: layer.options.pointToLayer,
-                            onEachFeature: layer.options.onEachFeature,
-                            filter: layer.options.filter,
-                            coordsToLatLng: layer.options.coordsToLatLng,
-                            ...layer.options
-                        }).addTo(printMapInstance);
                     } else if (layer instanceof L.LayerGroup) {
                         // Handle layer groups recursively
                         const newLayerGroup = L.layerGroup();
@@ -1494,7 +1496,18 @@
                     }
                     // Note: TileLayer is handled separately above
                 });
-                
+
+                // Explicitly copy known GeoJSON polygon/line layers using the shared renderer
+                [ctytallyLayer, demobuffer].forEach(function(lyr) {
+                    if (lyr && map.hasLayer(lyr)) {
+                        L.geoJSON(lyr.toGeoJSON(), {
+                            style: lyr.options.style,
+                            renderer: sharedGeoRenderer,
+                            pane: 'printGeoPane',
+                        }).addTo(printMapInstance);
+                    }
+                });
+
                 // Ensure the print map renders properly
                 setTimeout(() => {
                     printMapInstance.invalidateSize();
@@ -1535,12 +1548,20 @@
         
             // Show waiting cursor
             document.body.style.cursor = 'wait';
-        
+
+            // Snapshot view before container resize changes it
+            const savedCenter = printMapInstance ? printMapInstance.getCenter() : null;
+            const savedZoom   = printMapInstance ? printMapInstance.getZoom()   : null;
+
             setTimeout(() => {
                 if (printMapInstance) {
-                    printMapInstance.invalidateSize();
+                    printMapInstance.invalidateSize({ animate: false, pan: false });
+                    if (savedCenter && savedZoom !== null) {
+                        printMapInstance.setView(savedCenter, savedZoom, { animate: false });
+                    }
+                    printMapInstance.fire('viewreset');
                 }
-        
+
                 setTimeout(() => {
                     const printContent = document.querySelector('.print-content');
         

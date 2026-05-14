@@ -21,5 +21,7 @@ urlpatterns = [
     path('generate_geojson_buffs2',views.generate_geojson_buffs2, name="generate_geojson_buffs2"),
     path('generate_photo_pts',views.generate_photo_pts, name="generate_photo_pts"),
     path('check-ip/', views.check_ip, name='check_ip'),
-
+    path('tiles/fractracker/<int:z>/<int:x>/<int:y>', views.fractracker_tiles, name='fractracker_tiles'),
+    path('tiles/fractracker/feature/<int:feature_id>', views.fractracker_feature, name='fractracker_feature'),
+    path('fractracker_table', views.fractracker_table, name='fractracker_table'),
 ]
