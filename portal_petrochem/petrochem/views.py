@@ -710,7 +710,7 @@ def fractracker_tiles(request, z, x, y):
                     bounds.geom,
                     4096, 64, true
                 ) AS geom,
-                p.ftid, p.name, p.status, p.company, p.product, p.res, p.state, p.diameter
+                p.ftid
             FROM pipelines.fractracker p, bounds
             WHERE p.geom_4326 && bounds.geom
         )

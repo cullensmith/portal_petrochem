@@ -37,6 +37,7 @@ var filteredPoints;
 var activeFilterField = null;
 var activeFilterRegex = null;
 var ftFilterState = { active: false, matchingIds: new Set() };
+var selectedRowId = null;
 
 var download_table_name;
 // Create constants for the filter items
@@ -4253,8 +4254,21 @@ function updateTable(geojson,src) {
                 }
             };
 
+            const ftid = feature.properties.ftid;
+            const fid  = feature.properties.id;
+            const isSelected = ftid !== undefined
+                ? ftFilterState.matchingIds.has(ftid)
+                : selectedRowId === fid;
+
+            const selectBtn = document.createElement('button');
+            selectBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+            selectBtn.className = 'row-action-btn' + (isSelected ? ' row-action-btn-active' : '');
+            selectBtn.title = 'Select this feature';
+            selectBtn.onclick = () => toggleRowSelect(fid, ftid, selectBtn);
+
             actionCell.appendChild(zoomBtn);
             actionCell.appendChild(pulseBtn);
+            actionCell.appendChild(selectBtn);
             row.appendChild(actionCell);
 
             for (let prop in feature.properties) {
@@ -5101,6 +5115,57 @@ map.on(L.Draw.Event.CREATED, function (e) {
     layer.remove(); // or: map.removeLayer(layer);
   });
 
+
+function toggleRowSelect(id, ftid, btn) {
+    if (ftid !== undefined) {
+        if (ftFilterState.matchingIds.has(ftid)) {
+            ftFilterState.matchingIds.delete(ftid);
+            if (ftFilterState.matchingIds.size === 0) ftFilterState.active = false;
+            btn.classList.remove('row-action-btn-active');
+        } else {
+            ftFilterState.matchingIds.add(ftid);
+            ftFilterState.active = true;
+            btn.classList.add('row-action-btn-active');
+        }
+        if (lines_pipeline_fractracker) lines_pipeline_fractracker.redraw();
+        return;
+    }
+
+    const activeDataset = document.getElementById('tabledataset').innerText.trim();
+    const activeModName = activeDataset ? getmodname(activeDataset) : null;
+    const activeLayer = activeModName ? getmaplayer(activeModName) : null;
+
+    if (selectedRowId === id) {
+        selectedRowId = null;
+        btn.classList.remove('row-action-btn-active');
+        if (activeLayer && activeLayer.eachLayer) {
+            activeLayer.eachLayer(function(layer) {
+                const outerEl = layer.getElement ? layer.getElement() : null;
+                const innerEl = outerEl ? outerEl.firstElementChild : null;
+                if (outerEl) outerEl.style.opacity = '';
+                if (innerEl) innerEl.style.transform = '';
+            });
+        }
+    } else {
+        selectedRowId = id;
+        btn.classList.add('row-action-btn-active');
+        if (activeLayer && activeLayer.eachLayer) {
+            activeLayer.eachLayer(function(layer) {
+                const props = layer.feature && layer.feature.properties;
+                if (!props) return;
+                const matches = props.id === id;
+                const outerEl = layer.getElement ? layer.getElement() : null;
+                const innerEl = outerEl ? outerEl.firstElementChild : null;
+                if (outerEl) outerEl.style.opacity = matches ? '1' : '0.5';
+                if (innerEl) {
+                    const isDiamond = layer.options && layer.options.markerClass === 'diamond-marker';
+                    const scaleStr = matches ? 'scale(2)' : 'scale(0.5)';
+                    innerEl.style.transform = isDiamond ? `rotate(45deg) ${scaleStr}` : scaleStr;
+                }
+            });
+        }
+    }
+}
 
 function zoomToFractracker(ftid) {
     fetch(`/petrochem/tiles/fractracker/feature/${ftid}`)

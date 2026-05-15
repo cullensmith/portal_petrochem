@@ -71,6 +71,14 @@ td {
     background-color: #025687;
 }
 
+.row-action-btn-active {
+    background-color: #025687;
+}
+
+.row-action-btn-active:hover {
+    background-color: #0270a8;
+}
+
 @keyframes markerPulse {
     0%   { transform: scale(1); }
     50%  { transform: scale(3); }
