@@ -34,6 +34,9 @@ var points_eia_terminal_petroleum;
 
 var buffs;
 var filteredPoints;
+var activeFilterField = null;
+var activeFilterRegex = null;
+var ftFilterState = { active: false, matchingIds: new Set() };
 
 var download_table_name;
 // Create constants for the filter items
@@ -535,6 +538,7 @@ function ctyct(data, d) {
 
 // Show points only if zoom level is between 10 and 14
 map.on('zoomend', function () {
+    applyMarkerFilterStyles();
     var currentZoom = map.getZoom();
     // console.log(currentZoom)
     if (currentZoom <= 6) {
@@ -3672,13 +3676,18 @@ function createLineLayer(lay) {
     console.log(`lay: ${lay}`)
     if (lay === 'Pipeline_Fractracker') {
         const ftLineStyle = { color: '#e052e2', weight: 1.5, opacity: 1, fill: false };
+        const ftDimStyle  = { color: '#e052e2', weight: 0.75, opacity: 0.2, fill: false };
+        const ftSelStyle  = { color: '#e052e2', weight: 3, opacity: 1, fill: false };
         const ftHoverStyle = { color: '#A92BAB', weight: 4, opacity: 1, fill: false };
 
         lines_pipeline_fractracker = L.vectorGrid.protobuf(
             '/petrochem/tiles/fractracker/{z}/{x}/{y}',
             {
                 vectorTileLayerStyles: {
-                    fractracker: function() { return ftLineStyle; }
+                    fractracker: function(props) {
+                        if (!ftFilterState.active) return ftLineStyle;
+                        return ftFilterState.matchingIds.has(props.ftid) ? ftSelStyle : ftDimStyle;
+                    }
                 },
                 interactive: true,
                 getFeatureId: function(f) { return f.properties.ftid; },
@@ -4397,6 +4406,44 @@ function openlist(bo) {
     statelist = getButtonValues()
 };
 
+function updateLegendHighlight(selectedCheckboxId) {
+    document.querySelectorAll('.legenditem').forEach(item => {
+        const symbol = item.querySelector('label > span:first-child, label > i:first-child');
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        if (!symbol || !checkbox) return;
+        if (checkbox.id === selectedCheckboxId) {
+            item.style.opacity = '1';
+            if (symbol.classList.contains('legend-diamond')) {
+                symbol.style.transform = 'rotate(45deg) scale(2)';
+            } else if (symbol.classList.length > 0) {
+                symbol.style.transform = 'scale(2)';
+            } else {
+                symbol.style.fontSize = 'xx-large';
+            }
+        } else {
+            item.style.opacity = '0.5';
+            if (symbol.classList.contains('legend-diamond')) {
+                symbol.style.transform = 'rotate(45deg) scale(0.5)';
+            } else if (symbol.classList.length > 0) {
+                symbol.style.transform = 'scale(0.5)';
+            } else {
+                symbol.style.fontSize = 'medium';
+            }
+        }
+    });
+}
+
+function resetLegendHighlight() {
+    document.querySelectorAll('.legenditem').forEach(item => {
+        const symbol = item.querySelector('label > span:first-child, label > i:first-child');
+        item.style.opacity = '';
+        if (symbol) {
+            symbol.style.transform = '';
+            symbol.style.fontSize = '';
+        }
+    });
+}
+
 
 
 
@@ -4439,7 +4486,7 @@ function toggleselection(c,v) {
     statetextbox.style.justifyContent='left';
     buttonDataset.onclick = function() {
         document.getElementById(buttonDataset.id.slice(6) + 'btn').classList = 'filterbutton';
-        buttonDataset.remove(); 
+        buttonDataset.remove();
     };
     
     // Create a span for the original text
@@ -4478,7 +4525,7 @@ function toggleselection(c,v) {
     
     var gmn = getmodname(v)
     var toggleit = getlegenditem(gmn)
-    
+
     if (document.getElementById('addtomap').checked) {
         document.getElementById(toggleit).checked = true;
         applyCategoryFilter('add it')
@@ -4486,12 +4533,8 @@ function toggleselection(c,v) {
         applyCategoryFilter('just the table')
     }
 
-    // console.log(`the button part ${v}`)
-    // console.log(`the button part ${toggleit}`)
-    
-    
     getcolumns(v)
-    
+
 }
 
 
@@ -5027,26 +5070,20 @@ function refinefilter() {
     const f = document.getElementById('sort-field2').value;
     const s = document.getElementById('srch-input1').value;
 
-    // Convert wildcard string to regex
     function wildcardToRegex(pattern) {
         const escaped = pattern.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&');
         const regexPattern = '^' + escaped.replace(/\*/g, '.*') + '$';
-        return new RegExp(regexPattern, 'i'); // case-insensitive
+        return new RegExp(regexPattern, 'i');
     }
 
     const regex = wildcardToRegex(s);
 
     const refinedFeatures = tabledata.features.filter(feature => {
         if (!feature || !feature.properties || feature.properties[f] == null) return false;
-
-        const propValue = feature.properties[f].toString();
-        return regex.test(propValue);
+        return regex.test(feature.properties[f].toString());
     });
 
-    const refinedsrch = {
-        type: "FeatureCollection",
-        features: refinedFeatures
-    };
+    const refinedsrch = { type: "FeatureCollection", features: refinedFeatures };
 
     if (!Array.isArray(refinedsrch.features)) {
         console.error('Invalid GeoJSON: "features" is not an array');
@@ -5057,25 +5094,95 @@ function refinefilter() {
         map.removeLayer(filteredPoints);
     }
 
-    filteredPoints = L.geoJSON(refinedsrch, {
-        pointToLayer: function (feature, latlng) {
-            const icon = L.divIcon({
-                className: 'custom-square-marker',
-                iconSize: [18, 18]
-            });
-            return L.marker(latlng, { icon: icon });
-        }
-    }).addTo(map);
+    activeFilterField = f;
+    activeFilterRegex = regex;
+    applyMarkerFilterStyles();
 
     updateTable(refinedsrch, 'refined');
 }
 
+function applyMarkerFilterStyles() {
+    if (!activeFilterField || !activeFilterRegex) return;
+    const activeDataset = document.getElementById('tabledataset').innerText.trim();
+    const activeModName = activeDataset ? getmodname(activeDataset) : null;
+
+    // Fractracker vectorgrid: update filter state and redraw tiles
+    if (activeModName === 'Pipeline_Fractracker') {
+        if (tabledata && tabledata.features) {
+            ftFilterState.matchingIds = new Set(
+                tabledata.features
+                    .filter(f => {
+                        const val = f.properties[activeFilterField];
+                        return val != null && activeFilterRegex.test(val.toString());
+                    })
+                    .map(f => f.properties.ftid)
+            );
+            ftFilterState.active = true;
+        }
+        if (lines_pipeline_fractracker) lines_pipeline_fractracker.redraw();
+        return;
+    }
+
+    const activeLayer = activeModName ? getmaplayer(activeModName) : null;
+    if (!activeLayer || !activeLayer.eachLayer) return;
+
+    activeLayer.eachLayer(function(layer) {
+        const props = layer.feature && layer.feature.properties;
+        if (!props) return;
+        const propValue = props[activeFilterField] != null ? props[activeFilterField].toString() : '';
+        const matches = activeFilterRegex.test(propValue);
+        const geomType = layer.feature.geometry && layer.feature.geometry.type;
+        const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
+
+        if (isLine) {
+            layer.setStyle({ opacity: matches ? 1 : 0.15, weight: matches ? 3 : 0.75 });
+        } else {
+            const outerEl = layer.getElement ? layer.getElement() : null;
+            const innerEl = outerEl ? outerEl.firstElementChild : null;
+            if (outerEl) outerEl.style.opacity = matches ? '1' : '0.5';
+            if (innerEl) {
+                const isDiamond = layer.options && layer.options.markerClass === 'diamond-marker';
+                const scaleStr = matches ? 'scale(2)' : 'scale(0.5)';
+                innerEl.style.transform = isDiamond ? `rotate(45deg) ${scaleStr}` : scaleStr;
+            }
+        }
+    });
+}
+
 function clearFilter() {
-    updateTable(tabledata)
+    updateTable(tabledata);
     document.getElementById('srch-input1').value = '';
     document.getElementById('sort-field2').value = '';
     if (filteredPoints) {
-        map.removeLayer(filteredPoints)
+        map.removeLayer(filteredPoints);
+    }
+    const activeDataset = document.getElementById('tabledataset').innerText.trim();
+    const activeModName = activeDataset ? getmodname(activeDataset) : null;
+
+    activeFilterField = null;
+    activeFilterRegex = null;
+
+    if (activeModName === 'Pipeline_Fractracker') {
+        ftFilterState.active = false;
+        ftFilterState.matchingIds = new Set();
+        if (lines_pipeline_fractracker) lines_pipeline_fractracker.redraw();
+        return;
+    }
+
+    const activeLayer = activeModName ? getmaplayer(activeModName) : null;
+    if (activeLayer && activeLayer.eachLayer) {
+        activeLayer.eachLayer(function(layer) {
+            const geomType = layer.feature && layer.feature.geometry && layer.feature.geometry.type;
+            const isLine = geomType === 'LineString' || geomType === 'MultiLineString';
+            if (isLine) {
+                activeLayer.resetStyle(layer);
+            } else {
+                const outerEl = layer.getElement ? layer.getElement() : null;
+                const innerEl = outerEl ? outerEl.firstElementChild : null;
+                if (outerEl) outerEl.style.opacity = '';
+                if (innerEl) innerEl.style.transform = '';
+            }
+        });
     }
 }
 
