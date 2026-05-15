@@ -106,7 +106,7 @@ class Pipeline_FracTracker(models.Model):
     id = models.IntegerField(primary_key=True)
     length = models.FloatField(blank=True, null=True)
     diameter = models.CharField(max_length=50, blank=True, null=True)
-    geomjson = models.CharField(max_length=7000000, blank=True, null=True)
+    # geomjson = models.CharField(max_length=7000000, blank=True, null=True)
 
     class Meta:
         managed = False

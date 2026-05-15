@@ -3706,7 +3706,7 @@ function createLineLayer(lay) {
     // Fetch GeoJSON data from the server
     console.log(`lay: ${lay}`)
     if (lay === 'Pipeline_Fractracker') {
-        const ftLineStyle = { color: '#e052e2', weight: 1.5, opacity: 1, fill: false };
+        const ftLineStyle = { color: '#e052e2', weight: 2, opacity: 1, fill: false };
         const ftDimStyle  = { color: '#e052e2', weight: 0.75, opacity: 0.2, fill: false };
         const ftSelStyle  = { color: '#e052e2', weight: 3, opacity: 1, fill: false };
         const ftHoverStyle = { color: '#A92BAB', weight: 4, opacity: 1, fill: false };
