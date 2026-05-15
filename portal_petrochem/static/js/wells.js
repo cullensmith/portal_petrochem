@@ -250,11 +250,7 @@ L.Control.CustomAction = L.Control.extend({
   // 4. Your function
   function myCustomFunction() {
     clearFilter();
-    // Add your logic here
-    if (customControl) {
-        map.removeControl(customControl);
-        customControl = null;
-      }
+    hideClearControl();
     if (filteredPoints && map.hasLayer(filteredPoints)) {
         map.removeLayer(filteredPoints);
     }
@@ -5018,163 +5014,68 @@ function filterProd(data) {
 // drawControlsDivB.appendChild(controlContainerB);
 
 // Event listener to count points inside the circle
-map.on('draw:created', function (e) {
-var layer = e.layer;
+map.on(L.Draw.Event.CREATED, function (e) {
+    const layer = e.layer;
+    const bounds = layer.getBounds();
+    layer.remove();
 
-if (layer instanceof L.Circle) {
-    // Get circle's center and radius
-    var circleCenter = layer.getLatLng();
-    var circleRadius = layer.getRadius();
+    if (!tabledata || !tabledata.features) return;
 
-    // Count how many points are inside the circle
-    var pointsInside = 0;
-        // JSON object to store points inside the circle
-    var pointsInsideJSON = {
-        count: 0,
-        points: []
-        };
+    const turfBBox = turf.bboxPolygon([
+        bounds.getWest(), bounds.getSouth(),
+        bounds.getEast(), bounds.getNorth()
+    ]);
 
-    const wellftcat = {'category6':productionwells, 'category5':pluggedwells, 'category4':otherwells, 'category3':orphanwells, 'category2':injectionwells, 'category1':notdrilledwells}
-    
-    
-    for (const [k,v] of Object.entries(wellftcat)) {
-        if (document.getElementById(k).checked === true) {
-            v.eachLayer(function (marker) {
-                // console.log(marker)
-                // console.log(marker.feature.properties.api_num)
-                // Check if the marker is inside the circle
-                var distance = circleCenter.distanceTo(marker.getLatLng());
-                if (distance <= circleRadius) {
-                pointsInsideJSON.count++;
+    const selectedFeatures = tabledata.features.filter(feature => {
+        if (!feature.geometry || !feature.geometry.coordinates) return false;
+        try { return turf.booleanPointInPolygon(feature, turfBBox); }
+        catch (err) { return false; }
+    });
 
-                // Collect all attributes of the marker, including coordinates
-                var markerData = {
-                    api_num: marker.feature.properties.api_num,     // Custom attribute
-                    other_id: marker.feature.properties.other_id,     // Custom attribute
-                    latitude: marker.feature.properties.latitude,     // Custom attribute
-                    longitude: marker.feature.properties.longitude,     // Custom attribute
-                    stusps: marker.feature.properties.stusps,     // Custom attribute
-                    county: marker.feature.properties.county,     // Custom attribute
-                    municipality: marker.feature.properties.municipality,     // Custom attribute
-                    well_name: marker.feature.properties.well_name,     // Custom attribute
-                    operator: marker.feature.properties.operator,     // Custom attribute
-                    spud_date: marker.feature.properties.spud_date,     // Custom attribute
-                    plug_date: marker.feature.properties.plug_date,     // Custom attribute
-                    well_type: marker.feature.properties.well_type,     // Custom attribute
-                    well_status: marker.feature.properties.well_status,     // Custom attribute
-                    well_configuration: marker.feature.properties.well_configuration,     // Custom attribute
-                    ft_category: marker.feature.properties.ft_category,     // Custom attribute
-                    id: marker.feature.properties.id,     // Custom attribute
-                };
+    if (!customControl) {
+        customControl = new L.Control.CustomAction();
+        map.addControl(customControl);
+    }
 
-                pointsInsideJSON.points.push(markerData);
-                }
-            });
-    }}
-    // console.log(JSON.stringify(pointsInsideJSON, null, 2));
+    const activeDataset = document.getElementById('tabledataset').innerText.trim();
+    const activeModName = activeDataset ? getmodname(activeDataset) : null;
+    const activeLayer = activeModName ? getmaplayer(activeModName) : null;
 
-    //   starting here ============
-    data = JSON.stringify(pointsInsideJSON, null, 2)
-    // Convert the points to GeoJSON
-    function convertToGeoJSON(data) {
-        return {
-            type: "FeatureCollection",
-            features: data.points.map(point => ({
-            type: "Feature",
-            geometry: {
-                type: "Point",
-                coordinates: [point.longitude, point.latitude]
-            },
-            properties: {
-                api_num: point.api_num,
-                other_id: point.other_id,
-                latitude: point.latitude,
-                longitude: point.longitude,
-                stusps: point.stusps,
-                county: point.county,
-                municipality: point.municipality,
-                well_name: point.well_name,
-                operator: point.operator,
-                spud_date: point.spud_date,
-                plug_date: point.plug_date,
-                well_type: point.well_type,
-                well_status: point.well_status,
-                well_configuration: point.well_configuration,
-                ft_category: point.ft_category,
-                id: point.id,
-
+    if (activeLayer && activeLayer.eachLayer) {
+        const selectedIds = new Set(selectedFeatures.map(f => f.properties.id));
+        activeLayer.eachLayer(function(sublayer) {
+            const props = sublayer.feature && sublayer.feature.properties;
+            if (!props) return;
+            const matches = selectedIds.has(props.id);
+            const outerEl = sublayer.getElement ? sublayer.getElement() : null;
+            const innerEl = outerEl ? outerEl.firstElementChild : null;
+            if (outerEl) outerEl.style.opacity = matches ? '1' : '0.5';
+            if (innerEl) {
+                const isDiamond = sublayer.options && sublayer.options.markerClass === 'diamond-marker';
+                const scaleStr = matches ? 'scale(2)' : 'scale(0.5)';
+                innerEl.style.transform = isDiamond ? `rotate(45deg) ${scaleStr}` : scaleStr;
             }
-            }))
-        };
-        }
-    
-        // Convert data to GeoJSON
-        const refinedrad = convertToGeoJSON(pointsInsideJSON);
-        
-        updateTable(refinedrad.features,'refined')
-        // Log the result
-        // console.log(JSON.stringify(geoJSON, null, 2));
+        });
+    }
 
-
-      // Display the JSON object in the console
-    //   console.log(JSON.stringify(pointsInsideJSON, null, 2));
-    // alert("Points inside the circle: " + pointsInside);
-}
+    const refinedsrch = { type: "FeatureCollection", features: selectedFeatures };
+    updateTable(refinedsrch, 'refined');
 });
 
 
-map.on(L.Draw.Event.CREATED, function (e) {
-    // 3. Add your custom control
+function showClearControl() {
     if (!customControl) {
-        customControl = new L.Control.CustomAction(); // your control class
+        customControl = new L.Control.CustomAction();
         map.addControl(customControl);
-      }
-
-
-    const layer = e.layer;
-    const bounds = layer.getBounds();
-  
-    // Convert bounds to a turf polygon
-    const turfBBox = turf.bboxPolygon([
-      bounds.getWest(),
-      bounds.getSouth(),
-      bounds.getEast(),
-      bounds.getNorth()
-    ]);
-  
-    const selectedFeatures = tabledata.features.filter(feature => {
-      return turf.booleanPointInPolygon(feature, turfBBox);
-    });
-  
-  
-
-    if (filteredPoints && map.hasLayer(filteredPoints)) {
-        map.removeLayer(filteredPoints);
     }
+}
 
-    const selectedIds = selectedFeatures.map(feature => feature.properties.id);
-    console.log(selectedIds)
-    const refinedsrch = {
-        type: "FeatureCollection",
-        features: tabledata.features.filter(f => selectedIds.includes( f.properties.id))
-    };
-
-    filteredPoints = L.geoJSON(refinedsrch, {
-        pointToLayer: function (feature, latlng) {
-            const icon = L.divIcon({
-                className: 'custom-square-marker',
-                iconSize: [18, 18]
-            });
-            return L.marker(latlng, { icon: icon });
-        }
-    }).addTo(map);
-
-    updateTable(refinedsrch, 'refined');
-
-    // Optionally clear the rectangle after drawing
-    layer.remove(); // or: map.removeLayer(layer);
-  });
-
+function hideClearControl() {
+    if (customControl) {
+        map.removeControl(customControl);
+        customControl = null;
+    }
+}
 
 function clearSelectButtons() {
     document.querySelectorAll('#maintablebody .row-action-btn-active').forEach(b => b.classList.remove('row-action-btn-active'));
@@ -5190,8 +5091,10 @@ function toggleRowSelect(id, ftid, btn) {
             ftFilterState.matchingIds.add(ftid);
             ftFilterState.active = true;
             btn.classList.add('row-action-btn-active');
+            showClearControl();
         } else {
             ftFilterState.active = false;
+            hideClearControl();
         }
         if (lines_pipeline_fractracker) lines_pipeline_fractracker.redraw();
         return;
@@ -5214,9 +5117,12 @@ function toggleRowSelect(id, ftid, btn) {
         });
     }
 
+    if (alreadySelected) hideClearControl();
+
     if (!alreadySelected) {
         selectedRowId = id;
         btn.classList.add('row-action-btn-active');
+        showClearControl();
         if (activeLayer && activeLayer.eachLayer) {
             activeLayer.eachLayer(function(layer) {
                 const props = layer.feature && layer.feature.properties;
@@ -5367,6 +5273,7 @@ function refinefilter() {
     activeFilterField = f;
     activeFilterRegex = regex;
     applyMarkerFilterStyles();
+    showClearControl();
 
     updateTable(refinedsrch, 'refined');
 }
@@ -5412,6 +5319,7 @@ function fuzzyfilter() {
     activeFilterField = f;
     activeFilterRegex = { test: (val) => fuzzyMatch(s, val != null ? val.toString() : '') };
     applyMarkerFilterStyles();
+    showClearControl();
 
     updateTable(refinedsrch, 'refined');
 }
