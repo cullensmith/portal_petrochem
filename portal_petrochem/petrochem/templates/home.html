@@ -1080,17 +1080,18 @@
                                     {% comment %} <div style="justify-self:right;text-align:center;border:none;height:25px;background-color:white;border-radius:7px"><button id="sortbtn2" class="divbtns" onclick="refinefilter()">Go</button></div> {% endcomment %}
                                 </div>    
                                 <div style="display: flex; gap: 5px; align-items: center;margin-top:5px">
-                                    <div style="text-align: center; border: solid; height: 25px; background-color: #02253a; border-color:white;border-width:1px;border-radius: 7px;width:33%">
-                                        <button class="divbtns" style="background-color:transparent;border-color:#02253a;color:white" onclick="clearFilter()">Reset</button>
+                                    <div style="text-align: center; border: none; height: 25px; background-color: white; border-radius: 7px;width:49%">
+                                        <button id="sortbtn2" class="divbtns" onclick="refinefilter()">Exact Match</button>
                                     </div>
-                                    <div style="text-align: center; border: none; height: 25px; background-color: white; border-radius: 7px;width:33%">
-                                        <button id="sortbtn2" class="divbtns" onclick="refinefilter()">Exact</button>
-                                    </div>
-                                    <div style="text-align: center; border: none; height: 25px; background-color: #ffc857; border-radius: 7px;width:33%">
-                                        <button class="divbtns" onclick="fuzzyfilter()">Fuzzy</button>
+                                    <div style="text-align: center; border: none; height: 25px; background-color: #ffc857; border-radius: 7px;width:49%">
+                                        <button class="divbtns" onclick="fuzzyfilter()" style="background-color: #ffc857">Fuzzy Search</button>
                                     </div>
                                 </div>
-
+                                <div style="display: flex; gap: 5px; align-items: center;margin-top:5px">
+                                    <div style="text-align: center; border: solid; height: 25px; background-color: #02253a; border-color:white;border-width:1px;border-radius: 7px;width:100%">
+                                        <button class="divbtns" style="background-color:transparent;border-color:#02253a;color:white" onclick="clearFilter()">Reset</button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="controls" style="position: absolute; bottom: 87px; left: 10px; right: 10px;">
                                 {% comment %} <button class="print-btn" onclick="showPrintPreview()">📋 Create Map Screenshot</button> {% endcomment %}
