@@ -38,6 +38,7 @@ var activeFilterField = null;
 var activeFilterRegex = null;
 var ftFilterState = { active: false, matchingIds: new Set() };
 var selectedRowId = null;
+var ftTableFiltered = false;
 
 var download_table_name;
 // Create constants for the filter items
@@ -3752,7 +3753,8 @@ function createLineLayer(lay) {
                             <span style="color: black; font-weight: bold;">Status: </span><span style="color: grey;">${p.status || 'N/A'}</span><br>
                             <span style="color: black; font-weight: bold;">Company: </span><span style="color: grey;">${p.company || 'N/A'}</span><br>
                             <span style="color: black; font-weight: bold;">Product: </span><span style="color: grey;">${p.product || 'N/A'}</span><br>
-                            <span style="color: black; font-weight: bold;">Resolution: </span><span style="color: grey;">${p.res || 'N/A'}</span>
+                            <span style="color: black; font-weight: bold;">Resolution: </span><span style="color: grey;">${p.res || 'N/A'}</span><br><br>
+                            <button style="width:100%;background-color:#025687;color:white;font-weight:bold;border:none;border-radius:4px;padding:5px 10px;cursor:pointer;" onclick="fulldeetsFt(${id})">View in Table</button>
                         `)
                         .openOn(map);
                 })
@@ -3767,6 +3769,13 @@ function createLineLayer(lay) {
             if (ftHighlightLayer) {
                 map.removeLayer(ftHighlightLayer);
                 ftHighlightLayer = null;
+            }
+        });
+
+        map.on('popupclose', function() {
+            if (ftTableFiltered) {
+                ftTableFiltered = false;
+                updateTable(tabledata);
             }
         });
 
@@ -4331,6 +4340,57 @@ function updateTable(geojson,src) {
 
 
 // Function to download CSV of table data
+function showDownloadModal() {
+    if (!thetabledata) return;
+    document.getElementById('dlError').style.display = 'none';
+    document.getElementById('downloadModal').style.display = 'block';
+}
+
+function closeDownloadModal() {
+    document.getElementById('downloadModal').style.display = 'none';
+}
+
+async function submitDownload() {
+    const name        = document.getElementById('dlName').value.trim();
+    const email       = document.getElementById('dlEmail').value.trim();
+    const affiliation = document.getElementById('dlAffiliation').value;
+    const errEl       = document.getElementById('dlError');
+
+    if (!name)        { errEl.textContent = 'Name is required.';           errEl.style.display = 'block'; return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+                      { errEl.textContent = 'Valid email is required.';    errEl.style.display = 'block'; return; }
+    if (!affiliation) { errEl.textContent = 'Affiliation is required.';    errEl.style.display = 'block'; return; }
+
+    const searchField = document.getElementById('sort-field2').value;
+    const searchValue = document.getElementById('srch-input1').value.trim();
+    let searchcrit = download_table_name || 'unknown';
+    if (searchField && searchValue) searchcrit += ` | ${searchField}: "${searchValue}"`;
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    try {
+        const resp = await fetch('/petrochem/log-download/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify({
+                name, email, affiliation, searchcrit,
+                file_name: (download_table_name || 'unknown') + '_download.csv'
+            })
+        });
+        const result = await resp.json();
+        if (!result.success) {
+            errEl.textContent = result.error || 'Something went wrong.';
+            errEl.style.display = 'block';
+            return;
+        }
+    } catch (e) {
+        console.error('Download log failed:', e);
+    }
+
+    closeDownloadModal();
+    downloadTableData(thetabledata);
+}
+
 function downloadTableData(thetabledata) {
     // console.log('starting the download')
     // Check if filtered data is available
@@ -5116,16 +5176,22 @@ map.on(L.Draw.Event.CREATED, function (e) {
   });
 
 
+function clearSelectButtons() {
+    document.querySelectorAll('#maintablebody .row-action-btn-active').forEach(b => b.classList.remove('row-action-btn-active'));
+}
+
 function toggleRowSelect(id, ftid, btn) {
     if (ftid !== undefined) {
-        if (ftFilterState.matchingIds.has(ftid)) {
-            ftFilterState.matchingIds.delete(ftid);
-            if (ftFilterState.matchingIds.size === 0) ftFilterState.active = false;
-            btn.classList.remove('row-action-btn-active');
-        } else {
+        const alreadySelected = ftFilterState.matchingIds.has(ftid);
+        clearSelectButtons();
+        ftFilterState.matchingIds = new Set();
+
+        if (!alreadySelected) {
             ftFilterState.matchingIds.add(ftid);
             ftFilterState.active = true;
             btn.classList.add('row-action-btn-active');
+        } else {
+            ftFilterState.active = false;
         }
         if (lines_pipeline_fractracker) lines_pipeline_fractracker.redraw();
         return;
@@ -5135,18 +5201,20 @@ function toggleRowSelect(id, ftid, btn) {
     const activeModName = activeDataset ? getmodname(activeDataset) : null;
     const activeLayer = activeModName ? getmaplayer(activeModName) : null;
 
-    if (selectedRowId === id) {
-        selectedRowId = null;
-        btn.classList.remove('row-action-btn-active');
-        if (activeLayer && activeLayer.eachLayer) {
-            activeLayer.eachLayer(function(layer) {
-                const outerEl = layer.getElement ? layer.getElement() : null;
-                const innerEl = outerEl ? outerEl.firstElementChild : null;
-                if (outerEl) outerEl.style.opacity = '';
-                if (innerEl) innerEl.style.transform = '';
-            });
-        }
-    } else {
+    const alreadySelected = selectedRowId === id;
+    clearSelectButtons();
+    selectedRowId = null;
+
+    if (activeLayer && activeLayer.eachLayer) {
+        activeLayer.eachLayer(function(layer) {
+            const outerEl = layer.getElement ? layer.getElement() : null;
+            const innerEl = outerEl ? outerEl.firstElementChild : null;
+            if (outerEl) outerEl.style.opacity = '';
+            if (innerEl) innerEl.style.transform = '';
+        });
+    }
+
+    if (!alreadySelected) {
         selectedRowId = id;
         btn.classList.add('row-action-btn-active');
         if (activeLayer && activeLayer.eachLayer) {
@@ -5215,6 +5283,16 @@ function pulseMapMarker(id) {
             target.addEventListener('animationend', () => target.classList.remove('marker-pulse'), { once: true });
         });
     });
+}
+
+function fulldeetsFt(ftid) {
+    if (!tabledata || !tabledata.features) return;
+    const refinedsrch = {
+        type: 'FeatureCollection',
+        features: tabledata.features.filter(f => f.properties.ftid === ftid)
+    };
+    ftTableFiltered = true;
+    updateTable(refinedsrch, 'refined');
 }
 
 function fulldeets(id) {

@@ -24,4 +24,5 @@ urlpatterns = [
     path('tiles/fractracker/<int:z>/<int:x>/<int:y>', views.fractracker_tiles, name='fractracker_tiles'),
     path('tiles/fractracker/feature/<int:feature_id>', views.fractracker_feature, name='fractracker_feature'),
     path('fractracker_table', views.fractracker_table, name='fractracker_table'),
+    path('log-download/', views.log_download, name='log_download'),
 ]

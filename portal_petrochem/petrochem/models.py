@@ -990,6 +990,20 @@ class Photos(models.Model):
     class Meta:
         managed = False
         db_table = '"misc"."photos"'
-    
+
     def __str__(self) -> str:
         return super().__str__()
+
+
+class PetrochemDownloadLog(models.Model):
+    name        = models.CharField(max_length=100)
+    email       = models.EmailField()
+    affiliation = models.CharField(max_length=50)
+    file_name   = models.CharField(max_length=255, blank=True, null=True)
+    ip_address  = models.GenericIPAddressField(blank=True, null=True)
+    searchcrit  = models.CharField(max_length=500, blank=True, null=True)
+    download_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        managed = False
+        db_table = '"portals"."petrochem_downloads"'

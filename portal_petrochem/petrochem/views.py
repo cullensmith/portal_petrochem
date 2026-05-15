@@ -1,8 +1,50 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from petrochem.models import Compressors,Buffs
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.http import require_POST
+from petrochem.models import Compressors, Buffs, PetrochemDownloadLog
 from django.apps import apps
 from django.db import connection
+import json
+
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+@require_POST
+def log_download(request):
+    try:
+        data = json.loads(request.body)
+        name        = data.get('name', '').strip()
+        email       = data.get('email', '').strip().lower()
+        affiliation = data.get('affiliation', '').strip()
+        file_name   = data.get('file_name', '').strip()
+        searchcrit  = data.get('searchcrit', '').strip()
+
+        if not name:
+            return JsonResponse({'success': False, 'error': 'Name is required.'})
+        if not email or '@' not in email:
+            return JsonResponse({'success': False, 'error': 'Valid email is required.'})
+        if not affiliation:
+            return JsonResponse({'success': False, 'error': 'Affiliation is required.'})
+
+        PetrochemDownloadLog.objects.create(
+            name=name,
+            email=email,
+            affiliation=affiliation,
+            file_name=file_name or None,
+            ip_address=get_client_ip(request),
+            searchcrit=searchcrit or None,
+        )
+        return JsonResponse({'success': True})
+
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid request.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 # Create your views here.
