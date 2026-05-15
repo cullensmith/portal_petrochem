@@ -4085,6 +4085,9 @@ function createTable(geojson) {
 
     // Create header row
     const headerRow = document.createElement('tr');
+    const actionTh = document.createElement('th');
+    actionTh.textContent = 'Actions';
+    headerRow.appendChild(actionTh);
     keys.forEach(key => {
         const th = document.createElement('th');
         th.textContent = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());  // prettify
@@ -4220,6 +4223,39 @@ function updateTable(geojson,src) {
 
         pageFeatures.forEach(feature => {
             const row = document.createElement('tr');
+
+            const actionCell = document.createElement('td');
+            actionCell.style.whiteSpace = 'nowrap';
+
+            const zoomBtn = document.createElement('button');
+            zoomBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>`;
+            zoomBtn.className = 'row-action-btn';
+            zoomBtn.title = 'Zoom map to this feature';
+            zoomBtn.onclick = () => {
+                if (feature.properties.ftid !== undefined) {
+                    zoomToFractracker(feature.properties.ftid);
+                } else {
+                    const lat = parseFloat(feature.properties.latitude);
+                    const lng = parseFloat(feature.properties.longitude);
+                    if (!isNaN(lat) && !isNaN(lng)) map.flyTo([lat, lng], 8);
+                }
+            };
+
+            const pulseBtn = document.createElement('button');
+            pulseBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+            pulseBtn.className = 'row-action-btn';
+            pulseBtn.title = 'Pulse this feature on the map';
+            pulseBtn.onclick = () => {
+                if (feature.properties.ftid !== undefined) {
+                    pulseFractrackerPipeline(feature.properties.ftid);
+                } else {
+                    pulseMapMarker(feature.properties.id);
+                }
+            };
+
+            actionCell.appendChild(zoomBtn);
+            actionCell.appendChild(pulseBtn);
+            row.appendChild(actionCell);
 
             for (let prop in feature.properties) {
                 if (['id', 'wellwiki', 'ftuid', 'geomjson'].includes(prop)) continue;
@@ -5065,6 +5101,56 @@ map.on(L.Draw.Event.CREATED, function (e) {
     layer.remove(); // or: map.removeLayer(layer);
   });
 
+
+function zoomToFractracker(ftid) {
+    fetch(`/petrochem/tiles/fractracker/feature/${ftid}`)
+        .then(r => r.json())
+        .then(data => {
+            const bounds = L.geoJSON(data).getBounds();
+            if (bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40] });
+        })
+        .catch(err => console.error('fractracker zoom failed:', err));
+}
+
+function pulseFractrackerPipeline(ftid) {
+    fetch(`/petrochem/tiles/fractracker/feature/${ftid}`)
+        .then(r => r.json())
+        .then(data => {
+            const baseStyle  = { color: '#e052e2', weight: 1.5, opacity: 1 };
+            const pulseStyle = { color: '#e052e2', weight: 9,   opacity: 1 };
+            const pulseLayer = L.geoJSON(data, { style: baseStyle }).addTo(map);
+
+            let count = 0;
+            function tick() {
+                if (count >= 3) { map.removeLayer(pulseLayer); return; }
+                pulseLayer.setStyle(pulseStyle);
+                setTimeout(() => {
+                    pulseLayer.setStyle(baseStyle);
+                    setTimeout(() => { count++; tick(); }, 250);
+                }, 400);
+            }
+            tick();
+        })
+        .catch(err => console.error('fractracker pulse failed:', err));
+}
+
+function pulseMapMarker(id) {
+    map.eachLayer(function(layer) {
+        if (!layer.eachLayer) return;
+        layer.eachLayer(function(sublayer) {
+            if (!sublayer.feature || sublayer.feature.properties.id !== id) return;
+            const el = sublayer.getElement();
+            if (!el) return;
+            const markerClass = sublayer.options && sublayer.options.markerClass;
+            const target = markerClass ? el.querySelector('.' + markerClass) : el.firstElementChild || el;
+            if (!target) return;
+            target.classList.remove('marker-pulse');
+            void target.offsetWidth; // force reflow to restart animation
+            target.classList.add('marker-pulse');
+            target.addEventListener('animationend', () => target.classList.remove('marker-pulse'), { once: true });
+        });
+    });
+}
 
 function fulldeets(id) {
 
