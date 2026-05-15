@@ -5101,6 +5101,39 @@ function refinefilter() {
     updateTable(refinedsrch, 'refined');
 }
 
+function fuzzyfilter() {
+    const f = document.getElementById('sort-field2').value;
+    const s = document.getElementById('srch-input1').value.replace(/\*/g, '').toLowerCase();
+
+    function fuzzyMatch(pattern, str) {
+        str = str.toLowerCase();
+        let pi = 0;
+        for (let si = 0; si < str.length && pi < pattern.length; si++) {
+            if (str[si] === pattern[pi]) pi++;
+        }
+        return pi === pattern.length;
+    }
+
+    const refinedFeatures = tabledata.features.filter(feature => {
+        if (!feature || !feature.properties || feature.properties[f] == null) return false;
+        return fuzzyMatch(s, feature.properties[f].toString());
+    });
+
+    const refinedsrch = { type: "FeatureCollection", features: refinedFeatures };
+
+    if (filteredPoints && map.hasLayer(filteredPoints)) {
+        map.removeLayer(filteredPoints);
+    }
+
+    // Reuse map highlight logic — build a regex that matches the same set
+    // Store a custom test function via a synthetic regex-like object
+    activeFilterField = f;
+    activeFilterRegex = { test: (val) => fuzzyMatch(s, val != null ? val.toString() : '') };
+    applyMarkerFilterStyles();
+
+    updateTable(refinedsrch, 'refined');
+}
+
 function applyMarkerFilterStyles() {
     if (!activeFilterField || !activeFilterRegex) return;
     const activeDataset = document.getElementById('tabledataset').innerText.trim();
