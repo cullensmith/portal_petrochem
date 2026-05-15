@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"C:\\\\repos\\\\publicportal\\\\project_wells\" -Recurse -Force)",
+      "Bash(Select-Object -First 50)"
+    ]
+  }
+}

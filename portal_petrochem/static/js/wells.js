@@ -5246,9 +5246,21 @@ function fulldeets(id) {
     updateTable(refinedsrch, 'refined');
 }
 
+function flashDropdown(el) {
+    el.focus();
+    var flashes = 0;
+    var interval = setInterval(function() {
+        el.style.outline = flashes % 2 === 0 ? '4px solid #de541e' : '';
+        flashes++;
+        if (flashes >= 6) { clearInterval(interval); el.style.outline = ''; }
+    }, 250);
+}
+
+
 function refinefilter() {
     const f = document.getElementById('sort-field2').value;
     const s = document.getElementById('srch-input1').value;
+    if (!f) { flashDropdown(document.getElementById('sort-field2')); return; }
 
     function wildcardToRegex(pattern) {
         const escaped = pattern.replace(/[-[\]{}()+?.,\\^$|#\s]/g, '\\$&');
@@ -5284,14 +5296,26 @@ function refinefilter() {
 function fuzzyfilter() {
     const f = document.getElementById('sort-field2').value;
     const s = document.getElementById('srch-input1').value.replace(/\*/g, '').toLowerCase();
+    if (!f) { flashDropdown(document.getElementById('sort-field2')); return; }
 
     function fuzzyMatch(pattern, str) {
         str = str.toLowerCase();
         let pi = 0;
+        let maxRun = 0;
+        let currentRun = 0;
+        let lastMatchedSi = -1;
+
         for (let si = 0; si < str.length && pi < pattern.length; si++) {
-            if (str[si] === pattern[pi]) pi++;
+            if (str[si] === pattern[pi]) {
+                currentRun = (si === lastMatchedSi + 1) ? currentRun + 1 : 1;
+                maxRun = Math.max(maxRun, currentRun);
+                lastMatchedSi = si;
+                pi++;
+            }
         }
-        return pi === pattern.length;
+
+        const minRun = Math.min(3, pattern.length);
+        return pi === pattern.length && maxRun >= minRun;
     }
 
     const refinedFeatures = tabledata.features.filter(feature => {
