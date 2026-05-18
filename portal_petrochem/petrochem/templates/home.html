@@ -1343,10 +1343,19 @@
                     <option>Other</option>
                 </select>
             </div>
+            <div id="dlFormatSection" style="display:none;margin-top:12px">
+                <p style="font-family:'Archivo Black';font-size:13px;color:#02253a;margin-bottom:8px">Format:</p>
+                <div style="display:flex;flex-direction:column;gap:5px;font-family:arial;font-size:13px;color:#02253a">
+                    <label><input type="radio" name="dlFormat" value="csv" checked> CSV (no geometry)</label>
+                    <label><input type="radio" name="dlFormat" value="geojson"> GeoJSON</label>
+                    <label><input type="radio" name="dlFormat" value="gpkg"> GeoPackage (.gpkg)</label>
+                    <label><input type="radio" name="dlFormat" value="shp"> Shapefile (.zip)</label>
+                </div>
+            </div>
             <div id="dlError" style="color:red;font-size:12px;display:none;margin-top:6px"></div>
             <div class="dl-actions">
                 <button class="print-btn" onclick="closeDownloadModal()">Cancel</button>
-                <button class="screenshot-btn" onclick="submitDownload()">Download CSV</button>
+                <button class="screenshot-btn" onclick="submitDownload()">Download</button>
             </div>
         </div>
     </div>

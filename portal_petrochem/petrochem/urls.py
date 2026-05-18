@@ -25,4 +25,5 @@ urlpatterns = [
     path('tiles/fractracker/feature/<int:feature_id>', views.fractracker_feature, name='fractracker_feature'),
     path('fractracker_table', views.fractracker_table, name='fractracker_table'),
     path('log-download/', views.log_download, name='log_download'),
+    path('download/fractracker/', views.download_fractracker, name='download_fractracker'),
 ]

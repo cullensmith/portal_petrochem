@@ -4339,6 +4339,11 @@ function updateTable(geojson,src) {
 function showDownloadModal() {
     if (!thetabledata) return;
     document.getElementById('dlError').style.display = 'none';
+    const isFractracker = download_table_name === 'fractracker';
+    document.getElementById('dlFormatSection').style.display = isFractracker ? 'block' : 'none';
+    if (!isFractracker) {
+        document.querySelector('input[name="dlFormat"][value="csv"]').checked = true;
+    }
     document.getElementById('downloadModal').style.display = 'block';
 }
 
@@ -4351,11 +4356,12 @@ async function submitDownload() {
     const email       = document.getElementById('dlEmail').value.trim();
     const affiliation = document.getElementById('dlAffiliation').value;
     const errEl       = document.getElementById('dlError');
+    const fmt         = document.querySelector('input[name="dlFormat"]:checked')?.value || 'csv';
 
-    if (!name)        { errEl.textContent = 'Name is required.';           errEl.style.display = 'block'; return; }
+    if (!name)        { errEl.textContent = 'Name is required.';        errEl.style.display = 'block'; return; }
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-                      { errEl.textContent = 'Valid email is required.';    errEl.style.display = 'block'; return; }
-    if (!affiliation) { errEl.textContent = 'Affiliation is required.';    errEl.style.display = 'block'; return; }
+                      { errEl.textContent = 'Valid email is required.'; errEl.style.display = 'block'; return; }
+    if (!affiliation) { errEl.textContent = 'Affiliation is required.'; errEl.style.display = 'block'; return; }
 
     const searchField = document.getElementById('sort-field2').value;
     const searchValue = document.getElementById('srch-input1').value.trim();
@@ -4370,7 +4376,7 @@ async function submitDownload() {
             headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
             body: JSON.stringify({
                 name, email, affiliation, searchcrit,
-                file_name: (download_table_name || 'unknown') + '_download.csv'
+                file_name: `${download_table_name || 'unknown'}_download.${fmt}`
             })
         });
         const result = await resp.json();
@@ -4384,7 +4390,16 @@ async function submitDownload() {
     }
 
     closeDownloadModal();
-    downloadTableData(thetabledata);
+
+    if (fmt === 'csv' || download_table_name !== 'fractracker') {
+        downloadTableData(thetabledata);
+    } else {
+        const params = new URLSearchParams({ fmt });
+        if (ftFilterState.active && ftFilterState.matchingIds.size > 0) {
+            params.set('ids', [...ftFilterState.matchingIds].join(','));
+        }
+        window.location.href = `/petrochem/download/fractracker/?${params}`;
+    }
 }
 
 function downloadTableData(thetabledata) {

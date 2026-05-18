@@ -697,6 +697,96 @@ def generate_geojson_comps(request):
     return JsonResponse(mapdata, safe=False)
 
 
+def download_fractracker(request):
+    fmt = request.GET.get('fmt', 'geojson')
+    ids_param = request.GET.get('ids', '')
+
+    id_filter = ''
+    params = []
+    if ids_param:
+        ftid_list = [int(i) for i in ids_param.split(',') if i.strip().isdigit()]
+        if ftid_list:
+            id_filter = 'WHERE ftid = ANY(%s)'
+            params = [ftid_list]
+
+    geojson_sql = f"""
+        SELECT ST_AsGeoJSON(geom_4326) AS geom_json,
+               ftid, name, status, company, product, state, res, diameter, datasrce, srcelink
+        FROM pipelines.fractracker
+        {id_filter}
+        ORDER BY name
+    """
+    wkt_sql = f"""
+        SELECT ST_AsText(geom_4326) AS geom_wkt,
+               ftid, name, status, company, product, state, res, diameter, datasrce, srcelink
+        FROM pipelines.fractracker
+        {id_filter}
+        ORDER BY name
+    """
+
+    if fmt == 'geojson':
+        with connection.cursor() as cursor:
+            cursor.execute(geojson_sql, params)
+            cols = [d[0] for d in cursor.description]
+            rows = cursor.fetchall()
+        features = []
+        for row in rows:
+            row_dict = dict(zip(cols, row))
+            geom = json.loads(row_dict.pop('geom_json')) if row_dict.get('geom_json') else None
+            features.append({'type': 'Feature', 'geometry': geom, 'properties': row_dict})
+        fc = {'type': 'FeatureCollection', 'features': features}
+        response = JsonResponse(fc)
+        response['Content-Disposition'] = 'attachment; filename="fractracker_pipelines.geojson"'
+        return response
+
+    # GeoPackage or Shapefile — requires geopandas
+    try:
+        import geopandas as gpd
+        from shapely import wkt as shapely_wkt
+        import tempfile, os, zipfile
+        from io import BytesIO
+    except ImportError:
+        return HttpResponse('geopandas is required for this format. Run: pip install geopandas', status=500)
+
+    with connection.cursor() as cursor:
+        cursor.execute(wkt_sql, params)
+        cols = [d[0] for d in cursor.description]
+        rows = cursor.fetchall()
+
+    records = []
+    geoms = []
+    for row in rows:
+        row_dict = dict(zip(cols, row))
+        geom_wkt = row_dict.pop('geom_wkt')
+        geoms.append(shapely_wkt.loads(geom_wkt) if geom_wkt else None)
+        records.append(row_dict)
+
+    gdf = gpd.GeoDataFrame(records, geometry=geoms, crs='EPSG:4326')
+
+    if fmt == 'gpkg':
+        buf = BytesIO()
+        gdf.to_file(buf, driver='GPKG', layer='fractracker_pipelines')
+        buf.seek(0)
+        response = HttpResponse(buf.read(), content_type='application/geopackage+sqlite3')
+        response['Content-Disposition'] = 'attachment; filename="fractracker_pipelines.gpkg"'
+        return response
+
+    if fmt == 'shp':
+        with tempfile.TemporaryDirectory() as tmpdir:
+            shp_path = os.path.join(tmpdir, 'fractracker_pipelines.shp')
+            gdf.to_file(shp_path, driver='ESRI Shapefile')
+            buf = BytesIO()
+            with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
+                for fname in os.listdir(tmpdir):
+                    zf.write(os.path.join(tmpdir, fname), fname)
+            buf.seek(0)
+        response = HttpResponse(buf.read(), content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename="fractracker_pipelines.zip"'
+        return response
+
+    return HttpResponse('Unknown format', status=400)
+
+
 def fractracker_table(request):
     sql = """
         SELECT ftid, name, status, company, product, state, res, diameter, datasrce, srcelink

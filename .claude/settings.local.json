@@ -5,7 +5,16 @@
       "Bash(Select-Object -First 50)",
       "Bash(Get-ChildItem -Path \"C:\\\\repos\\\\publicportal\\\\project_wells\" -Recurse -Directory)",
       "Bash(Select-Object -First 20)",
-      "Bash(Format-Table FullName)"
+      "Bash(Format-Table FullName)",
+      "Bash(python -c \"import geopandas; print\\(geopandas.__version__\\)\")",
+      "Bash(python -c \"import fiona; print\\(fiona.__version__\\)\")",
+      "Bash(python -c \"import shapely; print\\(shapely.__version__\\)\")",
+      "Bash(c:\\\\projects\\\\petrochem\\\\portal\\\\portal_petrochem\\\\venv\\\\Scripts\\\\python.exe -c \"import geopandas; print\\(geopandas.__version__\\)\")",
+      "Bash(c:\\\\projects\\\\petrochem\\\\portal\\\\portal_petrochem\\\\venv\\\\Scripts\\\\python.exe -c \"import fiona; print\\(fiona.__version__\\)\")",
+      "Bash(c:\\\\projects\\\\petrochem\\\\portal\\\\portal_petrochem\\\\venv\\\\Scripts\\\\python.exe -c \"import shapely; print\\(shapely.__version__\\)\")",
+      "PowerShell(& \"c:\\\\projects\\\\petrochem\\\\portal\\\\portal_petrochem\\\\venv\\\\Scripts\\\\python.exe\" -c \"import geopandas; print\\(geopandas.__version__\\)\" 2>&1)",
+      "PowerShell(& \"c:\\\\projects\\\\petrochem\\\\portal\\\\portal_petrochem\\\\venv\\\\Scripts\\\\python.exe\" -c \"import fiona; print\\(fiona.__version__\\)\" 2>&1)",
+      "PowerShell(& \"c:\\\\projects\\\\petrochem\\\\portal\\\\portal_petrochem\\\\venv\\\\Scripts\\\\python.exe\" -c \"import shapely; print\\(shapely.__version__\\)\" 2>&1)"
     ]
   }
 }
